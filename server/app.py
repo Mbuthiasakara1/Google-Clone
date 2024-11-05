@@ -3,13 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 
-app = Flask(
-    __name__,
-    static_folder='../client/dist',
-    static_url_path='',
-    template_folder='../client/dist',
-    
-    )
+app = Flask(__name__,)
+
 db = SQLAlchemy()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
@@ -24,4 +19,5 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    port = int(os.environ.get("PORT", 5555))
+    app.run(host="0.0.0.0", port=port, debug=True)
