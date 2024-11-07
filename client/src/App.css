@@ -60,6 +60,7 @@
 
 .error-field {
   border-color: #d32f2f !important;
+}
 .login-container {
   display: flex;
   justify-content: center;
@@ -110,38 +111,9 @@
   color: #d32f2f;
   font-size: 0.9rem;
   margin-top: 0.25rem;
+}
 .input-container input::placeholder {
   color: #888;
-}
-
-
-.forgot-link {
-  text-align: right;
-  margin-bottom: 20px;
-}
-
-.forgot-link a {
-  color: #8ab4f8;
-  text-decoration: none;
-}
-
-.forgot-link a:hover {
-  text-decoration: underline;
-}
-
-.guest-mode-info {
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  color: #a0a0a0;
-}
-
-.guest-mode-info a {
-  color: #8ab4f8;
-  text-decoration: none;
-}
-
-.guest-mode-info a:hover {
-  text-decoration: underline;
 }
 
 .login-button {
