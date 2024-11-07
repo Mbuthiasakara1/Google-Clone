@@ -1,6 +1,7 @@
 import React from "react";
 import App from "../App";
 import Signup from "./Signup";
+import Login from "./Login";
 
 const routes = [
     {
@@ -10,6 +11,10 @@ const routes = [
     {
         path: "/signup",
         element: <Signup />
+    },
+    {
+        path: "/login",
+        element: <Login />
     }
 ]
 
