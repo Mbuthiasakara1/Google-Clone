@@ -25,10 +25,6 @@ function App() {
     setIsDarkMode((prevMode) => !prevMode);
   };
   return (
-    <>
-     <h1>Home Page</h1>
-    </>
-  )
     <div>
       <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
         <AppContainer>
