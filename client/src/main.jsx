@@ -16,7 +16,6 @@ createRoot(document.getElementById('root')).render(
         vertical: 'top',
         horizontal: 'center',
       }}
-      style={{ zIndex: 1500 }}
     >
       <RouterProvider router={router} />
     </SnackbarProvider>
