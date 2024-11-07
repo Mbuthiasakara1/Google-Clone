@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import SearchIcon from "@material-ui/icons/Search";
-import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
-import { Avatar,Switch } from "@material-ui/core";
+import {
+  Search as SearchIcon,
+  FormatAlignCenter as FormatAlignCenterIcon,
+} from "@mui/icons-material";
+import { Avatar, Switch } from "@mui/material";
 
 const HeaderContainer = styled.div`
   display: grid;
@@ -24,6 +26,7 @@ const HeaderContainer = styled.div`
 const HeaderLogo = styled.div`
   display: flex;
   align-items: center;
+  user-select: none;
   img {
     width: 40px;
   }
@@ -140,7 +143,6 @@ const AvatarForm = styled.div`
   }
 `;
 
-
 function Header({ toggleTheme }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [files, setFiles] = useState([]);
@@ -148,9 +150,8 @@ function Header({ toggleTheme }) {
   const [showResults, setShowResults] = useState(false);
   const [showAvatarForm, setShowAvatarForm] = useState(false);
 
-
   useEffect(() => {
-    fetch("http://localhost:4000/files")//fetch the list of files and store it in files state
+    fetch("http://localhost:4000/files") // Fetch the list of files and store it in files state
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -226,7 +227,7 @@ function Header({ toggleTheme }) {
               <h1>Upload Avatar</h1>
               <form>
                 <input type="file" />
-                <input type= "submit"/>
+                <input type="submit" />
               </form>
             </AvatarForm>
           )}
