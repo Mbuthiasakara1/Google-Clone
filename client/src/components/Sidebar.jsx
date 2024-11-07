@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import '../App.css';
 import { FaFolderPlus } from "react-icons/fa6";
 import { MdUploadFile, MdOutlineDriveFolderUpload } from "react-icons/md";
 
@@ -79,7 +78,7 @@ function Sidebar() {
           <>
             <div className="form-overlay" onClick={() => setShowForm(false)}></div>
             <form onSubmit={handleFormSubmit} className="folder-form">
-              <label htmlFor="folderName">Folder Name:</label>
+              <label htmlFor="folderName">New Folder</label>
               <input
                 type="text"
                 id="folderName"
