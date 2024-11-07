@@ -1,3 +1,5 @@
+import './App.css'
+
 import React, { useState } from "react";
 import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
@@ -17,11 +19,16 @@ const AppContainer = styled.div`
   color: ${({ theme }) => theme.color};
 `;
 function App() {
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   const toggleTheme = () => {
     setIsDarkMode((prevMode) => !prevMode);
   };
   return (
+    <>
+     <h1>Home Page</h1>
+    </>
+  )
     <div>
       <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
         <AppContainer>
