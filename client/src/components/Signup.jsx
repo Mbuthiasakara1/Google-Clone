@@ -3,31 +3,37 @@ import { Stepper, Step, StepLabel, Button, TextField, MenuItem, Select, FormCont
 import { useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import * as Yup from 'yup';
-import { useNavigate } from 'react-router-dom';
-
-const steps = ["Name", "Personal Info", "Email", "Password"];
-
-const signupSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  birthday: Yup.date().required('Birthday is required'),
-  gender: Yup.string().required('Gender is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Confirm password is required'),
-});
-
+import { useNavigate, Link } from 'react-router-dom';
 
 function Signup() {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // "success" or "error"
   const [activeStep, setActiveStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
+
   const genders = ['Male', 'Female', 'Prefer Not To Say', 'Other'];
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const steps = ["Name", "Personal Info", "Email", "Password"];
+  const passRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
 
-  const { values, errors, touched, handleChange, handleSubmit, setTouched, setFieldTouched, isValid, dirty, resetForm, validateForm } = useFormik({
+  const signupSchema = Yup.object().shape({
+    firstName: Yup.string().required('First name is required'),
+    lastName: Yup.string().required('Last name is required'),
+    birthday: Yup.date().required('Birthday is required'),
+    gender: Yup.string().required('Gender is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .matches(passRules, "Password must include at least 1 uppercase, 1 lowercase letter, and 1 number")
+      .required('Password is required'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password')], "Passwords must match")
+      .required('Confirm password is required'),
+  });
+
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, setTouched, setFieldTouched, isValid, dirty, resetForm, validateForm } = useFormik({
     initialValues: {
       firstName: '',
       lastName: '',
@@ -40,26 +46,65 @@ function Signup() {
     validationSchema: signupSchema,
     validateOnBlur: true,
     validateOnChange: true,
-    onSubmit: (values) => {
-    enqueueSnackbar('Signed up successfully!', {
-    variant: 'success',
-  });
-      navigate('/');
-      resetForm();
-      setFormSubmitted(true);
-    },
+    // onSubmit: (values) => {
+    // enqueueSnackbar('Signed up successfully!', {
+    //   variant: 'success',
+    // });
+    //   navigate('/');
+    //   resetForm();
+    //   setFormSubmitted(true);
+    // },
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const response = await fetch("http://localhost:4000/users", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            birthday: values.birthday,
+            gender: values.gender,
+            email: values.email,
+            password: values.password
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Signup failed');
+        }
+
+        const data = await response.json();
+        enqueueSnackbar('Signed up successfully!', {
+          variant: 'success',
+        });
+        // setMessage(data.message || "Signup successful!");
+        navigate('/login');
+        setMessageType('success');
+        resetForm();
+      } catch (error) {
+        setMessage(error.message);
+        setMessageType('error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
   });
 
   const handleNext = async () => {
     const currentStepFields = Object.keys(getCurrentStepFields(activeStep));
-    
+
     // Set touched status for current step fields to trigger error messages if any
     setTouched(currentStepFields.reduce((acc, field) => ({ ...acc, [field]: true }), {}));
-    
+
     // Validate form fields and check if current step has errors
     const stepErrors = await validateForm();
     const hasErrors = currentStepFields.some(field => stepErrors[field]);
-    
+
     if (!hasErrors) {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -94,6 +139,7 @@ function Signup() {
               name="firstName"
               value={values.firstName}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={touched.firstName && Boolean(errors.firstName)}
               helperText={touched.firstName && errors.firstName}
             />
@@ -102,6 +148,7 @@ function Signup() {
               name="lastName"
               value={values.lastName}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={touched.lastName && Boolean(errors.lastName)}
               helperText={touched.lastName && errors.lastName}
             />
@@ -117,6 +164,7 @@ function Signup() {
               InputLabelProps={{ shrink: true }}
               value={values.birthday}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={touched.birthday && Boolean(errors.birthday)}
               helperText={touched.birthday && errors.birthday}
             />
@@ -126,6 +174,7 @@ function Signup() {
                 name="gender"
                 value={values.gender}
                 onChange={handleChange}
+                onBlur={handleBlur}
               >
                 {genders.map((gender) => (
                   <MenuItem key={gender} value={gender}>
@@ -145,6 +194,7 @@ function Signup() {
             type="email"
             value={values.email}
             onChange={handleChange}
+            onBlur={handleBlur}
             error={touched.email && Boolean(errors.email)}
             helperText={touched.email && errors.email}
           />
@@ -158,6 +208,7 @@ function Signup() {
               type="password"
               value={values.password}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={touched.password && Boolean(errors.password)}
               helperText={touched.password && errors.password}
             />
@@ -167,6 +218,7 @@ function Signup() {
               type="password"
               value={values.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={touched.confirmPassword && Boolean(errors.confirmPassword)}
               helperText={touched.confirmPassword && errors.confirmPassword}
             />
@@ -178,36 +230,45 @@ function Signup() {
   };
 
   return (
-    <div className='form'>
+    <div className='signup-container'>
+      <div className='signup'>
+        <Link to="/">
+          <img src="google.svg" alt="signup" />
+        </Link>
         <h1>Sign Up</h1>
-    <form onSubmit={handleSubmit} className="stepper-form">
-      {!formSubmitted && (
-        <>
-          <Stepper activeStep={activeStep} className="stepper-header">
-            {steps.map((label, index) => (
-              <Step key={index}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-          <div className="step-content">{getStepContent(activeStep)}</div>
-          <div className="stepper-buttons">
-            <Button disabled={activeStep === 0} onClick={handleBack}>
-              Back
-            </Button>
-            {activeStep < steps.length - 1 ? (
-              <Button onClick={handleNext}>
-                Next
-              </Button>
-            ) : (
-              <Button type="submit" disabled={!dirty} onClick=''>
-                Finish
-              </Button>
-            )}
-          </div>
-        </>
-      )}
-    </form>
+        <form onSubmit={handleSubmit}>
+          {!formSubmitted && (
+            <>
+              <Stepper activeStep={activeStep} className="stepper-header">
+                {steps.map((label, index) => (
+                  <Step key={index}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+              <div className="step-content">{getStepContent(activeStep)}</div>
+              <div className="stepper-buttons">
+                <Button disabled={activeStep === 0} onClick={handleBack}>
+                  Back
+                </Button>
+                {activeStep < steps.length - 1 ? (
+                  <Button onClick={handleNext} disabled={!dirty}>
+                    Next
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={!isValid || loading} onClick=''>
+                    {loading ? 'Submitting...' : 'Finish'}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </form>
+        {message && <p className={`responseMessage ${messageType}`}>{message}</p>}
+        <p>
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }
