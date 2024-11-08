@@ -38,7 +38,7 @@ jobs:
 
 deploy:
   name: Deploy to Render
-  needs: build
+  # needs: build
   runs-on: ubuntu-latest
   if: github.ref == 'refs/heads/main'
   steps:
