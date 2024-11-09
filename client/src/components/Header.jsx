@@ -41,7 +41,7 @@ const HeaderSearch = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  width: 1000px;
+  width: 90%;
   background-color: ${({ theme }) =>
     theme.background === "#333" ? "#555" : "whitesmoke"};
   padding: 10px;

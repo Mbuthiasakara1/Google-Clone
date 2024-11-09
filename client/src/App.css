@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 * {
   margin: 0;
   padding: 0;
+=======
+
+*{
+  margin:0;
+>>>>>>> 8d0a274 (modified app.css and app.css files)
 }
 
 #sidebar-container{
@@ -340,6 +346,7 @@ button:disabled {
   align-items: center;
 }
 
+<<<<<<< HEAD
 .drive-header-title {
   font-size: 18px;
   color: #202124;
@@ -698,4 +705,8 @@ button:disabled {
   .drive-item-icon {
     height: 80px;
   }
+=======
+@media (max-width: 1250px) {
+  /* … */
+>>>>>>> 8d0a274 (modified app.css and app.css files)
 }
