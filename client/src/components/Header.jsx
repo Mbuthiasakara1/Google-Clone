@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import {
@@ -13,7 +12,6 @@ const HeaderContainer = styled.div`
   align-items: center;
   padding: 5px 20px;
   height: 60px;
-  border-bottom: 1px solid lightgray;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.color};
   position: fixed;
@@ -21,7 +19,13 @@ const HeaderContainer = styled.div`
   left: 0;
   right: 0;
   z-index: 10;
+
+  @media( max-width:768px){
+  display: flex;
+  justify-content:space-between;
+  }
 `;
+
 
 const HeaderLogo = styled.div`
   display: flex;
@@ -53,6 +57,10 @@ const HeaderSearch = styled.div`
     outline: 0;
     flex: 1;
     color: ${({ theme }) => theme.color};
+  }
+
+  @media(max-width: 768px){
+  display:none;
   }
 `;
 
@@ -91,6 +99,9 @@ const HeaderIcons = styled.div`
   svg.MuiSvgIcon-root {
     margin: 0px 10px;
     color: ${({ theme }) => theme.color};
+  }
+   @media(max-width: 768px){
+  display:none;
   }
 `;
 
@@ -149,6 +160,7 @@ function Header({ toggleTheme }) {
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [showAvatarForm, setShowAvatarForm] = useState(false);
+  
 
   useEffect(() => {
     fetch("http://localhost:4000/files") // Fetch the list of files and store it in files state
@@ -187,6 +199,22 @@ function Header({ toggleTheme }) {
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
+  const handleDisplay = () => {
+    console.log("i was clicked")
+    const menu = document.querySelector(".burger-menu");
+
+    const headerIcons = document.querySelector(".header-icons");
+    const headerSearch = document.querySelector(".header-search");
+  
+    if (window.innerWidth <= 768) {
+      headerIcons.style.display = headerIcons.style.display === "none" ? "flex" : "none";
+      headerSearch.style.display = headerSearch.style.display === "none" ? "flex" : "none";
+    } else {
+      headerIcons.style.display = "flex";
+      headerSearch.style.display = "flex";
+    }
+  };
+  
 
   return (
     <HeaderContainer>
@@ -216,6 +244,12 @@ function Header({ toggleTheme }) {
           </Dropdown>
         )}
       </HeaderSearch>
+      <div className="burger-menu" onClick={handleDisplay}>
+  <div className="btn-line"></div>
+  <div className="btn-line"></div>
+  <div className="btn-line"></div>
+  </div>
+
       <HeaderIcons>
         <span onClick={toggleTheme}>
           <Switch />

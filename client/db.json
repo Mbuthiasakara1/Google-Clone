@@ -48,5 +48,16 @@
       "path": "/",
       "folderId": "1"
     }
+  ],
+  "users": [
+    {
+      "id": "a726",
+      "firstName": "ghjk",
+      "lastName": "fghjk",
+      "birthday": "2024-11-06",
+      "gender": "Prefer Not To Say",
+      "email": "ujnjb@vui.cx",
+      "password": "1234Abcd"
+    }
   ]
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -16,8 +16,8 @@ import {
   Breadcrumbs,
   Link,
   Snackbar,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   MoreVert,
   Download,
@@ -31,25 +31,25 @@ import {
   TableChart,
   Home,
   Description,
-  VideoFile
-} from '@mui/icons-material';
+  VideoFile,
+} from "@mui/icons-material";
 
 const MainContainer = () => {
   // State management
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPath, setCurrentPath] = useState('/');
+  const [currentPath, setCurrentPath] = useState("/");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [folders, setFolders] = useState([]);
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'success'
+    message: "",
+    severity: "success",
   });
 
   // Fetch items on component mount and path change
@@ -61,17 +61,19 @@ const MainContainer = () => {
     try {
       setLoading(true);
       // Replace with your actual API endpoint
-      const response = await fetch('http://localhost:3001/files');
+      const response = await fetch("http://localhost:3001/files");
       const files = await response.json();
-      const foldersResponse = await fetch('http://localhost:3001/folders');
+      const foldersResponse = await fetch("http://localhost:3001/folders");
       const foldersData = await foldersResponse.json();
-      
-      setItems([...files, ...foldersData].filter(item => item.path === currentPath));
+
+      setItems(
+        [...files, ...foldersData].filter((item) => item.path === currentPath)
+      );
       setFolders(foldersData);
       setError(null);
     } catch (error) {
-      setError('Failed to fetch items');
-      console.error('Error fetching items:', error);
+      setError("Failed to fetch items");
+      console.error("Error fetching items:", error);
     } finally {
       setLoading(false);
     }
@@ -81,20 +83,49 @@ const MainContainer = () => {
   const getItemIcon = (type) => {
     const iconProps = { sx: { fontSize: 40 } };
     switch (type.toLowerCase()) {
-      case 'folder':
-        return <Folder {...iconProps} sx={{ ...iconProps.sx, color: '#FFA000' }} />;
-      case 'image':
-        return <Image {...iconProps} sx={{ ...iconProps.sx, color: '#4CAF50' }} />;
-      case 'pdf':
-        return <PictureAsPdf {...iconProps} sx={{ ...iconProps.sx, color: '#F44336' }} />;
-      case 'document':
-        return <Description {...iconProps} sx={{ ...iconProps.sx, color: '#2196F3' }} />;
-      case 'spreadsheet':
-        return <TableChart {...iconProps} sx={{ ...iconProps.sx, color: '#0F9D58' }} />;
-      case 'video':
-        return <VideoFile {...iconProps} sx={{ ...iconProps.sx, color: '#9C27B0' }} />;
+      case "folder":
+        return (
+          <Folder {...iconProps} sx={{ ...iconProps.sx, color: "#FFA000" }} />
+        );
+      case "image":
+        return (
+          <Image {...iconProps} sx={{ ...iconProps.sx, color: "#4CAF50" }} />
+        );
+      case "pdf":
+        return (
+          <PictureAsPdf
+            {...iconProps}
+            sx={{ ...iconProps.sx, color: "#F44336" }}
+          />
+        );
+      case "document":
+        return (
+          <Description
+            {...iconProps}
+            sx={{ ...iconProps.sx, color: "#2196F3" }}
+          />
+        );
+      case "spreadsheet":
+        return (
+          <TableChart
+            {...iconProps}
+            sx={{ ...iconProps.sx, color: "#0F9D58" }}
+          />
+        );
+      case "video":
+        return (
+          <VideoFile
+            {...iconProps}
+            sx={{ ...iconProps.sx, color: "#9C27B0" }}
+          />
+        );
       default:
-        return <InsertDriveFile {...iconProps} sx={{ ...iconProps.sx, color: '#607D8B' }} />;
+        return (
+          <InsertDriveFile
+            {...iconProps}
+            sx={{ ...iconProps.sx, color: "#607D8B" }}
+          />
+        );
     }
   };
 
@@ -113,13 +144,13 @@ const MainContainer = () => {
   const handleDownload = async () => {
     try {
       if (!selectedItem?.url) {
-        throw new Error('Download URL not available');
+        throw new Error("Download URL not available");
       }
-      window.open(selectedItem.url, '_blank');
-      showSnackbar('Download started', 'success');
+      window.open(selectedItem.url, "_blank");
+      showSnackbar("Download started", "success");
     } catch (error) {
-      showSnackbar('Download failed', 'error');
-      console.error('Download error:', error);
+      showSnackbar("Download failed", "error");
+      console.error("Download error:", error);
     }
     handleMenuClose();
   };
@@ -133,23 +164,28 @@ const MainContainer = () => {
   const handleRenameSubmit = async () => {
     try {
       // Replace with your actual API endpoint
-      const response = await fetch(`http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newName }),
-      });
+      const response = await fetch(
+        `http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newName }),
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to rename item');
+      if (!response.ok) throw new Error("Failed to rename item");
 
-      setItems(items.map(item =>
-        item.id === selectedItem.id ? { ...item, name: newName } : item
-      ));
-      showSnackbar('Item renamed successfully', 'success');
+      setItems(
+        items.map((item) =>
+          item.id === selectedItem.id ? { ...item, name: newName } : item
+        )
+      );
+      showSnackbar("Item renamed successfully", "success");
     } catch (error) {
-      showSnackbar('Failed to rename item', 'error');
-      console.error('Rename error:', error);
+      showSnackbar("Failed to rename item", "error");
+      console.error("Rename error:", error);
     }
     setIsRenameDialogOpen(false);
   };
@@ -162,21 +198,24 @@ const MainContainer = () => {
   const handleMove = async (targetFolderId) => {
     try {
       // Replace with your actual API endpoint
-      const response = await fetch(`http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ folderId: targetFolderId }),
-      });
+      const response = await fetch(
+        `http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ folderId: targetFolderId }),
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to move item');
+      if (!response.ok) throw new Error("Failed to move item");
 
-      setItems(items.filter(item => item.id !== selectedItem.id));
-      showSnackbar('Item moved successfully', 'success');
+      setItems(items.filter((item) => item.id !== selectedItem.id));
+      showSnackbar("Item moved successfully", "success");
     } catch (error) {
-      showSnackbar('Failed to move item', 'error');
-      console.error('Move error:', error);
+      showSnackbar("Failed to move item", "error");
+      console.error("Move error:", error);
     }
     setIsMoveDialogOpen(false);
   };
@@ -184,24 +223,27 @@ const MainContainer = () => {
   const handleDelete = async () => {
     try {
       // Replace with your actual API endpoint
-      const response = await fetch(`http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `http://localhost:3001/${selectedItem.type}s/${selectedItem.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to delete item');
+      if (!response.ok) throw new Error("Failed to delete item");
 
-      setItems(items.filter(item => item.id !== selectedItem.id));
-      showSnackbar('Item moved to trash', 'success');
+      setItems(items.filter((item) => item.id !== selectedItem.id));
+      showSnackbar("Item moved to trash", "success");
     } catch (error) {
-      showSnackbar('Failed to delete item', 'error');
-      console.error('Delete error:', error);
+      showSnackbar("Failed to delete item", "error");
+      console.error("Delete error:", error);
     }
     handleMenuClose();
   };
 
   // Navigation handlers
   const handleFolderClick = (folder) => {
-    setCurrentPath(folder.path + folder.name + '/');
+    setCurrentPath(folder.path + folder.name + "/");
   };
 
   const handleBreadcrumbClick = (path) => {
@@ -214,12 +256,12 @@ const MainContainer = () => {
   };
 
   const getBreadcrumbs = () => {
-    const paths = currentPath.split('/').filter(Boolean);
+    const paths = currentPath.split("/").filter(Boolean);
     return (
       <Breadcrumbs className="drive-breadcrumb">
         <Link
           component="button"
-          onClick={() => handleBreadcrumbClick('/')}
+          onClick={() => handleBreadcrumbClick("/")}
           className="drive-breadcrumb-link"
         >
           <Home sx={{ mr: 0.5, fontSize: 20 }} /> Home
@@ -228,7 +270,11 @@ const MainContainer = () => {
           <Link
             key={path}
             component="button"
-            onClick={() => handleBreadcrumbClick('/' + paths.slice(0, index + 1).join('/') + '/')}
+            onClick={() =>
+              handleBreadcrumbClick(
+                "/" + paths.slice(0, index + 1).join("/") + "/"
+              )
+            }
             className="drive-breadcrumb-link"
           >
             {path}
@@ -257,57 +303,62 @@ const MainContainer = () => {
   return (
     <div className="drive-container">
       <div className="drive-header">
-        <Typography className="drive-header-title">
-          My Drive
-        </Typography>
+        <Typography className="drive-header-title">My Drive</Typography>
       </div>
 
       {getBreadcrumbs()}
 
-      <Grid container className="drive-grid">
-        {items.length === 0 ? (
-          <div className="drive-empty">
-            <InsertDriveFile className="drive-empty-icon" />
-            <Typography>No items in this folder</Typography>
+      <Grid container spacing={1} columns={12} className="drive-grid">
+  {items.length === 0 ? (
+    <div className="drive-empty">
+      <InsertDriveFile className="drive-empty-icon" />
+      <Typography>No items in this folder</Typography>
+    </div>
+  ) : (
+    items.map((item) => (
+      <Grid 
+        item 
+        xs={12}      // 12 columns on extra-small screens (full width)
+        sm={6}       // 6 columns on small screens (2 items per row)
+        md={4}       // 4 columns on medium screens (3 items per row)
+        lg={3}
+        key={item.id}
+      >
+        <div 
+          className={`drive-card ${selectedItem?.id === item.id ? 'drive-card-selected' : ''}`}
+          onClick={() => item.type === 'folder' && handleFolderClick(item)}
+        >
+          <div className="drive-card-content">
+            <div className="drive-item-icon">
+              {getItemIcon(item.type)}
+            </div>
+            <div className="drive-item-details">
+              <Typography className="drive-item-name">
+                {item.name}
+              </Typography>
+              <Typography className="drive-item-info">
+                Last opened: {item.lastOpened}
+              </Typography>
+              {item.size && (
+                <Typography className="drive-item-info">
+                  Size: {item.size}
+                </Typography>
+              )}
+            </div>
           </div>
-        ) : (
-          items.map((item) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-              <div 
-                className={`drive-card ${selectedItem?.id === item.id ? 'drive-card-selected' : ''}`}
-                onClick={() => item.type === 'folder' && handleFolderClick(item)}
-              >
-                <div className="drive-card-content">
-                  <div className="drive-item-icon">
-                    {getItemIcon(item.type)}
-                  </div>
-                  <div className="drive-item-details">
-                    <Typography className="drive-item-name">
-                      {item.name}
-                    </Typography>
-                    <Typography className="drive-item-info">
-                      Last opened: {item.lastOpened}
-                    </Typography>
-                    {item.size && (
-                      <Typography className="drive-item-info">
-                        Size: {item.size}
-                      </Typography>
-                    )}
-                  </div>
-                </div>
-                <div className="drive-card-actions">
-                  <IconButton
-                    className="drive-action-button"
-                    onClick={(e) => handleMenuClick(e, item)}
-                  >
-                    <MoreVert />
-                  </IconButton>
-                </div>
-              </div>
-            </Grid>
-          ))
-        )}
+          <div className="drive-card-actions">
+            <IconButton
+              className="drive-action-button"
+              onClick={(e) => handleMenuClick(e, item)}
+            >
+              <MoreVert />
+            </IconButton>
+          </div>
+        </div>
       </Grid>
+    ))
+  )}
+</Grid>;
 
       {/* Context Menu */}
       <Menu
@@ -316,36 +367,27 @@ const MainContainer = () => {
         onClose={handleMenuClose}
         className="drive-menu"
       >
-        <MenuItem 
-          onClick={handleDownload} 
-          disabled={!selectedItem?.url || selectedItem?.type === 'folder'}
+        <MenuItem
+          onClick={handleDownload}
+          disabled={!selectedItem?.url || selectedItem?.type === "folder"}
           className="drive-menu-item"
         >
           <Download className="drive-menu-item-icon" /> Download
         </MenuItem>
-        <MenuItem 
-          onClick={handleRenameClick}
-          className="drive-menu-item"
-        >
+        <MenuItem onClick={handleRenameClick} className="drive-menu-item">
           <DriveFileRenameOutline className="drive-menu-item-icon" /> Rename
         </MenuItem>
-        <MenuItem 
-          onClick={handleMoveClick}
-          className="drive-menu-item"
-        >
+        <MenuItem onClick={handleMoveClick} className="drive-menu-item">
           <FolderCopy className="drive-menu-item-icon" /> Move
         </MenuItem>
-        <MenuItem 
-          onClick={handleDelete}
-          className="drive-menu-item"
-        >
+        <MenuItem onClick={handleDelete} className="drive-menu-item">
           <Delete className="drive-menu-item-icon" /> Move to trash
         </MenuItem>
       </Menu>
 
       {/* Rename Dialog */}
-      <Dialog 
-        open={isRenameDialogOpen} 
+      <Dialog
+        open={isRenameDialogOpen}
         onClose={() => setIsRenameDialogOpen(false)}
         className="drive-dialog"
       >
@@ -362,13 +404,13 @@ const MainContainer = () => {
           />
         </DialogContent>
         <DialogActions className="drive-dialog-actions">
-          <Button 
+          <Button
             onClick={() => setIsRenameDialogOpen(false)}
             className="drive-button-secondary"
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleRenameSubmit}
             className="drive-button-primary"
             disabled={!newName.trim()}
@@ -379,17 +421,17 @@ const MainContainer = () => {
       </Dialog>
 
       {/* Move Dialog */}
-      <Dialog 
-        open={isMoveDialogOpen} 
+      <Dialog
+        open={isMoveDialogOpen}
         onClose={() => setIsMoveDialogOpen(false)}
         className="drive-dialog"
       >
-        <DialogTitle className="drive-dialog-title">
-          Move to folder
-        </DialogTitle>
+        <DialogTitle className="drive-dialog-title">Move to folder</DialogTitle>
         <DialogContent className="drive-dialog-content">
           {folders.length === 0 ? (
-            <Typography className="drive-menu-item">No folders available</Typography>
+            <Typography className="drive-menu-item">
+              No folders available
+            </Typography>
           ) : (
             folders.map((folder) => (
               <MenuItem
@@ -404,7 +446,7 @@ const MainContainer = () => {
           )}
         </DialogContent>
         <DialogActions className="drive-dialog-actions">
-          <Button 
+          <Button
             onClick={() => setIsMoveDialogOpen(false)}
             className="drive-button-secondary"
           >
@@ -418,12 +460,12 @@ const MainContainer = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>
