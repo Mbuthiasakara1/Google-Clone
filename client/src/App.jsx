@@ -2,14 +2,15 @@ import { useState } from "react";
 import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
+import MainContainer from "./components/MainContainer";
 
 const lightTheme = {
-  background: "#fff",
-  color: "#000",
+  // background: "#fff",
+  // color: "#000",
 };
 const darkTheme = {
-  background: "#333",
-  color: "#fff",
+  // background: "#333",
+  // color: "#fff",
 };
 const AppContainer = styled.div`
   display: flex,
@@ -23,7 +24,7 @@ function App() {
   const toggleTheme = () => {
     setIsDarkMode((prevMode) => !prevMode);
   };
-  return (
+  return ( 
     <>
     <div>
       <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -35,6 +36,7 @@ function App() {
       </ThemeProvider>
     </div>
     <Sidebar/>
+    <MainContainer/>
     </>
     
   );

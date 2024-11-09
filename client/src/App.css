@@ -1,3 +1,7 @@
+*{
+  margin:0;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -324,3 +328,378 @@ button:disabled {
 }
 
 
+/* Main Container Layout */
+.drive-container {
+  background-color: #f7f9fc;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.drive-header {
+  padding: 12px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #dadce0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drive-header-title {
+  font-size: 18px;
+  color: #202124;
+  font-weight: 400;
+}
+
+/* Toolbar Styles */
+.drive-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #dadce0;
+  flex-wrap: wrap;
+}
+
+.drive-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.drive-create-button {
+  background-color: #1a73e8 !important;
+  color: white !important;
+  text-transform: none !important;
+  padding: 6px 24px !important;
+  min-width: 120px;
+}
+
+.drive-upload-input {
+  display: none;
+}
+
+/* Search Bar */
+.drive-search {
+  flex: 1;
+  max-width: 720px;
+}
+
+.drive-search .MuiOutlinedInput-root {
+  border-radius: 24px;
+  background-color: #f1f3f4;
+}
+
+.drive-search .MuiOutlinedInput-notchedOutline {
+  border: none;
+}
+
+.drive-search .MuiOutlinedInput-root:hover {
+  background-color: #e8eaed;
+}
+
+/* View Toggle and Sort Controls */
+.drive-view-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Breadcrumb Navigation */
+.drive-breadcrumb {
+  padding: 8px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #dadce0;
+}
+
+.drive-breadcrumb-link {
+  color: #5f6368;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.drive-breadcrumb-link:hover {
+  color: #1a73e8;
+}
+
+/* Grid Layout */
+.drive-grid {
+  padding: 20px;
+  gap: 16px;
+}
+
+/* List Layout */
+.drive-list {
+  padding: 20px;
+}
+
+/* File/Folder Card Styles */
+.drive-card {
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  height: 100%;
+  cursor: pointer;
+}
+
+.drive-card:hover {
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 2px 6px 2px rgba(60, 64, 67, 0.15);
+}
+
+.drive-card.selected {
+  background-color: #e8f0fe;
+  border-color: #1a73e8;
+}
+
+.drive-card-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* File/Folder Icons */
+.drive-item-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  margin-bottom: 8px;
+}
+
+.drive-item-details {
+  flex-grow: 1;
+}
+
+.drive-item-name {
+  color: #202124;
+  font-size: 13px;
+  margin-bottom: 4px;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.drive-item-info {
+  color: #5f6368;
+  font-size: 12px;
+}
+
+/* Card Actions */
+.drive-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.drive-card:hover .drive-card-actions,
+.drive-card.selected .drive-card-actions {
+  opacity: 1;
+}
+
+/* Context Menu */
+.drive-menu {
+  min-width: 200px;
+  padding: 8px 0;
+}
+
+.drive-menu-item {
+  padding: 6px 24px;
+  color: #3c4043;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.drive-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.drive-menu-item-icon {
+  margin-right: 12px;
+  color: #5f6368;
+}
+
+/* Dialog Styles */
+.drive-dialog {
+  border-radius: 8px;
+}
+
+.drive-dialog-title {
+  padding: 24px 24px 8px;
+  color: #202124;
+  font-size: 16px;
+}
+
+.drive-dialog-content {
+  padding: 0 24px 20px;
+}
+
+.drive-dialog-actions {
+  padding: 8px 24px 24px;
+}
+
+/* File Preview */
+.drive-preview-dialog {
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+}
+
+.drive-preview-content {
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.drive-preview-image {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+/* Drag and Drop Zone */
+.drive-dropzone {
+  border: 2px dashed #1a73e8;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  text-align: center;
+  color: #5f6368;
+  transition: all 0.2s ease-in-out;
+}
+
+.drive-dropzone.active {
+  background-color: #e8f0fe;
+  border-color: #1a73e8;
+}
+
+/* Loading and Empty States */
+.drive-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 200px);
+}
+
+.drive-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #5f6368;
+  width: 100%;
+  text-align: center;
+}
+
+.drive-empty-icon {
+  font-size: 64px !important;
+  color: #dadce0;
+  margin-bottom: 16px;
+}
+
+/* Multiple Selection */
+.drive-selection-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 12px 20px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.drive-selection-bar.visible {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .drive-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .drive-search {
+    max-width: 100%;
+  }
+
+  .drive-grid {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .drive-card-content {
+    padding: 8px;
+  }
+
+  .drive-item-icon {
+    height: 80px;
+  }
+}
+
+/* Upload Progress */
+.drive-upload-progress {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  padding: 16px;
+}
+
+/* List View Styles */
+.drive-list-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid #dadce0;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.drive-list-item:hover {
+  background-color: #f5f5f5;
+}
+
+.drive-list-item.selected {
+  background-color: #e8f0fe;
+}
+
+.drive-list-icon {
+  margin-right: 16px;
+}
+
+.drive-list-details {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.drive-list-name {
+  flex: 1;
+}
+
+.drive-list-info {
+  color: #5f6368;
+  font-size: 12px;
+  width: 120px;
+  text-align: right;
+}

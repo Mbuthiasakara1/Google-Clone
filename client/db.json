@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "id": "1",
+      "name": "Example.png",
+      "type": "image",
+      "mimeType": "image/png",
+      "size": "2.4 MB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://example.com/example.png"
+    },
+    {
+      "id": "2",
+      "name": "Document.pdf",
+      "type": "pdf",
+      "mimeType": "application/pdf",
+      "size": "1.2 MB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://example.com/document.pdf"
+    },
+    {
+      "id": "3",
+      "name": "Spreadsheet.xlsx",
+      "type": "spreadsheet",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": "854 KB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://example.com/spreadsheet.xlsx"
+    }
+  ],
+  "folders": [
+    {
+      "id": "1",
+      "name": "Documents",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "2"
+    },
+    {
+      "id": "2",
+      "name": "Kelvin",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "1"
+    }
+  ]
+}
