@@ -4,18 +4,18 @@
 }
 
 #sidebar-container{
-  position: fixed;
-  background-color:#f0f0f3;
+  position: absolute;
+  margin-top: 100px;
   width:20%;
-  height:96vh
+ 
 }
-#sidebar-content{
+#sidebar-content{ 
   margin-left: 40px;
 }
 #new-btn{
   position: relative;
   background-color:white;
-  width:35%;
+  width:40%; 
   height:50px; 
   border-radius:10px; 
   cursor:pointer;
@@ -30,7 +30,7 @@ h3{
 }
 .dropdown {
   position: absolute;
-  background-color: white;
+  background-color: white; 
   width: 70%;
   height: 110px;
   list-style: none;
@@ -39,7 +39,7 @@ h3{
   margin: 0;
   padding: 0;
   text-align: center;
-}
+} 
 
 /* General container for the form */
 .signup-container {
@@ -623,30 +623,6 @@ button:disabled {
   transform: translateY(0);
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-  .drive-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .drive-search {
-    max-width: 100%;
-  }
-
-  .drive-grid {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .drive-card-content {
-    padding: 8px;
-  }
-
-  .drive-item-icon {
-    height: 80px;
-  }
-}
 
 /* Upload Progress */
 .drive-upload-progress {
@@ -698,4 +674,28 @@ button:disabled {
   font-size: 12px;
   width: 120px;
   text-align: right;
+}
+/* Responsive Design */
+@media (max-width: 600px) {
+  .drive-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .drive-search {
+    max-width: 100%;
+  }
+
+  .drive-grid {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .drive-card-content {
+    padding: 8px;
+  }
+
+  .drive-item-icon {
+    height: 80px;
+  }
 }
