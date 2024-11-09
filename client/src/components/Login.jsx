@@ -15,7 +15,7 @@ function Login() {
         password: yup.string().required('Password is required') // Changed 'Username' to 'Password'
     });
 
-    const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit } = useFormik({
+    const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit, isValid, dirty } = useFormik({
         initialValues: {
             email: "",
             password: "",
@@ -89,7 +89,7 @@ function Login() {
                         />
                         {errors.password && touched.password && <p className="errors">{errors.password}</p>}
 
-                        <button type="submit" disabled={isSubmitting || loading}>
+                        <button type="submit" disabled={!dirty || !isValid || isSubmitting || loading}>
                             {loading ? 'Logging in...' : 'Login'}
                         </button>
                     </form>

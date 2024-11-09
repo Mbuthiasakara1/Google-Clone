@@ -33,7 +33,7 @@ function Signup() {
       .required('Confirm password is required'),
   });
 
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit, setTouched, setFieldTouched, isValid, dirty, resetForm, validateForm } = useFormik({
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, setTouched, isValid, dirty, resetForm, validateForm } = useFormik({
     initialValues: {
       firstName: '',
       lastName: '',
@@ -46,14 +46,6 @@ function Signup() {
     validationSchema: signupSchema,
     validateOnBlur: true,
     validateOnChange: true,
-    // onSubmit: (values) => {
-    // enqueueSnackbar('Signed up successfully!', {
-    //   variant: 'success',
-    // });
-    //   navigate('/');
-    //   resetForm();
-    //   setFormSubmitted(true);
-    // },
     onSubmit: async (values) => {
       setLoading(true);
       try {
@@ -81,7 +73,6 @@ function Signup() {
         enqueueSnackbar('Signed up successfully!', {
           variant: 'success',
         });
-        // setMessage(data.message || "Signup successful!");
         navigate('/login');
         setMessageType('success');
         resetForm();
