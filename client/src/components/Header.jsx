@@ -21,11 +21,10 @@ const HeaderContainer = styled.div`
   z-index: 10;
 
   @media( max-width:768px){
-  display: flex;
-  justify-content:space-between;
+    display: flex;
+    justify-content:space-between;
   }
 `;
-
 
 const HeaderLogo = styled.div`
   display: flex;
@@ -47,7 +46,7 @@ const HeaderSearch = styled.div`
   position: relative;
   width: 90%;
   background-color: ${({ theme }) =>
-    theme.background === "#333" ? "#555" : "whitesmoke"};
+    theme.background === "#333" ? "#555" : "#fff"};
   padding: 10px;
   border-radius: 20px;
 
@@ -60,7 +59,9 @@ const HeaderSearch = styled.div`
   }
 
   @media(max-width: 768px){
-  display:none;
+    display: ${({ showSearch }) => (showSearch ? "flex" : "none")};
+    width: 40%;
+    padding: 5px;
   }
 `;
 
@@ -100,8 +101,9 @@ const HeaderIcons = styled.div`
     margin: 0px 10px;
     color: ${({ theme }) => theme.color};
   }
-   @media(max-width: 768px){
-  display:none;
+  @media(max-width: 768px){
+    display: ${({ showIcons }) => (showIcons ? "flex" : "none")};
+    margin-right: 1em;
   }
 `;
 
@@ -154,16 +156,45 @@ const AvatarForm = styled.div`
   }
 `;
 
+const BurgerMenu = styled.div`
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  span {
+    height: 3px;
+    width: 25px;
+    background-color: ${({ theme }) => theme.color};
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
+  @media (max-width: 768px) {
+    display: flex;
+  }
+`;
+
+const StyledAvatar = styled(Avatar)`
+  && {
+    width: 40px;  
+    height: 40px;  
+
+    @media (max-width: 768px) {
+      width: 30px;  
+      height: 30px; 
+    }
+  }
+`;
+
 function Header({ toggleTheme }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [files, setFiles] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [showAvatarForm, setShowAvatarForm] = useState(false);
-  
+  const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
+  const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
 
   useEffect(() => {
-    fetch("http://localhost:4000/files") // Fetch the list of files and store it in files state
+    fetch("http://localhost:3001/files") 
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -192,29 +223,18 @@ function Header({ toggleTheme }) {
   };
 
   const handleResultClick = (file) => {
-    setSearchQuery(file.name); // Show the selected file in the search input
-    setShowResults(false); // Hide the results
+    setSearchQuery(file.name); 
+    setShowResults(false); 
   };
 
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
-  const handleDisplay = () => {
-    console.log("i was clicked")
-    const menu = document.querySelector(".burger-menu");
 
-    const headerIcons = document.querySelector(".header-icons");
-    const headerSearch = document.querySelector(".header-search");
-  
-    if (window.innerWidth <= 768) {
-      headerIcons.style.display = headerIcons.style.display === "none" ? "flex" : "none";
-      headerSearch.style.display = headerSearch.style.display === "none" ? "flex" : "none";
-    } else {
-      headerIcons.style.display = "flex";
-      headerSearch.style.display = "flex";
-    }
+  const handleBurgerClick = () => {
+    setShowSearch(!showSearch); // Toggle search visibility
+    setShowIcons(!showIcons);   // Toggle icons visibility
   };
-  
 
   return (
     <HeaderContainer>
@@ -225,7 +245,7 @@ function Header({ toggleTheme }) {
         />
         <span>Drive</span>
       </HeaderLogo>
-      <HeaderSearch>
+      <HeaderSearch showSearch={showSearch}>
         <SearchIcon />
         <input
           type="text"
@@ -244,18 +264,12 @@ function Header({ toggleTheme }) {
           </Dropdown>
         )}
       </HeaderSearch>
-      <div className="burger-menu" onClick={handleDisplay}>
-  <div className="btn-line"></div>
-  <div className="btn-line"></div>
-  <div className="btn-line"></div>
-  </div>
-
-      <HeaderIcons>
-        <span onClick={toggleTheme}>
+      <HeaderIcons showIcons={showIcons}>
+      <span onClick={toggleTheme}>
           <Switch />
         </span>
         <span>
-          <Avatar onClick={handleFormAvatar} />
+          <StyledAvatar onClick={handleFormAvatar} />
           {showAvatarForm && (
             <AvatarForm>
               <h1>Upload Avatar</h1>
@@ -267,6 +281,11 @@ function Header({ toggleTheme }) {
           )}
         </span>
       </HeaderIcons>
+      <BurgerMenu onClick={handleBurgerClick}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </BurgerMenu>
     </HeaderContainer>
   );
 }

@@ -53,11 +53,11 @@ function Sidebar() {
             <div className="overlay" onClick={() => setDropDown(false)}></div>
             <ul className="dropdown">
               <li onClick={handleCreateFolderClick}>
-                <FaFolderPlus /> Create Folder
+                <FaFolderPlus className="dropdown-icons"/> Create Folder
               </li>
               <li>
                 <label htmlFor="fileInput" style={{ cursor: "pointer" }}>
-                  <MdUploadFile /> Upload File
+                  <MdUploadFile className="dropdown-icons"/> Upload File
                 </label>
                 <input
                   type="file"
@@ -69,7 +69,7 @@ function Sidebar() {
               </li>
               <li>
               <label htmlFor="folderInput" style={{ cursor: "pointer" }}>
-                <MdOutlineDriveFolderUpload /> Upload Folder
+                <MdOutlineDriveFolderUpload className="dropdown-icons"/> Upload Folder
               </label>
               <input
                 type="file"

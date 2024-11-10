@@ -12,13 +12,11 @@
 #sidebar-content{
   display: flex; 
   flex-direction: column;
-  margin-left: 40px;
+  margin-left: 1.5em;
   justify-content: center;
-  gap: 1em;
 }
 #new-btn{
-  /* position: relative; */
-  background-color:rgb(194, 186, 186);
+  background-color:#fff;
   width:40%; 
   height:50px; 
   border-radius:10px; 
@@ -26,18 +24,17 @@
   padding: 5px;
   display: flex;
   align-items: center;
- 
+  margin-bottom: 1em;
 }
  #new-btn h3{
-  font-weight: 100;
-  padding-top: 10px;
+  font-weight: 700;
   padding-left: 10px;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 .dropdown {
   position: absolute;
-  background-color: rgb(206, 218, 216); 
-  width: 70%;
+  background-color: rgb(255, 255, 255); 
+  width: 65%;
   height: 110px;
   list-style: none;
   border: 1px solid #ddd;
@@ -45,29 +42,31 @@
   margin: 0;
   padding: 10px 15px;
   gap: 7px;
-  /* text-align: center; */
   display: flex;
   align-items: flex-start;
   flex-direction: column;
   justify-content: center;
  
 } 
+.dropdown-icons{
+  margin-right: 1em;
+}
 .dropdown li {
   padding: 5px 0;
   white-space: nowrap;
   width: 100%;
-  border-bottom:1px solid rgb(190, 190, 190) ;
-  
+  border-bottom:1px solid rgb(218, 218, 218) ;
+  font-size: 15px;
 }
 .dropdown li:last-child {
   border-bottom: none; 
 }
 .dropdown li:hover{
-  background-color: #c9dbdb;
+  background-color: #C2E7FF;
 }
 
 #hmd{
-  width: 100%;
+  width: 70%;
   height: 30px;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -77,13 +76,16 @@
   align-items: center;
 }
 #hmd p{
-  font-weight: 100;
+  font-weight: 500;
   padding-left: 10px;
   color: rgb(29, 29, 29);
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 #hmd:hover{
-  background-color: #c9dbdb;
+  background-color: #C2E7FF;
+}
+#hmd i{
+  margin-right: 1em;
 }
 
 /* General container for the form */
@@ -345,10 +347,11 @@ button:disabled {
 
 /* Main Container Layout */
 .drive-container {
-  background-color: #f7f9fc;
+  background-color: #fff;
   min-height: 100vh;
+  border-radius: 1em;
   margin-top:5em;
-  margin-left:18em;
+  margin-left:15em;
   position: fixed;
 }
 
@@ -356,7 +359,7 @@ button:disabled {
 .drive-header {
   padding: 12px 20px;
   background-color: #fff;
-  border-bottom: 1px solid #dadce0;
+  border-radius: 1em 1em 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -446,7 +449,7 @@ button:disabled {
   gap: 16px;
   overflow-y: scroll;
   overflow-x:hidden ;
- width: 100%;
+  width: 100%;
 }
 
 /* List Layout */
@@ -457,13 +460,12 @@ button:disabled {
 /* File/Folder Card Styles */
 .drive-card {
   position: relative;
-  background-color: #fff;
+  background-color: #F0F0F3;
   border: 1px solid #dadce0;
   border-radius: 8px;
   transition: all 0.2s ease-in-out;
   height: 100%;
   cursor: pointer;
-  
 }
 
 .drive-card:hover {
@@ -702,18 +704,7 @@ button:disabled {
   width: 120px;
   text-align: right;
 }
-.burger-menu{
-  display:none;
-}
- /* .btn-line{
-  width:100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  margin-bottom: 10px;
-  border: 1px solid black;
- }  */
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .drive-toolbar {
@@ -738,25 +729,6 @@ button:disabled {
     height: 80px;
   }
 
-  .burger-menu {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    cursor: pointer;
-    width: 40px;
-    height: 30px;
-    }
-  
-    .burger-menu div{
-      width: 25px;
-      height:4px;
-      background-color: black;
-      margin: 3px 0;
-      margin-left: 1em;
-    
-  }
   #sidebar-container{
     display:none
   }
