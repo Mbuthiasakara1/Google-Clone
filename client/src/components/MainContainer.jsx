@@ -358,7 +358,7 @@ const MainContainer = () => {
       </Grid>
     ))
   )}
-</Grid>;
+</Grid>
 
       {/* Context Menu */}
       <Menu
