@@ -49,7 +49,7 @@ function Signup() {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:4000/users", {
+        const response = await fetch("http://127.0.0.1:5555/api/users", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,13 +63,22 @@ function Signup() {
             password: values.password
           }),
         });
-
+  
+        // Check if response is not OK (e.g., status code is not 200-299)
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Signup failed');
+          // Attempt to parse error response as JSON
+          const errorText = await response.text(); // Read as text first
+          try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(errorData.error || 'Signup failed');
+          } catch (jsonError) {
+            throw new Error('Unexpected server response: ' + errorText);
+          }
         }
-
+  
+        // Parse successful JSON response
         const data = await response.json();
+  
         enqueueSnackbar('Signed up successfully!', {
           variant: 'success',
         });
@@ -77,14 +86,16 @@ function Signup() {
         setMessageType('success');
         resetForm();
       } catch (error) {
+        // Display the error message in Snackbar
+        enqueueSnackbar(error.message || 'An error occurred', { variant: 'error' });
         setMessage(error.message);
         setMessageType('error');
       } finally {
         setLoading(false);
       }
     }
-
   });
+  
 
   const handleNext = async () => {
     const currentStepFields = Object.keys(getCurrentStepFields(activeStep));
@@ -247,7 +258,7 @@ function Signup() {
                     Next
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={!isValid || loading} onClick=''>
+                  <Button type="submit" disabled={!isValid || loading}>
                     {loading ? 'Submitting...' : 'Finish'}
                   </Button>
                 )}

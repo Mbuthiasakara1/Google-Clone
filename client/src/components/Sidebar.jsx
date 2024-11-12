@@ -1,11 +1,15 @@
+import React from "react";
 import { useState } from "react";
 import { FaFolderPlus } from "react-icons/fa6";
 import { MdUploadFile, MdOutlineDriveFolderUpload } from "react-icons/md";
-
+import axios from "axios";
 function Sidebar() {
   const [dropDown, setDropDown] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [folderName, setFolderName] = useState("");
+  const [files, setFiles] = useState([]);
+  const [folder, setFolder] = useState([])
+  
 
   function handleClick() {
     setDropDown(!dropDown);
@@ -19,24 +23,54 @@ function Sidebar() {
 
   function handleFormSubmit(e) {
     e.preventDefault();
-    console.log("Folder Name:", folderName);
-    setFolderName("");
-    setShowForm(false);
+    fetch("http://localhost:3001/folders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: folderName }),
+    })
+    .then((response) => response.json())
+    .then((data) => setFolderName(data))
+    .catch((error) => console.error("Error:", error));
+     setFolderName("");
+     setShowForm(false);
   }
 
   function handleFileChange(e) {
     const file = e.target.files[0];
     if (file) {
-      console.log("File Selected:", file.name);
+      const formData = new FormData();
+      formData.append("file", file);
+  
+      fetch("http://localhost:3001/files", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const url = URL.createObjectURL(file);  
+          setFiles((prevFiles) => [...prevFiles, url]); 
+        })
+        .catch((error) => console.error("File upload failed:", error));
+    } else {
+      console.log("No file selected");
     }
   }
+    
   function handleFolderChange(e) {
     const folder = e.target.files;
-    if (folder.length) {
-      console.log(
-        "Folder Selected:",
-        folder[0].webkitRelativePath.split("/")[0]
-      );
+    const formData = new FormData();
+    
+    if (folder) {
+      formData.append("folder", folder);
+  
+      axios.post("http://localhost:3001/folders", formData)
+        .then((response) => {
+          const url = URL.createObjectURL(folder);
+          setFolder((prevFold) => [...prevFold, url]);
+        })
+        .catch((error) => console.error("File upload failed:", error));
     }
   }
   return (
@@ -66,6 +100,7 @@ function Sidebar() {
                   accept="*/*"
                   onChange={handleFileChange}
                 />
+              
               </li>
               <li>
               <label htmlFor="folderInput" style={{ cursor: "pointer" }}>
@@ -106,7 +141,7 @@ function Sidebar() {
         )}
         <div id="hmd" style={{ cursor: "pointer" }}>
           <p>
-            <i className="fa-solid fa-house" style={{ color: "#393b3c;" }}></i>{" "}
+            <i className="fa-solid fa-house" style={{ color: "#393b3c" }}></i>{" "}
             Home
           </p>
         </div>
