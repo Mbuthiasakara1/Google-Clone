@@ -2,13 +2,13 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as yup from 'yup';
-// import { useAuth } from './AuthContext'; 
+import { useAuth } from "./AuthContext"; 
 
 function Login() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-    // const { setUser } = useAuth(); 
+    const { setUser } = useAuth(); 
 
     const loginSchema = yup.object().shape({
         email: yup.string().email("Invalid email format").required('Email is required'),
@@ -24,7 +24,7 @@ function Login() {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost:4000/users`, {
+                const response = await fetch(`http://127.0.0.1:5555/api/login`, {
                     method: "POST",
                     credentials: 'include',
                     headers: {
@@ -36,7 +36,7 @@ function Login() {
                 if (response.ok) {
                     const data = await response.json(); 
                     console.log(data);
-                    // setUser(data);
+                    setUser(data);
                     navigate("/");
                     setMessage("Login Successful");
                 } else {

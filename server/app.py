@@ -1,4 +1,4 @@
-from flask import Flask, make_response, request, jsonify
+from flask import Flask, make_response, request, jsonify, session
 from config import db
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -8,18 +8,20 @@ from users import User
 from folders import Folder
 from files import File
 from datetime import datetime
-import os
 
 app = Flask(__name__,)
 
 
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
+app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+# app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
-CORS(app)
+CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 api = Api(app)
 migrate= Migrate(app,db)
@@ -29,6 +31,40 @@ db.init_app(app)
 def index():
     return '<h1>Index of Google Drive Clone</h1>'
 
+
+class UserLogin(Resource):
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(email=data['email']).first()
+        
+        if user and bcrypt.check_password_hash(user.password, data['password']):
+            session['user_id'] = user.id
+            return{
+                "message":"Login Successful",
+                "data": user.to_dict(only = ("id", "first_name", "last_name", "gender", "email" ))
+            }, 200
+            
+        return {"message": "Invalid email or password"}, 401
+    
+    
+class CheckSession(Resource):
+    def get(self):
+        user_id = session.get('user_id')
+        
+        if user_id:
+            user = User.query.filter_by(id=user_id).first()
+            
+            if user:
+                return user.to_dict(only = ("id", "first_name", "last_name", "gender", "email" ))
+            
+            return {"message": "User not found"}, 404
+        else:
+            return {"message": "Not Authorised"}, 401
+
+class Logout(Resource):
+    def delete(self):
+        session.pop('user_id', None)
+        return {}, 200
 
 class UserInfo(Resource):
     def get(self):
@@ -70,6 +106,9 @@ class FolderInfo(Resource):
     
     
 api.add_resource(UserInfo, "/api/users", endpoint='users')
+api.add_resource(UserLogin, "/api/login", endpoint='login')
+api.add_resource(CheckSession, "/api/session", endpoint='session')
+api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(FileInfo, "/api/files", endpoint='files')
 api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
     
