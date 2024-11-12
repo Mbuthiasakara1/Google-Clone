@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+// import Container from "./Container"
 import {
   Search as SearchIcon,
   FormatAlignCenter as FormatAlignCenterIcon,
@@ -185,11 +186,7 @@ const StyledAvatar = styled(Avatar)`
   }
 `;
 
-function Header({ toggleTheme }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [files, setFiles] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [showResults, setShowResults] = useState(false);
+function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
   const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
@@ -223,34 +220,14 @@ function Header({ toggleTheme }) {
     .catch(error => console.error('Logout error:', error));
   };
 
-  const handleSearch = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-
-    if (query) {
-      const filtered = files.filter((file) =>
-        file.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredFiles(filtered);
-      setShowResults(true);
-    } else {
-      setFilteredFiles([]);
-      setShowResults(false);
-    }
-  };
-
-  const handleResultClick = (file) => {
-    setSearchQuery(file.name);
-    setShowResults(false);
-  };
 
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
 
   const handleBurgerClick = () => {
-    setShowSearch(!showSearch); // Toggle search visibility
-    setShowIcons(!showIcons); // Toggle icons visibility
+    setShowSearch(!showSearch);
+    setShowIcons(!showIcons);
   };
 
   return (
@@ -265,21 +242,12 @@ function Header({ toggleTheme }) {
       <HeaderSearch showSearch={showSearch}>
         <SearchIcon />
         <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Search in Drive"
-        />
+        type="text"
+        value={searchQuery}
+        onChange={(e) => onFilter(e.target.value)} 
+        placeholder="Search in Drive"
+      />
         <FormatAlignCenterIcon />
-        {showResults && (
-          <Dropdown>
-            {filteredFiles.map((file, index) => (
-              <p key={index} onClick={() => handleResultClick(file)}>
-                {file.name}
-              </p>
-            ))}
-          </Dropdown>
-        )}
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
         <span onClick={toggleTheme}>
@@ -289,22 +257,50 @@ function Header({ toggleTheme }) {
           <StyledAvatar onClick={handleFormAvatar} />
           {showAvatarForm && (
             <AvatarForm>
-              <div class="card" style={{ width: "18rem", display:'flex'
-                ,flexDirection:'column', alignItems:'center',justifyContent:'center', padding:'10px' }}>
-                <div style={{width: "50%",borderRadius: "50%",position: "relative",}} >
-                  <img className="card-img-top" style={{ width: "60%", borderRadius: "50%" }}
+              <div
+                className="card"
+                style={{
+                  width: "18rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "50%",
+                    borderRadius: "50%",
+                    position: "relative",
+                  }}
+                >
+                  <img
+                    className="card-img-top"
+                    style={{ width: "60%", borderRadius: "50%" }}
                     src="https://via.placeholder.com/150"
                     alt="Placeholder"
                   />
-                  <input type="file" id="avatar" accept="image/*"
+                  <input
+                    type="file"
+                    id="avatar"
+                    accept="image/*"
                     style={{
-                      position: "absolute",top: 0,left: 0,width: "100%",height: "100%",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
                       opacity: 0,
                       cursor: "pointer",
                     }}
                   />
                   <span
-                    style={{position: "absolute",bottom: "5px",right: "60px",backgroundColor: "#fff",
+                    style={{
+                      position: "absolute",
+                      bottom: "5px",
+                      right: "60px",
+                      backgroundColor: "#fff",
                       borderRadius: "50%",
                       padding: "5px",
                       display: "flex",
@@ -324,11 +320,21 @@ function Header({ toggleTheme }) {
                   <p className="card-text">
                     <h3>Hi Guest</h3>
                   </p>
-                  <button type="button" className="btn btn-primary" style={{marginTop:'10px',
-                    display:'flex', justifyContent:'center',alignItems:'center',
-                     height:'30px', borderRadius:'10px', padding:'10px'
-                     }}>
-                   Log Out
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleLogout}
+                    style={{
+                      marginTop: "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "30px",
+                      borderRadius: "10px",
+                      padding: "10px",
+                    }}
+                  >
+                    Log Out
                   </button>
                 </div>
               </div>
@@ -346,3 +352,4 @@ function Header({ toggleTheme }) {
 }
 
 export default Header;
+

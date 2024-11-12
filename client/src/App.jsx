@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Header from "./components/Header";
+// import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
