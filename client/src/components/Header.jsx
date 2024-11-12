@@ -5,6 +5,7 @@ import {
   FormatAlignCenter as FormatAlignCenterIcon,
 } from "@mui/icons-material";
 import { Avatar, Switch } from "@mui/material";
+import { useAuth } from './AuthContext';
 
 const HeaderContainer = styled.div`
   display: grid;
@@ -192,6 +193,7 @@ function Header({ toggleTheme }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
   const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
+  const { user, setUser } = useAuth()
 
   useEffect(() => {
     fetch("http://localhost:3001/files") 
@@ -205,6 +207,21 @@ function Header({ toggleTheme }) {
       })
       .catch(() => setFiles([]));
   }, []);
+
+
+  const handleLogout = () => {
+    fetch("http://127.0.0.1:5555/api/logout", {
+      method: 'DELETE',
+      credentials: 'include',
+    }).then(resp => {
+      if (resp.ok) {
+        setUser(null);
+      } else {
+        throw new Error('Failed to logout');
+      }
+    })
+    .catch(error => console.error('Logout error:', error));
+  };
 
   const handleSearch = (event) => {
     const query = event.target.value;

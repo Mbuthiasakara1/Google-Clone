@@ -4,6 +4,7 @@ import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
 import MainContainer from "./components/MainContainer";
 import { useMediaQuery } from "@mui/material";
+import { AuthProvider, useAuth } from './components/AuthContext'
 
 const lightTheme = {
   background: "#F0F0F3",
@@ -21,6 +22,7 @@ const AppContainer = styled.div`
 `;
 
 function App() {
+  const { user, setUser } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -37,7 +39,7 @@ function App() {
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
         <div style={{ flex: 1 }}>
-          <Header toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
+          <Header user={user} setUser={setUser} toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
         </div>
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
@@ -47,4 +49,10 @@ function App() {
   );
 }
 
-export default App;
+const WrappedApp = () => (
+  <AuthProvider>
+      <App />
+  </AuthProvider>
+);
+
+export default WrappedApp;
