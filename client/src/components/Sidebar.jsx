@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { FaFolderPlus } from "react-icons/fa6";
 import { MdUploadFile, MdOutlineDriveFolderUpload } from "react-icons/md";
@@ -106,7 +107,7 @@ function Sidebar() {
         )}
         <div id="hmd" style={{ cursor: "pointer" }}>
           <p>
-            <i className="fa-solid fa-house" style={{ color: "#393b3c;" }}></i>{" "}
+            <i className="fa-solid fa-house" style={{ color: "#393b3c" }}></i>{" "}
             Home
           </p>
         </div>

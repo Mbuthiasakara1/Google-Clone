@@ -21,9 +21,9 @@ const HeaderContainer = styled.div`
   right: 0;
   z-index: 10;
 
-  @media( max-width:768px){
+  @media (max-width: 768px) {
     display: flex;
-    justify-content:space-between;
+    justify-content: space-between;
   }
 `;
 
@@ -59,7 +59,7 @@ const HeaderSearch = styled.div`
     color: ${({ theme }) => theme.color};
   }
 
-  @media(max-width: 768px){
+  @media (max-width: 768px) {
     display: ${({ showSearch }) => (showSearch ? "flex" : "none")};
     width: 40%;
     padding: 5px;
@@ -102,7 +102,7 @@ const HeaderIcons = styled.div`
     margin: 0px 10px;
     color: ${({ theme }) => theme.color};
   }
-  @media(max-width: 768px){
+  @media (max-width: 768px) {
     display: ${({ showIcons }) => (showIcons ? "flex" : "none")};
     margin-right: 1em;
   }
@@ -112,7 +112,7 @@ const AvatarForm = styled.div`
   position: absolute;
   top: 60px;
   right: 0;
-  background-color: #ffffff;
+  
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
@@ -175,12 +175,12 @@ const BurgerMenu = styled.div`
 
 const StyledAvatar = styled(Avatar)`
   && {
-    width: 40px;  
-    height: 40px;  
+    width: 40px;
+    height: 40px;
 
     @media (max-width: 768px) {
-      width: 30px;  
-      height: 30px; 
+      width: 30px;
+      height: 30px;
     }
   }
 `;
@@ -196,7 +196,7 @@ function Header({ toggleTheme }) {
   const { user, setUser } = useAuth()
 
   useEffect(() => {
-    fetch("http://localhost:3001/files") 
+    fetch("http://localhost:3001/files")
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -240,8 +240,8 @@ function Header({ toggleTheme }) {
   };
 
   const handleResultClick = (file) => {
-    setSearchQuery(file.name); 
-    setShowResults(false); 
+    setSearchQuery(file.name);
+    setShowResults(false);
   };
 
   const handleFormAvatar = () => {
@@ -250,7 +250,7 @@ function Header({ toggleTheme }) {
 
   const handleBurgerClick = () => {
     setShowSearch(!showSearch); // Toggle search visibility
-    setShowIcons(!showIcons);   // Toggle icons visibility
+    setShowIcons(!showIcons); // Toggle icons visibility
   };
 
   return (
@@ -282,18 +282,56 @@ function Header({ toggleTheme }) {
         )}
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
-      <span onClick={toggleTheme}>
+        <span onClick={toggleTheme}>
           <Switch />
         </span>
         <span>
           <StyledAvatar onClick={handleFormAvatar} />
           {showAvatarForm && (
             <AvatarForm>
-              <h1>Upload Avatar</h1>
-              <form>
-                <input type="file" />
-                <input type="submit" />
-              </form>
+              <div class="card" style={{ width: "18rem", display:'flex'
+                ,flexDirection:'column', alignItems:'center',justifyContent:'center', padding:'10px' }}>
+                <div style={{width: "50%",borderRadius: "50%",position: "relative",}} >
+                  <img className="card-img-top" style={{ width: "60%", borderRadius: "50%" }}
+                    src="https://via.placeholder.com/150"
+                    alt="Placeholder"
+                  />
+                  <input type="file" id="avatar" accept="image/*"
+                    style={{
+                      position: "absolute",top: 0,left: 0,width: "100%",height: "100%",
+                      opacity: 0,
+                      cursor: "pointer",
+                    }}
+                  />
+                  <span
+                    style={{position: "absolute",bottom: "5px",right: "60px",backgroundColor: "#fff",
+                      borderRadius: "50%",
+                      padding: "5px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 0 5px rgba(0, 0, 0, 0.3)",
+                    }}
+                  >
+                    <i
+                      className="fa fa-camera"
+                      style={{ fontSize: "14px", color: "#000" }}
+                    ></i>
+                  </span>
+                </div>
+
+                <div className="card-body">
+                  <p className="card-text">
+                    <h3>Hi Guest</h3>
+                  </p>
+                  <button type="button" className="btn btn-primary" style={{marginTop:'10px',
+                    display:'flex', justifyContent:'center',alignItems:'center',
+                     height:'30px', borderRadius:'10px', padding:'10px'
+                     }}>
+                   Log Out
+                  </button>
+                </div>
+              </div>
             </AvatarForm>
           )}
         </span>

@@ -2,9 +2,9 @@ import { useState } from "react";
 import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
-import MainContainer from "./components/MainContainer";
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
+import Container from "./components/Container";
 
 const lightTheme = {
   background: "#F0F0F3",
@@ -38,13 +38,14 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        <div style={{ flex: 1 }}>
+        {/* <div style={{ flex: 1 }}>
           <Header user={user} setUser={setUser} toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
-        </div>
+        </div> */}
+        <Container />
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
-        <MainContainer />
       </AppContainer>
+
     </ThemeProvider>
   );
 }
