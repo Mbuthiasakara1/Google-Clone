@@ -192,20 +192,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
   const { user, setUser } = useAuth()
 
-  useEffect(() => {
-    fetch("http://localhost:3001/files")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && Array.isArray(data)) {
-          setFiles(data);
-        } else {
-          setFiles([]);
-        }
-      })
-      .catch(() => setFiles([]));
-  }, []);
-
-
+  
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
       method: 'DELETE',
@@ -320,6 +307,22 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                   <p className="card-text">
                     <h3>Hi Guest</h3>
                   </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={""}
+                    style={{
+                      marginTop: "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "30px",
+                      borderRadius: "10px",
+                      padding: "10px",
+                    }}
+                  >
+                    Your Profile
+                  </button>
                   <button
                     type="button"
                     className="btn btn-primary"
