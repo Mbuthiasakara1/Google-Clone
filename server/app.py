@@ -7,7 +7,7 @@ from flask_restful import Resource, Api
 from users import User
 from folders import Folder
 from files import File
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -16,12 +16,15 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Or however long you need
 
-CORS(app, supports_credentials=True)
+
+CORS(app, origins=["http://127.0.0.1:5173"], supports_credentials=True)
 bcrypt = Bcrypt(app)
 api = Api(app)
 migrate= Migrate(app,db)

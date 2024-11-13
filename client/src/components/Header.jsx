@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-// import Container from "./Container"
-import {
-  Search as SearchIcon,
-  FormatAlignCenter as FormatAlignCenterIcon,
-} from "@mui/icons-material";
+import { Search as SearchIcon, FormatAlignCenter as FormatAlignCenterIcon } from "@mui/icons-material";
 import { Avatar, Switch } from "@mui/material";
 import { useAuth } from './AuthContext';
+import { useNavigate } from "react-router-dom";
 
 const HeaderContainer = styled.div`
   display: grid;
@@ -42,7 +39,9 @@ const HeaderLogo = styled.div`
   }
 `;
 
-const HeaderSearch = styled.div`
+const HeaderSearch = styled.div.attrs(() => ({
+  showSearch: undefined,
+}))`
   display: flex;
   align-items: center;
   position: relative;
@@ -67,31 +66,10 @@ const HeaderSearch = styled.div`
   }
 `;
 
-const Dropdown = styled.div`
-  position: absolute;
-  top: 45px;
-  left: 0;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: ${({ theme }) =>
-    theme.background === "#333" ? "#444" : "#fff"};
-  border: 1px solid lightgray;
-  border-radius: 5px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 100;
 
-  p {
-    padding: 8px 12px;
-    cursor: pointer;
-    &:hover {
-      background-color: ${({ theme }) =>
-        theme.background === "#333" ? "#555" : "#f0f0f0"};
-    }
-  }
-`;
-
-const HeaderIcons = styled.div`
+const HeaderIcons = styled.div.attrs(() => ({
+  showIcons: undefined,
+}))`
   display: flex;
   align-items: center;
   span {
@@ -190,9 +168,15 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
   const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
-  const { user, setUser } = useAuth()
+  const { user, loading, setUser } = useAuth()
 
-  
+  console.log(user);
+
+  const navigate = useNavigate();
+
+  if (loading) return <div>Loading...</div>;
+
+
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
       method: 'DELETE',
@@ -200,11 +184,12 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
     }).then(resp => {
       if (resp.ok) {
         setUser(null);
+        navigate("/login")
       } else {
         throw new Error('Failed to logout');
       }
     })
-    .catch(error => console.error('Logout error:', error));
+      .catch(error => console.error('Logout error:', error));
   };
 
 
@@ -229,11 +214,11 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
       <HeaderSearch showSearch={showSearch}>
         <SearchIcon />
         <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => onFilter(e.target.value)} 
-        placeholder="Search in Drive"
-      />
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onFilter(e.target.value)}
+          placeholder="Search in Drive"
+        />
         <FormatAlignCenterIcon />
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
@@ -304,22 +289,17 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                 </div>
 
                 <div className="card-body">
-                  <p className="card-text">
-                    <h3>Hi Guest</h3>
-                  </p>
+                  <div className="card-text">
+                    {user ? (
+                      <h3>Hi, {user.first_name}!</h3>
+                    ) : (
+                      <h3>Hi, Guest</h3>
+                    )}
+                  </div>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={""}
-                    style={{
-                      marginTop: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "30px",
-                      borderRadius: "10px",
-                      padding: "10px",
-                    }}
+                    // onClick={""}
                   >
                     Your Profile
                   </button>
@@ -327,15 +307,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                     type="button"
                     className="btn btn-primary"
                     onClick={handleLogout}
-                    style={{
-                      marginTop: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "30px",
-                      borderRadius: "10px",
-                      padding: "10px",
-                    }}
                   >
                     Log Out
                   </button>

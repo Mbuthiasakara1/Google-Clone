@@ -8,7 +8,8 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-    const { setUser } = useAuth(); 
+    const { user, setUser } = useAuth(); 
+    console.log(user);
 
     const loginSchema = yup.object().shape({
         email: yup.string().email("Invalid email format").required('Email is required'),
