@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { Search as SearchIcon, FormatAlignCenter as FormatAlignCenterIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  FormatAlignCenter as FormatAlignCenterIcon,
+} from "@mui/icons-material";
 import { Avatar, Switch } from "@mui/material";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -405,5 +408,3 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 }
 
 export default Header;
-
-
