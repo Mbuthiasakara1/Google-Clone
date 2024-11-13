@@ -189,8 +189,11 @@ const StyledAvatar = styled(Avatar)`
 function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
-  const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
-  const { user, setUser } = useAuth()
+  const [showIcons, setShowIcons] = useState(true); // Control visibility of icons
+  const { user, setUser,loading } = useAuth();
+  const [files, setFiles] = useState([]);
+
+  useEffect(() => { console.log("User state in Header component:", user)}); 
 
   useEffect(() => {
     fetch("http://localhost:3001/files")
@@ -205,25 +208,58 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
       .catch(() => setFiles([]));
   }, []);
 
-
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
-      method: 'DELETE',
-      credentials: 'include',
-    }).then(resp => {
-      if (resp.ok) {
-        setUser(null);
-      } else {
-        throw new Error('Failed to logout');
-      }
+      method: "DELETE",
+      credentials: "include",
     })
-    .catch(error => console.error('Logout error:', error));
+      .then((resp) => {
+        if (resp.ok) {
+          setUser(null);
+        } else {
+          throw new Error("Failed to logout");
+        }
+      })
+      .catch((error) => console.error("Logout error:", error));
   };
-
 
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
+
+  
+  const handleFileInputClick = () => {
+    document.getElementById("avatar").click(); // Trigger file input click when camera icon is clicked
+  };
+  const handleAvatarUpload = (e) => {
+    e.preventDefault();
+    if(!user || !user.id){
+      console.error("User is not authenticated or missing user id")
+      return ;
+    }
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch(`http://127.0.0.1:5555/upload-avatar/${user.id}`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.url) {
+          setUser({ ...user, profile_pic: data.url });
+          setShowAvatarForm(false);
+        }
+      })
+      .catch((error) => console.error("Upload error:", error));
+  };
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
+
+
 
   const handleBurgerClick = () => {
     setShowSearch(!showSearch);
@@ -242,11 +278,11 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
       <HeaderSearch showSearch={showSearch}>
         <SearchIcon />
         <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => onFilter(e.target.value)} 
-        placeholder="Search in Drive"
-      />
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onFilter(e.target.value)}
+          placeholder="Search in Drive"
+        />
         <FormatAlignCenterIcon />
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
@@ -284,6 +320,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                   <input
                     type="file"
                     id="avatar"
+                    name="file" //matches the key expected in backend
                     accept="image/*"
                     style={{
                       position: "absolute",
@@ -294,6 +331,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       opacity: 0,
                       cursor: "pointer",
                     }}
+                    onChange={handleAvatarUpload}
                   />
                   <span
                     style={{
@@ -308,6 +346,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       justifyContent: "center",
                       boxShadow: "0 0 5px rgba(0, 0, 0, 0.3)",
                     }}
+                    onClick={handleFileInputClick}
                   >
                     <i
                       className="fa fa-camera"
@@ -352,4 +391,5 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 }
 
 export default Header;
+
 
