@@ -13,6 +13,7 @@ class User(db.Model, sm):
     gender = db.Column(db.String)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String)
+    profile_pic=db.Column(db.String,nullable=True)
     
     folders = db.relationship('Folder', back_populates='user', lazy=True)
     files = db.relationship('File', back_populates='user', lazy=True)

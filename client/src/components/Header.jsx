@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { Search as SearchIcon, FormatAlignCenter as FormatAlignCenterIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  FormatAlignCenter as FormatAlignCenterIcon,
+} from "@mui/icons-material";
 import { Avatar, Switch } from "@mui/material";
-import { useAuth } from './AuthContext';
+import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const HeaderContainer = styled.div`
@@ -66,7 +69,6 @@ const HeaderSearch = styled.div.attrs(() => ({
   }
 `;
 
-
 const HeaderIcons = styled.div.attrs(() => ({
   showIcons: undefined,
 }))`
@@ -91,7 +93,7 @@ const AvatarForm = styled.div`
   position: absolute;
   top: 60px;
   right: 0;
-  
+
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
@@ -167,8 +169,9 @@ const StyledAvatar = styled(Avatar)`
 function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
-  const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
-  const { user, loading, setUser } = useAuth()
+  const [showIcons, setShowIcons] = useState(true); // Control visibility of icons
+  const { user, loading, setUser } = useAuth();
+  
 
   console.log(user);
 
@@ -176,31 +179,102 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
   if (loading) return <div>Loading...</div>;
 
+ 
 
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
-      method: 'DELETE',
-      credentials: 'include',
-    }).then(resp => {
-      if (resp.ok) {
-        setUser(null);
-        navigate("/login")
-      } else {
-        throw new Error('Failed to logout');
-      }
+      method: "DELETE",
+      credentials: "include",
     })
-      .catch(error => console.error('Logout error:', error));
+      .then((resp) => {
+        if (resp.ok) {
+          setUser(null);
+          navigate("/login");
+        } else {
+          throw new Error("Failed to logout");
+        }
+      })
+      .catch((error) => console.error("Logout error:", error));
   };
-
 
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
 
+  const handleFileInputClick = () => {
+    document.getElementById("avatar").click(); // Trigger file input click when camera icon is clicked
+  };
+ 
+  const handleAvatarUpload = async (e) => {
+    e.preventDefault();
+
+    if (!user || !user.id) {
+      console.error("User is not authenticated or missing user id");
+      return;
+    }
+
+    const file = e.target.files[0];
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Log the request details for debugging
+    console.log(
+      "Attempting upload to:",
+      `http://127.0.0.1:5555/upload-avatar/${user.id}`
+    );
+    console.log("File:", file);
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5555/upload-avatar/${user.id}`,
+        {
+          method: "POST",
+          credentials: "include",
+          // Remove the Content-Type header - let the browser set it with the boundary
+          headers: {
+            Accept: "application/json",
+          },
+          body: formData,
+        }
+      );
+
+      // Log the response status and headers
+      console.log("Response status:", response.status);
+      console.log("Response headers:", [...response.headers.entries()]);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || `Upload failed with status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Upload successful:", data);
+
+      if (data.url) {
+        setUser({ ...user, profile_pic: data.url });
+        setShowAvatarForm(false);
+      }
+    } catch (error) {
+      console.error("Upload error details:", {
+        message: error.message,
+        stack: error.stack,
+      });
+      alert(`Failed to upload avatar: ${error.message}`);
+    }
+  };
+ 
   const handleBurgerClick = () => {
     setShowSearch(!showSearch);
     setShowIcons(!showIcons);
   };
+ 
 
   return (
     <HeaderContainer>
@@ -226,7 +300,11 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
           <Switch />
         </span>
         <span>
-          <StyledAvatar onClick={handleFormAvatar} />
+          <StyledAvatar
+            onClick={handleFormAvatar}
+            src={user?.profile_pic || undefined}
+            alt={user?.first_name || "User"}
+          />
           {showAvatarForm && (
             <AvatarForm>
               <div
@@ -250,12 +328,13 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                   <img
                     className="card-img-top"
                     style={{ width: "60%", borderRadius: "50%" }}
-                    src="https://via.placeholder.com/150"
-                    alt="Placeholder"
+                    src={user?.profile_pic || "https://via.placeholder.com/150"}
+                    alt={user?.first_name || "Placeholder"}
                   />
                   <input
                     type="file"
                     id="avatar"
+                    name="file" //matches the key expected in backend
                     accept="image/*"
                     style={{
                       position: "absolute",
@@ -266,6 +345,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       opacity: 0,
                       cursor: "pointer",
                     }}
+                    onChange={handleAvatarUpload}
                   />
                   <span
                     style={{
@@ -280,6 +360,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       justifyContent: "center",
                       boxShadow: "0 0 5px rgba(0, 0, 0, 0.3)",
                     }}
+                    onClick={handleFileInputClick}
                   >
                     <i
                       className="fa fa-camera"
@@ -326,4 +407,3 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 }
 
 export default Header;
-

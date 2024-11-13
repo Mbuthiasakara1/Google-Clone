@@ -8,6 +8,12 @@ from users import User
 from folders import Folder
 from files import File
 from datetime import datetime, timedelta
+from datetime import datetime
+import cloudinary
+import cloudinary.uploader
+from utils.cloudinaryconfig import cloudconfig
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
@@ -24,11 +30,17 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Or however long you need
 
 
-CORS(app, origins=["http://127.0.0.1:5173"], supports_credentials=True)
+
+
+CORS(app, supports_credentials=True)
+
+
 bcrypt = Bcrypt(app)
 api = Api(app)
 migrate= Migrate(app,db)
 db.init_app(app)
+
+
 
 @app.route('/api')
 def index():
@@ -106,6 +118,34 @@ class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.all()]
         return jsonify(folders_dict, 200)
+    
+#avatar cloudinary api
+@app.route('/upload-avatar/<int:user_id>',methods=['POST'])  
+def upload_avatar(user_id):
+    #check if file is submitted as part of the request
+      if 'file'  not in request.files:
+         return jsonify ({'message':'file not part of request'}) ,400
+     
+     #check if request has a file
+      file=request.files.get('file')
+      if file.filename == '':
+          return jsonify({'message':'no selected file found'}),400
+      
+      #now we upload to cloudinary
+      try:
+          result=cloudinary.uploader.upload(file)
+          print(result)
+          image_url=result['secure_url']
+          #retrieve the user
+          user=User.query.get(user_id)
+          user.profile_pic=image_url
+          db.session.commit()
+          return jsonify({'message':'image updates successfully','url':image_url})
+      except Exception as e:
+          return jsonify({'message':f'the error is {str(e)}'}),500
+  
+
+
     
     
 api.add_resource(UserInfo, "/api/users", endpoint='users')
