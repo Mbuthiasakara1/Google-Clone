@@ -11,19 +11,7 @@ const routes = [
     {
         path: "/",
         element: <App />
-    //     children:[{
-    //         path: "sidebar",
-    //         element: <Sidebar />
-    //     },
-    //     {
-    //         path:'my-drive',
-    //         element: <Container />
-    //     },
-    //     {
-    //         path:'home',
-    //         element:<Home />
-    //     }
-    // ]
+    
     },
     {
         path: "/signup",

@@ -1018,9 +1018,50 @@ button:disabled {
 
 .Container{
   width:80%;
+  /* height:100vh; */
   margin-top: 65px;
-  margin-left: 270px;
+  margin-left: 328px;
   /* position: fixed; */
   overflow-y: hidden;
+  flex-wrap: nowrap;
 
+}
+.move-card {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display:flex;
+  flex-direction: column;
+}
+.move-card h4 {
+  margin-top: 0;
+}
+.move-card select, .move-card button {
+  margin-top: 0.5em;
+  width: 100%;
+}
+
+
+/* Default for larger screens (4 cards per row) */
+@media (min-width: 992px) {
+  .content {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Medium screens (2 cards per row) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Small screens (1 card per row) */
+@media (max-width: 767px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
 }
