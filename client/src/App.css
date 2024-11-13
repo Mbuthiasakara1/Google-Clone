@@ -605,7 +605,7 @@ button:disabled {
   border: 1px solid black;
   display: flex;
   justify-content: center;
-  width: 60%;
+  max-width: 10em;
   height: 20em;
 }
 
