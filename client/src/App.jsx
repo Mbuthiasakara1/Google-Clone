@@ -2,6 +2,7 @@ import { useState } from "react";
 // import Header from "./components/Header";
 // import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
+import { Outlet } from "react-router-dom";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
@@ -16,6 +17,7 @@ const darkTheme = {
   color: "#fff",
 };
 const AppContainer = styled.div`
+ position: fixed;
   display: flex;
   height: 100vh;
   background-color: ${({ theme }) => theme.background};

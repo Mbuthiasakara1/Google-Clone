@@ -1,32 +1,36 @@
-import React, { useState } from "react";
-import { FaEllipsisV, FaFolder, FaFileAlt } from "react-icons/fa";
-import { useAuth } from './AuthContext'
-import { useSnackbar } from "notistack";
+import React, { useState, useEffect } from "react";
+import { FaEllipsisV, FaFolder } from "react-icons/fa";
 
-
-
-function FileCard({ file }) {
+function FolderCard({ folder }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState("");
-  const { user } = useAuth()
-  const { enqueueSnackbar } = useSnackbar();
+  const [rename, setRename] = useState(folder.name);
+  const [folders, setFolders] = useState([]);
+  const [selectedFolderId, setSelectedFolderId] = useState(null);
+  const [showMoveCard, setShowMoveCard] = useState(false);
+
+  // Fetch folders for move option on initial load
+  useEffect(() => {
+    fetch("http://localhost:3001/folders")
+      .then((response) => response.json())
+      .then((data) => setFolders(data));
+  }, []);
 
   const handleRename = () => {
-    fetch(`http://localhost:3001/files/${file.id}`, {
+    fetch(`http://localhost:3001/folders/${folder.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
     })
       .then((response) => response.json())
       .then((data) => {
-        setRename(data.name);
+        folder.name = data.name; // Update the folder's name directly or use a callback if passed down
         setDisplayRenameForm(false);
       });
   };
 
   const handleDownload = () => {
-    fetch(`http://localhost:3001/files/${file.id}`, {
+    fetch(`http://localhost:3001/files/${folder.id}`, {
       method: "GET",
       headers: { "Content-Type": "application/octet-stream" },
     })
@@ -35,8 +39,7 @@ function FileCard({ file }) {
         const url = window.URL.createObjectURL(new Blob([blob]));
         const link = document.createElement("a");
         link.href = url;
-        const extension = file.name.split(".").pop();
-        link.setAttribute("download", `${file.id}.${extension}`);
+        link.setAttribute("download", `${folder.name}.zip`);
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -46,69 +49,45 @@ function FileCard({ file }) {
   };
 
   const handleMove = () => {
-    // Show the folder selection card
     setShowMoveCard(true);
   };
 
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://localhost:3001/files/${file.id}`, {
+      fetch(`http://localhost:3001/folders/${folder.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
       })
+        .then((response) => response.json())
+        .then((updatedFolder) => {
+          console.log("Folder moved to:", updatedFolder.folderId);
+          setShowMoveCard(false);
+          setShowDropdown(false);
+        })
+        .catch((error) => console.error("Move error:", error));
+    }
+  };
+
+  const handleDelete = () => {
+    fetch(`http://localhost:3001/folders/${folder.id}`, { method: "DELETE" })
       .then((response) => response.json())
-      .then((updatedFile) => {
-        console.log("File moved to folder:", updatedFile.folderId);
-        setShowMoveCard(false); // Close the move card after confirming
-        setShowDropdown(false); // Close the dropdown
-      })
-      .catch((error) => console.error("Move error:", error));
-    }
+      .then((data) => {
+        setFolders(data)
+      });
   };
-
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
-      try {
-        const response = await fetch(`http://127.0.0.1:5555/api/files/${user.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete file');
-        }
-
-        enqueueSnackbar('File Deleted!', {
-          variant: 'success',
-        });
-
-      } catch (error) {
-        setError(error);
-        enqueueSnackbar(error.message || 'An error occurred. Try again.', {
-          variant: 'error' 
-        });
-      }
-    }
-  };
-
 
   return (
     <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>
       <div className="file-icon">
-        <FaFileAlt />
+        <FaFolder />
       </div>
-      <div className="file-name">{file.name}</div>
+      <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-        <p>{file.size} KB</p>
-        <p>Last modified: {file.modifiedDate}</p>
+        <p>{folder.size || "N/A"} KB</p>
+        <p>Last modified: {folder.modifiedDate || "N/A"}</p>
       </div>
-      <button
-        className="dropdown-btn"
-        onClick={() => setShowDropdown(!showDropdown)}
-      >
+      <button className="dropdown-btn" onClick={() => setShowDropdown(!showDropdown)}>
         <FaEllipsisV />
       </button>
       {showDropdown && (
@@ -135,8 +114,6 @@ function FileCard({ file }) {
           <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
         </div>
       )}
-      
-      {/* Move to Folder Card */}
       {showMoveCard && (
         <div className="move-card">
           <h4>Choose a Folder</h4>
@@ -159,4 +136,4 @@ function FileCard({ file }) {
   );
 }
 
-export default FileCard;
+export default FolderCard;

@@ -28,7 +28,8 @@
       "size": "854 KB",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "url": "https://example.com/spreadsheet.xlsx"
+      "url": "https://example.com/spreadsheet.xlsx",
+      "folderId": null
     },
     {
       "id": "4",
@@ -63,6 +64,10 @@
     {
       "id": "4ec9",
       "name": "folder1"
+    },
+    {
+      "id": "c655",
+      "name": "folderName"
     }
   ],
   "users": [
