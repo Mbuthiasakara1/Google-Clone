@@ -1,5 +1,6 @@
 import { useState } from "react";
 // import Header from "./components/Header";
+// import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
@@ -38,10 +39,7 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        {/* <div style={{ flex: 1 }}>
-          <Header user={user} setUser={setUser} toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
-        </div> */}
-        <Container />
+        <Container toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
       </AppContainer>
