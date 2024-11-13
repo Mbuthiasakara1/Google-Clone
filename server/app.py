@@ -7,10 +7,13 @@ from flask_restful import Resource, Api
 from users import User
 from folders import Folder
 from files import File
+from datetime import datetime, timedelta
 from datetime import datetime
 import cloudinary
 import cloudinary.uploader
 from utils.cloudinaryconfig import cloudconfig
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
@@ -19,22 +22,25 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Or however long you need
+
 
 
 
 CORS(app, supports_credentials=True)
+
 
 bcrypt = Bcrypt(app)
 api = Api(app)
 migrate= Migrate(app,db)
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
+
 
 @app.route('/api')
 def index():
@@ -132,14 +138,15 @@ def upload_avatar(user_id):
           image_url=result['secure_url']
           #retrieve the user
           user=User.query.get(user_id)
-          user.profile_pic=image_url['url']
+          user.profile_pic=image_url
           db.session.commit()
           return jsonify({'message':'image updates successfully','url':image_url})
       except Exception as e:
           return jsonify({'message':f'the error is {str(e)}'}),500
-      
+  
 
 
+    
     
 api.add_resource(UserInfo, "/api/users", endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')

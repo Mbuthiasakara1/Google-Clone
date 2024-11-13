@@ -444,6 +444,16 @@ button:disabled {
   padding: 20px;
   overflow-y: scroll;
 }
+.btn.btn-primary{
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
 
 /* Default for larger screens (4 cards per row) */
 @media (min-width: 992px) {
