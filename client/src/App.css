@@ -874,7 +874,7 @@ button:disabled {
   overflow-y: scroll;
 }
 
-/* Default for larger screens (3 cards per row) */
+/* Default for larger screens (4 cards per row) */
 @media (min-width: 992px) {
   .content {
     grid-template-columns: repeat(4, 1fr);
@@ -904,6 +904,7 @@ button:disabled {
 .content {
   display: grid;
   gap: 20px;
+  overflow-y: scroll;
 }
 
 /* File Card */
@@ -942,7 +943,6 @@ button:disabled {
 /* Rename Form Styles */
 .rename-form {
   position: absolute;
-  top: -0px; /* Adjust as needed to control vertical positioning */
   left: 40%;
   transform: translateX(-50%);
   display: flex;
@@ -976,8 +976,8 @@ button:disabled {
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Adjust as needed */
-  z-index: 20; /* Ensure it appears above other elements */
+  width: 100%; 
+  z-index: 20; 
 }
 
 
@@ -1014,4 +1014,13 @@ button:disabled {
 
 .rename-form button:hover {
   background-color: #357ab8;
+}
+
+.Container{
+  width:80%;
+  margin-top: 65px;
+  margin-left: 270px;
+  /* position: fixed; */
+  overflow-y: hidden;
+
 }
