@@ -2,6 +2,7 @@ import React from "react";
 import App from "../App";
 import Signup from "./Signup";
 import Login from "./Login";
+import UserProfile from "./Profile";
 
 const routes = [
     {
@@ -15,7 +16,12 @@ const routes = [
     {
         path: "/login",
         element: <Login />
+    },
+    {
+        path: "/profile",
+        element: <UserProfile />
     }
+
 ]
 
 export default routes;

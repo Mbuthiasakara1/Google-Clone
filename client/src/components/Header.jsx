@@ -299,7 +299,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    // onClick={""}
+                    onClick={() => navigate("/profile")}
                   >
                     Your Profile
                   </button>

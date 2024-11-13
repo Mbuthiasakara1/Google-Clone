@@ -58,7 +58,7 @@ class CheckSession(Resource):
             user = User.query.filter_by(id=user_id).first()
             
             if user:
-                return user.to_dict(only = ("id", "first_name", "last_name", "gender", "email" ))
+                return user.to_dict(only = ("id", "first_name", "last_name",'birthday', "gender", "email" ))
             
             return {"message": "User not found"}, 404
         else:
