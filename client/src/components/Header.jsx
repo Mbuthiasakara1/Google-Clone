@@ -290,6 +290,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
           onChange={(e) => onFilter(e.target.value)}
           placeholder="Search in Drive"
         />
+          
         <FormatAlignCenterIcon />
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
@@ -404,4 +405,5 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 }
 
 export default Header;
+
 
