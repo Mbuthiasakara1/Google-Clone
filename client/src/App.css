@@ -519,6 +519,20 @@ button:disabled {
  
 }
 
+/* Default for larger screens (4 cards per row) */
+@media (min-width: 992px) {
+  .content {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Medium screens (2 cards per row) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Container for the grid */
 .container {
   padding: 20px;
