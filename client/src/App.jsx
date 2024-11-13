@@ -8,6 +8,7 @@ import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
 import Container from "./components/Container";
 import { AuthProvider, useAuth } from './components/AuthContext'
+import Container from "./components/Container";
 
 const lightTheme = {
   background: "#F0F0F3",
@@ -42,7 +43,7 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        <Container toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
+        <Container />
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
       </AppContainer>
