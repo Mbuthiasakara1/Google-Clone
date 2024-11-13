@@ -1,14 +1,11 @@
 import { useState } from "react";
-// import Header from "./components/Header";
-// import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
-import { Outlet } from "react-router-dom";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
 import Container from "./components/Container";
 import { AuthProvider, useAuth } from './components/AuthContext'
-import Container from "./components/Container";
+
 
 const lightTheme = {
   background: "#F0F0F3",
@@ -36,9 +33,7 @@ function App() {
     setIsDarkMode((prevMode) => !prevMode);
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
