@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-// import Container from "./Container"
 import {
   Search as SearchIcon,
   FormatAlignCenter as FormatAlignCenterIcon,
@@ -172,15 +171,11 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
   const [showIcons, setShowIcons] = useState(true); // Control visibility of icons
   const { user, loading, setUser } = useAuth();
-  
 
-  // console.log(user);
 
   const navigate = useNavigate();
 
   if (loading) return <div>Loading...</div>;
-
- 
 
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
@@ -215,7 +210,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
     }
 
     const file = e.target.files[0];
-    console.log(file)
     if (!file) {
       console.error("No file selected");
       return;
@@ -224,16 +218,9 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
     const formData = new FormData();
     formData.append("file", file);
 
-    // Log the request details for debugging
-    console.log(
-      "Attempting upload to:",
-      `http://127.0.0.1:5555/upload-avatar/${user.id}`
-    );
-    console.log("File:", file);
-
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/upload-avatar/${user.id}`,
+        `http://127.0.0.1:5555/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",
@@ -245,10 +232,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
         }
       );
 
-      // Log the response status and headers
-      console.log("Response status:", response.status);
-      console.log("Response headers:", [...response.headers.entries()]);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         throw new Error(
@@ -257,8 +240,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
       }
 
       const data = await response.json();
-      console.log("Upload successful:", data);
-
       if (data.url) {
         setUser({ ...user, profile_pic: data.url });
         setShowAvatarForm(false);

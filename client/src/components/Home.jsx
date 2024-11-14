@@ -70,29 +70,45 @@ function Home() {
     }
   };
 
-  const handleRename = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: rename }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setFiles((prevFiles) =>
-          prevFiles.map((file) =>
-            file.id === fileId ? { ...file, name: data.name } : file
-          )
-        );
-        setRename("");
-        setRenameId(null);
+  const handleRename = async (fileId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
       });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename file. Status: ${response.status}`);
+      }
+  
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
+  
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === fileId ? { ...file, name: data.name } : file
+        )
+      );
+  
+      setRename("");
+      setRenameId(null);
+      enqueueSnackbar("File renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
   };
 
   const handleDownload = (file) => {
     fetch(`http://localhost:3001/files/${file.id}`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/octet-stream",
+        "Content-Type": "application/json",
       },
     })
       .then((response) => response.blob())
@@ -109,13 +125,6 @@ function Home() {
       })
       .catch((error) => console.error("Download error:", error));
   };
-
-  // const handleDelete = (fileId) => {
-  //   fetch(`http://127.0.0.1:5555/api/files/${fileId}`, { method: "DELETE" })
-  //     .then((response) => response.json())
-  //     .then((data) => setFiles(data));
-  // };
-
 
   const handleDelete = async (fileId) => {
     if (

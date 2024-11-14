@@ -28,6 +28,7 @@ with app.app_context():
             thumbnail_path=fake.file_path() if random.randint(0, 1) == 1 else None,
             folder_id=random.randint(1, 10),
             user_id=random.randint(1, 10),
+            bin = False
             )
         files.append(file)
     db.session.add_all(files)
