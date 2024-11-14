@@ -22,8 +22,9 @@ with app.app_context():
             name=fake.word(),
             created_at=fake.date_object(),
             updated_at=fake.date_object(),
-            user_id=random.randint(1, 10),
-            parent_folder_id=random.choice([None, random.randint(1, 5)]) if random.randint(0, 1) == 1 else None,
+            user_id=random.randint(1,10),
+            parent_folder_id=random.choice([None, random.randint(1,5)]) if random.randint(0, 1) == 1 else None,
+            bin=False
             )
         folders.append(folder)
     db.session.add_all(folders)

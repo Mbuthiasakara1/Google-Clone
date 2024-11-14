@@ -7,7 +7,12 @@ from flask_restful import Resource, Api
 from users import User
 from folders import Folder
 from files import File
-from datetime import datetime
+from datetime import datetime, timedelta
+import cloudinary
+import cloudinary.uploader
+from utils.cloudinaryconfig import cloudconfig
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
@@ -16,16 +21,25 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Or however long you need
+
+
+
 
 CORS(app, supports_credentials=True)
+
+
 bcrypt = Bcrypt(app)
 api = Api(app)
 migrate= Migrate(app,db)
 db.init_app(app)
+
+
 
 @app.route('/api')
 def index():
@@ -41,7 +55,8 @@ class UserLogin(Resource):
             session['user_id'] = user.id
             return{
                 "message":"Login Successful",
-                "data": user.to_dict(only = ("id", "first_name", "last_name", "gender", "email" ))
+                "data": user.to_dict(only = ("id", "first_name", "last_name",'birthday', "gender", "email",'profile_pic' ))
+            
             }, 200
             
         return {"message": "Invalid email or password"}, 401
@@ -55,7 +70,7 @@ class CheckSession(Resource):
             user = User.query.filter_by(id=user_id).first()
             
             if user:
-                return user.to_dict(only = ("id", "first_name", "last_name", "gender", "email" ))
+                return user.to_dict(only = ("id", "first_name", "last_name",'birthday', "gender", "email",'profile_pic' ))
             
             return {"message": "User not found"}, 404
         else:
@@ -73,6 +88,7 @@ class UserInfo(Resource):
     
     def post(self):
         data = request.get_json()
+       
         
         date_obj = datetime.strptime(data.get('birthday'), '%Y-%m-%d').date()
 
@@ -92,12 +108,75 @@ class UserInfo(Resource):
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}, 500
-    
-    
+        
+class UserById(Resource):
+    def get(self, id):
+        user = User.query.filter_by(id=id).first()
+        return (user.to_dict(),200)
+
+      
+        
+    def delete(self, id):
+        user = User.query.filter_by(id=id).first()
+        
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return {}, 204
+
+
 class FileInfo(Resource):
     def get(self):
         files_dict = [file.to_dict() for file in File.query.all()]
         return make_response(files_dict, 200)
+    
+    
+# class FileById(Resource):
+#     def get(self,id):
+#         file = File.query.filter_by(id=id).first()
+#         print(file)
+#         return make_response(file.to_dict(),200)
+
+class FileById(Resource):
+    def get(self, id):
+        file = File.query.filter_by(id=id).first()
+        if file:
+            return make_response(file.to_dict(), 200)
+        return {"message": "File not found"}, 404
+    
+
+    def patch(self,id):
+        file = File.query.filter_by(id=id).first()
+        if file:
+            data=request.get_json()
+            new_name=data['name']
+            file.name=new_name
+            db.session.commit()
+            return jsonify({'message':'name updated successfully'})
+        return jsonify({'error':'Failed to Rename'})
+        
+
+    
+
+    def delete(self, id):
+        file = File.query.filter_by(id=id).first()
+        
+        if file:
+            db.session.delete(file)
+            db.session.commit()
+            return {}, 204 
+        
+        
+
+            
+class FileByUserId(Resource):
+    def get(self, id):
+        files = File.query.filter_by(user_id=id).all()
+        if files:
+            files_dict = [file.to_dict() for file in files]
+            return make_response(files_dict, 200)
+        return {"message": "No files found for this user"}, 404
+           
     
 class FolderInfo(Resource):
     def get(self):
@@ -133,12 +212,83 @@ class FolderContents(Resource):
             return {'error': str(e)}, 500    
     
 api.add_resource(UserInfo, "/api/users", endpoint='users')
+        return make_response(folders_dict, 200)
+    
+
+    
+class FolderByUserId(Resource):
+    def get(self, id):
+        folders = Folder.query.filter_by(user_id=id).all()
+        if folders:
+            folders_dict = [folder.to_dict() for folder in folders]
+            return make_response(folders_dict, 200)
+        return {"message": "No folders found for this user"}, 404    
+        
+    
+# class FolderById(Resource):
+#     def get(self,id):
+#         folder = Folder.query.filter_by(id=id).first()
+#         print(folder)
+        # return make_response(folder.to_dict(),200)
+class FolderById(Resource):
+    def get(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        if folder:
+            return make_response(folder.to_dict(), 200)
+        return {"message": "Folder not found"}, 404    
+
+    def delete(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        
+        if folder:
+            db.session.delete(folder)
+            db.session.commit()
+            return {}, 204   
+
+
+        
+#avatar cloudinary api
+@app.route('/upload-avatar/<int:user_id>',methods=['POST'])  
+def upload_avatar(user_id):
+    #check if file is submitted as part of the request
+      if 'file'  not in request.files:
+         return jsonify ({'message':'file not part of request'}) ,400
+     
+     #check if request has a file
+      file=request.files.get('file')
+      if file.filename == '':
+          return jsonify({'message':'no selected file found'}),400
+      
+      #now we upload to cloudinary
+      try:
+          result=cloudinary.uploader.upload(file)
+          print(result)
+          image_url=result['secure_url']
+          #retrieve the user
+          user=User.query.get(user_id)
+          user.profile_pic=image_url
+          db.session.commit()
+          return jsonify({'message':'image updates successfully','url':image_url})
+      except Exception as e:
+          return jsonify({'message':f'the error is {str(e)}'}),500
+  
+
+api.add_resource(FileByUserId,"/api/fileuser/<int:id>")  
+api.add_resource(FolderByUserId,"/api/folderuser/<int:id>")    
+api.add_resource(FileById,"/api/files/<int:id>") 
+api.add_resource(FileInfo, "/api/files",endpoint='files')
+api.add_resource(FolderById,"/api/folders/<int:id>") 
+api.add_resource(FolderInfo, "/api/folders",endpoint='folders')
+api.add_resource(UserById,"/api/users/<int:id>") 
+api.add_resource(UserInfo, "/api/users",endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(FileInfo, "/api/files", endpoint='files')
 api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
 api.add_resource(FolderContents, '/api/folders/<int:folder_id>', endpoint='folder_contents')    
+
+    
 
 
 # if __name__ == "__main__":

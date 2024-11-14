@@ -28,7 +28,8 @@
       "size": "854 KB",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "url": "https://example.com/spreadsheet.xlsx"
+      "url": "https://example.com/spreadsheet.xlsx",
+      "folderId": null
     },
     {
       "id": "4",
@@ -43,16 +44,8 @@
   ],
   "folders": [
     {
-      "id": "5",
-      "name": "Documents",
-      "type": "folder",
-      "lastOpened": "Aug 16, 2024",
-      "path": "/",
-      "folderId": "2"
-    },
-    {
       "id": "6",
-      "name": "Kelvin",
+      "name": "iwaschanged",
       "type": "folder",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
@@ -60,6 +53,11 @@
     },
     {
       "id": "4ec9",
+      "name": "folder1"
+    },
+    {
+      "id": "c655",
+      "name": "folderName"
       "name": "folder1",
       "type": "folder",
       "lastOpened": "Aug 16, 2024",

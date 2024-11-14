@@ -1,10 +1,11 @@
 import { useState } from "react";
-// import Header from "./components/Header";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
 import Container from "./components/Container";
+
+
 
 const lightTheme = {
   background: "#F0F0F3",
@@ -15,6 +16,7 @@ const darkTheme = {
   color: "#fff",
 };
 const AppContainer = styled.div`
+ position: fixed;
   display: flex;
   height: 100vh;
   background-color: ${({ theme }) => theme.background};
@@ -31,16 +33,11 @@ function App() {
     setIsDarkMode((prevMode) => !prevMode);
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        {/* <div style={{ flex: 1 }}>
-          <Header user={user} setUser={setUser} toggleTheme={toggleTheme} isDarkMode={isDarkMode} toggleSidebar={toggleSidebar} />
-        </div> */}
         <Container />
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}

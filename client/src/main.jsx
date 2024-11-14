@@ -10,10 +10,10 @@ const router = createBrowserRouter(routes)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <SnackbarProvider maxSnack={3} autoHideDuration={10000} anchorOrigin={{ vertical: 'top', horizontal: 'center', }} >
-      <AuthProvider>
+    <AuthProvider>
+      <SnackbarProvider maxSnack={3} autoHideDuration={10000} anchorOrigin={{ vertical: 'top', horizontal: 'center', }} >
         <RouterProvider router={router} />
-      </AuthProvider>
-    </SnackbarProvider>
+      </SnackbarProvider>
+    </AuthProvider>
   </StrictMode>
 )

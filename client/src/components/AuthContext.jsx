@@ -16,30 +16,34 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:5555/api/session`, {
-                    method: 'GET',
-                    credentials: 'include',
-                });
-
-                if (response.ok) {
-                    const { user } = await response.json();
-                    setUser(user); // store user details
-                } else {
-                    throw new Error('Failed to fetch session');
-                }
+              const response = await fetch('http://127.0.0.1:5555/api/session', {
+                method: 'GET',
+                credentials: 'include',
+              });
+      
+              if (response.ok) {
+                const data = await response.json();
+                setUser(data);
+              } else {
+                setUser(null);
+              }
             } catch (error) {
-                console.error('Error:', error);
-            } finally{
-                setLoading(false);
+              console.error('Error checking session:', error);
+              setUser(null);
+            } finally {
+              setLoading(false);
             }
-        };
-
-        fetchSession();
-    }, []);
+          };
+      
+          fetchSession();
+        }, []);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading }}>
+        <AuthContext.Provider value={{ user, setUser, loading ,setLoading}}>
             {children}
         </AuthContext.Provider>
     );
 };
+
+
+

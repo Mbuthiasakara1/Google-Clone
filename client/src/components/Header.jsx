@@ -6,7 +6,8 @@ import {
   FormatAlignCenter as FormatAlignCenterIcon,
 } from "@mui/icons-material";
 import { Avatar, Switch } from "@mui/material";
-import { useAuth } from './AuthContext';
+import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const HeaderContainer = styled.div`
   display: grid;
@@ -42,7 +43,9 @@ const HeaderLogo = styled.div`
   }
 `;
 
-const HeaderSearch = styled.div`
+const HeaderSearch = styled.div.attrs(() => ({
+  showSearch: undefined,
+}))`
   display: flex;
   align-items: center;
   position: relative;
@@ -67,31 +70,9 @@ const HeaderSearch = styled.div`
   }
 `;
 
-const Dropdown = styled.div`
-  position: absolute;
-  top: 45px;
-  left: 0;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: ${({ theme }) =>
-    theme.background === "#333" ? "#444" : "#fff"};
-  border: 1px solid lightgray;
-  border-radius: 5px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-
-  p {
-    padding: 8px 12px;
-    cursor: pointer;
-    &:hover {
-      background-color: ${({ theme }) =>
-        theme.background === "#333" ? "#555" : "#f0f0f0"};
-    }
-  }
-`;
-
-const HeaderIcons = styled.div`
+const HeaderIcons = styled.div.attrs(() => ({
+  showIcons: undefined,
+}))`
   display: flex;
   align-items: center;
   span {
@@ -113,7 +94,7 @@ const AvatarForm = styled.div`
   position: absolute;
   top: 60px;
   right: 0;
-  
+
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
@@ -189,33 +170,113 @@ const StyledAvatar = styled(Avatar)`
 function Header({ toggleTheme, onFilter, searchQuery }) {
   const [showAvatarForm, setShowAvatarForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true); // Control visibility of search bar
-  const [showIcons, setShowIcons] = useState(true);   // Control visibility of icons
-  const { user, setUser } = useAuth()
-
+  const [showIcons, setShowIcons] = useState(true); // Control visibility of icons
+  const { user, loading, setUser } = useAuth();
   
+
+  // console.log(user);
+
+  const navigate = useNavigate();
+
+  if (loading) return <div>Loading...</div>;
+
+ 
+
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {
-      method: 'DELETE',
-      credentials: 'include',
-    }).then(resp => {
-      if (resp.ok) {
-        setUser(null);
-      } else {
-        throw new Error('Failed to logout');
-      }
+      method: "DELETE",
+      credentials: "include",
     })
-    .catch(error => console.error('Logout error:', error));
+      .then((resp) => {
+        if (resp.ok) {
+          setUser(null);
+          navigate("/login");
+        } else {
+          throw new Error("Failed to logout");
+        }
+      })
+      .catch((error) => console.error("Logout error:", error));
   };
-
 
   const handleFormAvatar = () => {
     setShowAvatarForm(!showAvatarForm);
   };
 
+  const handleFileInputClick = () => {
+    document.getElementById("avatar").click(); // Trigger file input click when camera icon is clicked
+  };
+ 
+  const handleAvatarUpload = async (e) => {
+    e.preventDefault();
+
+    if (!user || !user.id) {
+      console.error("User is not authenticated or missing user id");
+      return;
+    }
+
+    const file = e.target.files[0];
+    console.log(file)
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Log the request details for debugging
+    console.log(
+      "Attempting upload to:",
+      `http://127.0.0.1:5555/upload-avatar/${user.id}`
+    );
+    console.log("File:", file);
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5555/upload-avatar/${user.id}`,
+        {
+          method: "POST",
+          credentials: "include",
+          // Remove the Content-Type header - let the browser set it with the boundary
+          headers: {
+            Accept: "application/json",
+          },
+          body: formData,
+        }
+      );
+
+      // Log the response status and headers
+      console.log("Response status:", response.status);
+      console.log("Response headers:", [...response.headers.entries()]);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || `Upload failed with status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Upload successful:", data);
+
+      if (data.url) {
+        setUser({ ...user, profile_pic: data.url });
+        setShowAvatarForm(false);
+      }
+    } catch (error) {
+      console.error("Upload error details:", {
+        message: error.message,
+        stack: error.stack,
+      });
+      alert(`Failed to upload avatar: ${error.message}`);
+    }
+  };
+ 
   const handleBurgerClick = () => {
     setShowSearch(!showSearch);
     setShowIcons(!showIcons);
   };
+ 
 
   return (
     <HeaderContainer>
@@ -229,11 +290,12 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
       <HeaderSearch showSearch={showSearch}>
         <SearchIcon />
         <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => onFilter(e.target.value)} 
-        placeholder="Search in Drive"
-      />
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onFilter(e.target.value)}
+          placeholder="Search in Drive"
+        />
+          
         <FormatAlignCenterIcon />
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
@@ -241,7 +303,11 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
           <Switch />
         </span>
         <span>
-          <StyledAvatar onClick={handleFormAvatar} />
+          <StyledAvatar
+            onClick={handleFormAvatar}
+            src={user?.profile_pic || undefined}
+            alt={user?.first_name || "User"}
+          />
           {showAvatarForm && (
             <AvatarForm>
               <div
@@ -265,12 +331,13 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                   <img
                     className="card-img-top"
                     style={{ width: "60%", borderRadius: "50%" }}
-                    src="https://via.placeholder.com/150"
-                    alt="Placeholder"
+                    src={user?.profile_pic || "https://via.placeholder.com/150"}
+                    alt={user?.first_name || "Placeholder"}
                   />
                   <input
                     type="file"
                     id="avatar"
+                    name="file" //matches the key expected in backend
                     accept="image/*"
                     style={{
                       position: "absolute",
@@ -281,6 +348,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       opacity: 0,
                       cursor: "pointer",
                     }}
+                    onChange={handleAvatarUpload}
                   />
                   <span
                     style={{
@@ -295,6 +363,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                       justifyContent: "center",
                       boxShadow: "0 0 5px rgba(0, 0, 0, 0.3)",
                     }}
+                    onClick={handleFileInputClick}
                   >
                     <i
                       className="fa fa-camera"
@@ -304,22 +373,17 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                 </div>
 
                 <div className="card-body">
-                  <p className="card-text">
-                    <h3>Hi Guest</h3>
-                  </p>
+                  <div className="card-text">
+                    {user ? (
+                      <h3>Hi, {user.first_name}!</h3>
+                    ) : (
+                      <h3>Hi, Guest</h3>
+                    )}
+                  </div>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={""}
-                    style={{
-                      marginTop: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "30px",
-                      borderRadius: "10px",
-                      padding: "10px",
-                    }}
+                    onClick={() => navigate("/profile")}
                   >
                     Your Profile
                   </button>
@@ -327,15 +391,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                     type="button"
                     className="btn btn-primary"
                     onClick={handleLogout}
-                    style={{
-                      marginTop: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "30px",
-                      borderRadius: "10px",
-                      padding: "10px",
-                    }}
                   >
                     Log Out
                   </button>

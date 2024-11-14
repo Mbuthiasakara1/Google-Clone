@@ -4,8 +4,15 @@ from datetime import datetime
 class File(db.Model, sm):
     __tablename__ = 'files'
     
-    serialize_rules = ('-folder.subfolders', '-folder.parent_folder', '-folder.files',
-                   '-user.files', '-user.folders', '-user.password', '-user.email')
+    serialize_rules = (
+        '-folder.files',
+        '-folder.user',
+        '-folder.parent_folder',
+        '-folder.subfolders',
+        '-user.files',
+        '-user.folders',
+        '-user.password',
+    )
 
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -16,6 +23,7 @@ class File(db.Model, sm):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     thumbnail_path = db.Column(db.String(255))
+    bin=db.Column(db.Boolean,default=False)
     
     folder_id = db.Column(db.Integer, db.ForeignKey('folders.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
