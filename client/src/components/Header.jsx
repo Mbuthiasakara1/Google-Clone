@@ -214,6 +214,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
     }
 
     const file = e.target.files[0];
+    console.log(file)
     if (!file) {
       console.error("No file selected");
       return;
