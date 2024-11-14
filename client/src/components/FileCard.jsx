@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import { FaEllipsisV, FaFolder, FaFileAlt } from "react-icons/fa";
+import { useAuth } from './AuthContext'
+import { useSnackbar } from "notistack";
+
+
+
 function FileCard({ file }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState("");
+  const { user } = useAuth()
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleRename = () => {
     fetch(`http://localhost:3001/files/${file.id}`, {
@@ -43,11 +50,33 @@ function FileCard({ file }) {
     console.log("Moving file...");
   };
 
-  const handleDelete = () => {
-    fetch(`http://localhost:3001/files/${file.id}`, { method: "DELETE" }).then(
-      () => console.log("File moved to bin")
-    );
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5555/api/files/${user.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete file');
+        }
+
+        enqueueSnackbar('File Deleted!', {
+          variant: 'success',
+        });
+
+      } catch (error) {
+        setError(error);
+        enqueueSnackbar(error.message || 'An error occurred. Try again.', {
+          variant: 'error' 
+        });
+      }
+    }
   };
+
 
   return (
     <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>

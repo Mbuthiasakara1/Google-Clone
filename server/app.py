@@ -108,18 +108,43 @@ class UserInfo(Resource):
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}, 500
-    
-    
+        
+        
+    def delete(self, id):
+        user = User.query.filter_by(id=id).first()
+        
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return {}, 204
+
+
 class FileInfo(Resource):
     def get(self):
         files_dict = [file.to_dict() for file in File.query.all()]
         return make_response(files_dict, 200)
+    
+    def delete(self, id):
+        file = File.query.filter_by(id=id).first()
+        
+        if file:
+            db.session.delete(file)
+            db.session.commit()
+            return {}, 204
     
 class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.all()]
         return jsonify(folders_dict, 200)
     
+    def delete(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        
+        if folder:
+            db.session.delete(folder)
+            db.session.commit()
+            return {}, 204
+        
 #avatar cloudinary api
 @app.route('/upload-avatar/<int:user_id>',methods=['POST'])  
 def upload_avatar(user_id):
@@ -149,12 +174,12 @@ def upload_avatar(user_id):
 
     
     
-api.add_resource(UserInfo, "/api/users", endpoint='users')
+api.add_resource(UserInfo, "/api/users", "/api/users/<int:id>", endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
-api.add_resource(FileInfo, "/api/files", endpoint='files')
-api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
+api.add_resource(FileInfo, "/api/files", "/api/folders/<int:id>", endpoint='files')
+api.add_resource(FolderInfo, "/api/folders", "/api/folders/<int:id>", endpoint='folders')
     
 
 
