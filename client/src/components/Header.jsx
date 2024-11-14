@@ -174,7 +174,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   const { user, loading, setUser } = useAuth();
   
 
-  console.log(user);
+  // console.log(user);
 
   const navigate = useNavigate();
 

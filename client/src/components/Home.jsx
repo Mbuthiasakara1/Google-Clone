@@ -3,6 +3,8 @@ import axios from "axios";
 import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import { useAuth } from "./AuthContext";
+import { useSnackbar } from "notistack";
 
 function Home() {
   const [files, setFiles] = useState([]);
@@ -12,22 +14,45 @@ function Home() {
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
+  const {user,loading,setLoading} = useAuth()
+  const {enqueueSnackbar}=useSnackbar()
+  
+  
+
+  
 
   useEffect(() => {
-    const fetchFiles = axios.get("http://localhost:3001/files").then((res) => {
-      setFiles(res.data);
-      setFilteredFiles(res.data);
-    });
+    const fetchData = async () => {
+      try {
+        if (user && user.id) {
+          const fileResponse = await axios.get(
+            `http://127.0.0.1:5555/api/fileuser/${user.id}`
+          );
+          setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
+          setFilteredFiles(
+            Array.isArray(fileResponse.data) ? fileResponse.data : []
+          );
 
-    const fetchFolders = axios
-      .get("http://localhost:3001/folders")
-      .then((res) => {
-        setFolders(res.data);
-        setFilteredFolders(res.data);
-      });
+          const folderResponse = await axios.get(
+            `http://127.0.0.1:5555/api/folderuser/${user.id}`
+          );
+          setFolders(
+            Array.isArray(folderResponse.data) ? folderResponse.data : []
+          );
+          setFilteredFolders(
+            Array.isArray(folderResponse.data) ? folderResponse.data : []
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    Promise.all([fetchFiles, fetchFolders]);
-  }, []);
+    fetchData();
+  }, [user]);
+
 
   const handleFilter = (query) => {
     if (!query) {
@@ -46,7 +71,7 @@ function Home() {
   };
 
   const handleRename = (fileId) => {
-    fetch(`http://localhost:3001/files/${fileId}`, {
+    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -85,10 +110,44 @@ function Home() {
       .catch((error) => console.error("Download error:", error));
   };
 
-  const handleDelete = (fileId) => {
-    fetch(`http://localhost:3001/files/${fileId}`, { method: "DELETE" })
-      .then((response) => response.json())
-      .then((data) => setFiles(data));
+  // const handleDelete = (fileId) => {
+  //   fetch(`http://127.0.0.1:5555/api/files/${fileId}`, { method: "DELETE" })
+  //     .then((response) => response.json())
+  //     .then((data) => setFiles(data));
+  // };
+
+
+  const handleDelete = async (fileId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this file? This action cannot be undone."
+      )
+    ) {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5555/api/files/${fileId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete file ");
+        }
+
+        enqueueSnackbar("File Deleted!", {
+          variant: "success",
+        });
+      } catch (error) {
+        setError(error);
+        enqueueSnackbar(error.message || "An error occurred. Try again.", {
+          variant: "error",
+        });
+      }
+    }
   };
 
   return (
