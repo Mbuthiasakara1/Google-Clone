@@ -88,6 +88,7 @@ class UserInfo(Resource):
     
     def post(self):
         data = request.get_json()
+       
         
         date_obj = datetime.strptime(data.get('birthday'), '%Y-%m-%d').date()
 
@@ -108,6 +109,12 @@ class UserInfo(Resource):
             db.session.rollback()
             return {"error": str(e)}, 500
         
+class UserById(Resource):
+    def get(self, id):
+        user = User.query.filter_by(id=id).first()
+        return (user.to_dict(),200)
+
+      
         
     def delete(self, id):
         user = User.query.filter_by(id=id).first()
@@ -123,26 +130,91 @@ class FileInfo(Resource):
         files_dict = [file.to_dict() for file in File.query.all()]
         return make_response(files_dict, 200)
     
+    
+# class FileById(Resource):
+#     def get(self,id):
+#         file = File.query.filter_by(id=id).first()
+#         print(file)
+#         return make_response(file.to_dict(),200)
+
+class FileById(Resource):
+    def get(self, id):
+        file = File.query.filter_by(id=id).first()
+        if file:
+            return make_response(file.to_dict(), 200)
+        return {"message": "File not found"}, 404
+    
+
+    def patch(self,id):
+        file = File.query.filter_by(id=id).first()
+        if file:
+            data=request.get_json()
+            new_name=data['name']
+            file.name=new_name
+            db.session.commit()
+            return jsonify({'message':'name updated successfully'})
+        return jsonify({'error':'Failed to Rename'})
+        
+
+    
+
     def delete(self, id):
         file = File.query.filter_by(id=id).first()
         
         if file:
             db.session.delete(file)
             db.session.commit()
-            return {}, 204
+            return {}, 204 
+        
+        
+
+            
+class FileByUserId(Resource):
+    def get(self, id):
+        files = File.query.filter_by(user_id=id).all()
+        if files:
+            files_dict = [file.to_dict() for file in files]
+            return make_response(files_dict, 200)
+        return {"message": "No files found for this user"}, 404
+           
     
 class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.all()]
-        return jsonify(folders_dict, 200)
+        return make_response(folders_dict, 200)
     
+
+    
+class FolderByUserId(Resource):
+    def get(self, id):
+        folders = Folder.query.filter_by(user_id=id).all()
+        if folders:
+            folders_dict = [folder.to_dict() for folder in folders]
+            return make_response(folders_dict, 200)
+        return {"message": "No folders found for this user"}, 404    
+        
+    
+# class FolderById(Resource):
+#     def get(self,id):
+#         folder = Folder.query.filter_by(id=id).first()
+#         print(folder)
+        # return make_response(folder.to_dict(),200)
+class FolderById(Resource):
+    def get(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        if folder:
+            return make_response(folder.to_dict(), 200)
+        return {"message": "Folder not found"}, 404    
+
     def delete(self, id):
         folder = Folder.query.filter_by(id=id).first()
         
         if folder:
             db.session.delete(folder)
             db.session.commit()
-            return {}, 204
+            return {}, 204   
+
+
         
 #avatar cloudinary api
 @app.route('/upload-avatar/<int:user_id>',methods=['POST'])  
@@ -170,15 +242,18 @@ def upload_avatar(user_id):
           return jsonify({'message':f'the error is {str(e)}'}),500
   
 
-
-    
-    
-api.add_resource(UserInfo, "/api/users", "/api/users/<int:id>", endpoint='users')
+api.add_resource(FileByUserId,"/api/fileuser/<int:id>")  
+api.add_resource(FolderByUserId,"/api/folderuser/<int:id>")    
+api.add_resource(FileById,"/api/files/<int:id>") 
+api.add_resource(FileInfo, "/api/files",endpoint='files')
+api.add_resource(FolderById,"/api/folders/<int:id>") 
+api.add_resource(FolderInfo, "/api/folders",endpoint='folders')
+api.add_resource(UserById,"/api/users/<int:id>") 
+api.add_resource(UserInfo, "/api/users",endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
-api.add_resource(FileInfo, "/api/files", "/api/folders/<int:id>", endpoint='files')
-api.add_resource(FolderInfo, "/api/folders", "/api/folders/<int:id>", endpoint='folders')
+
     
 
 

@@ -5,6 +5,7 @@ import FileCard from "./FileCard";
 import Header from "./Header";
 import FolderCard from "./FolderCard";
 import Sidebar from "./Sidebar";
+import { useAuth } from "./AuthContext";
 
 function Container({ toggleTheme }) {
   const [files, setFiles] = useState([]);
@@ -12,27 +13,48 @@ function Container({ toggleTheme }) {
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [viewType, setViewType] = useState("folders");
+  const { user, loading, setLoading } = useAuth();
+ 
 
   // Pagination states
   const [filePage, setFilePage] = useState(1);
   const [folderPage, setFolderPage] = useState(1);
   const itemsPerPage = 12;
 
+
   useEffect(() => {
-    const fetchFiles = axios.get("http://localhost:3001/files").then((res) => {
-      setFiles(res.data);
-      setFilteredFiles(res.data);
-    });
+    const fetchData = async () => {
+      try {
+        if (user && user.id) {
+          const fileResponse = await axios.get(
+            `http://127.0.0.1:5555/api/fileuser/${user.id}`
+          );
+          setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
+          setFilteredFiles(
+            Array.isArray(fileResponse.data) ? fileResponse.data : []
+          );
 
-    const fetchFolders = axios
-      .get("http://localhost:3001/folders")
-      .then((res) => {
-        setFolders(res.data);
-        setFilteredFolders(res.data);
-      });
+          const folderResponse = await axios.get(
+            `http://127.0.0.1:5555/api/folderuser/${user.id}`
+          );
+          setFolders(
+            Array.isArray(folderResponse.data) ? folderResponse.data : []
+          );
+          setFilteredFolders(
+            Array.isArray(folderResponse.data) ? folderResponse.data : []
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    Promise.all([fetchFiles, fetchFolders]);
-  }, []);
+    fetchData();
+  }, [user]);
+
+  
 
   const handleFilter = (query) => {
     if (!query) {
