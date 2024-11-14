@@ -131,8 +131,7 @@ function Container({ toggleTheme }) {
         className="Container"
         style={{ backgroundColor: "white", borderRadius: "10px" }}
       >
-        <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-
+      
         <div style={{ display: "flex", marginRight: "10px" }}>
           <button
             onClick={() => setViewType("folders")}
