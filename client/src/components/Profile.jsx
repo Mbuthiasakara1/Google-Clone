@@ -8,8 +8,9 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
   const { user, loading } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
-
   const navigate = useNavigate()
+
+
 
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
@@ -66,10 +67,14 @@ const UserProfile = () => {
           <p><strong>Gender:</strong> <span>{user.gender}</span></p>
           <p><strong>Email:</strong> <span>{user.email}</span> </p>
           <button className="card-button" onClick={handleDeleteAccount}>Delete Account</button>
+
         </div>
       </div>
     </div>
   );
 };
 
+
 export default UserProfile;
+
+

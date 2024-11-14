@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+// import Container from "./Container"
 import {
   Search as SearchIcon,
   FormatAlignCenter as FormatAlignCenterIcon,
@@ -294,6 +295,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
           onChange={(e) => onFilter(e.target.value)}
           placeholder="Search in Drive"
         />
+          
         <FormatAlignCenterIcon />
       </HeaderSearch>
       <HeaderIcons showIcons={showIcons}>
@@ -408,3 +410,4 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 }
 
 export default Header;
+
