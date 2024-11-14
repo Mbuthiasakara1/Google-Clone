@@ -57,8 +57,7 @@
     },
     {
       "id": "c655",
-      "name": "folderName"
-      "name": "folder1",
+      "name": "folderName",
       "type": "folder",
       "lastOpened": "Aug 16, 2024",
       "path": "/",

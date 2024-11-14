@@ -7,14 +7,7 @@ import FolderCard from "./FolderCard";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 
-function Container({toggleTheme}) {
-  // State management for files and folders
-  const [items, setItems] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
   
-  // New state variables for folder navigation
-  const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [folderName, setFolderName] = useState("Drive");
 function Container({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -22,7 +15,10 @@ function Container({ toggleTheme }) {
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [viewType, setViewType] = useState("folders");
   const { user, loading, setLoading } = useAuth();
- 
+  const [items, setItems] = useState([]);  
+  // New state variables for folder navigation
+  const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [folderName, setFolderName] = useState("Drive");
 
   // Pagination states
   const [filePage, setFilePage] = useState(1);
@@ -62,10 +58,10 @@ function Container({ toggleTheme }) {
     fetchData();
   }, [user]);
 
-  
+  useEffect(() => {
     if (currentFolderId) {
       // Fetch contents of the current folder
-      fetch(`http://127.0.0.1:5555/api/folders/${currentFolderId}`)
+      fetch(`http://127.0.0.1:5555/api/content/${currentFolderId}`)
         .then(res => res.json())
         .then(data => {
           // Combine files and subfolders into a single array
@@ -218,6 +214,7 @@ function Container({ toggleTheme }) {
             )}
           </>
         )}
+      </div>
       </div>
     </>
   );

@@ -557,19 +557,6 @@ button:disabled {
   overflow-y: scroll;
 }
 
-/* File Card */
-.file-card {
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-}
-.drive-grid {
-  overflow-y: scroll; 
-}
-
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
  
@@ -578,12 +565,6 @@ button:disabled {
   }
   
 }
-
-
-.file-card {
-  position: relative;
-}
-
 
 /* Rename Form Styles */
 .rename-form {

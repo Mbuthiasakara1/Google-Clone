@@ -210,12 +210,7 @@ class FolderContents(Resource):
             }
         except Exception as e:
             return {'error': str(e)}, 500    
-    
-api.add_resource(UserInfo, "/api/users", endpoint='users')
-        return make_response(folders_dict, 200)
-    
-
-    
+        
 class FolderByUserId(Resource):
     def get(self, id):
         folders = Folder.query.filter_by(user_id=id).all()
@@ -286,7 +281,7 @@ api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(FileInfo, "/api/files", endpoint='files')
 api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
-api.add_resource(FolderContents, '/api/folders/<int:folder_id>', endpoint='folder_contents')    
+api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')    
 
     
 
