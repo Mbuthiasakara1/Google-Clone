@@ -20,6 +20,8 @@ function Container({ toggleTheme }) {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folderName, setFolderName] = useState("Drive");
 
+  
+
   // Pagination states
   const [filePage, setFilePage] = useState(1);
   const [folderPage, setFolderPage] = useState(1);
@@ -95,7 +97,23 @@ function Container({ toggleTheme }) {
     }
   }, [currentFolderId]); // Re-run when folder ID changes
 
-  // Original search filter functionality
+  useEffect(() => {
+    const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
+      setFiles(res.data);
+      setFilteredFiles(res.data);
+    });
+
+    const fetchFolders = axios
+      .get("http://localhost:3001/folders")
+      .then((res) => {
+        setFolders(res.data);
+        setFilteredFolders(res.data);
+      });
+
+    Promise.all([fetchFiles, fetchFolders]);
+  }, []);
+
+  
   const handleFilter = (query) => {
     if (!query) {
       setFilteredFiles(files);
@@ -191,7 +209,7 @@ function Container({ toggleTheme }) {
             <h3>Folders</h3>
             <div className="content">
               {displayedFolders.map((folder) => (
-                <FolderCard key={folder.id} folder={folder} />
+                <FolderCard key={folder.id} folder={folder} folders={folders} setFolders={setFolders}/>
               ))}
             </div>
             {filteredFolders.length > displayedFolders.length && (
@@ -205,7 +223,7 @@ function Container({ toggleTheme }) {
             <h3>Files</h3>
             <div className="content">
               {displayedFiles.map((file) => (
-                <FileCard key={file.id} file={file} />
+                <FileCard key={file.id} file={file} files={files} setFiles={setFiles} />
               ))}
             </div>
             {filteredFiles.length > displayedFiles.length && (

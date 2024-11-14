@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaFolder } from "react-icons/fa";
 
-function FolderCard({ folder }) {
+function FolderCard({ folder, setFolders, folders }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState(folder.name);
-  const [folders, setFolders] = useState([]);
+  // const [folders, setFolders] = useState([]);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
 
   // Fetch folders for move option on initial load
-  useEffect(() => {
-    fetch("http://localhost:3001/folders")
-      .then((response) => response.json())
-      .then((data) => setFolders(data));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:3001/folders")
+  //     .then((response) => response.json())
+  //     .then((data) => setFolders(data));
+  // }, []);
 
   const handleRename = () => {
     fetch(`http://localhost:3001/folders/${folder.id}`, {
@@ -24,7 +24,9 @@ function FolderCard({ folder }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        folder.name = data.name; 
+        setFolders((prevFolders) =>
+          prevFolders.map((f) => (f.id === data.id ? data : f))
+        );
         setDisplayRenameForm(false);
       });
   };
@@ -69,12 +71,23 @@ function FolderCard({ folder }) {
     }
   };
 
-  const handleDelete = () => {
-    fetch(`http://localhost:3001/folders/${folder.id}`, { method: "DELETE" })
-      .then((response) => response.json())
+  const handleMoveToBin = () => {
+    if (!folder || !folder.id) {
+      console.error("No folder selected or folder id is missing");
+      return;
+    }
+
+    fetch(`http://localhost:3001/folders/${folder.id}`, {
+      method: 'PATCH',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bin: true }),
+    })
+      .then((r) => r.json())
       .then((data) => {
-        setFolders(data)
-      });
+        console.log("Folder moved to bin:", data);
+        setFolders(folders.filter(f => f.id !== folder.id)); 
+      })
+      .catch((error) => console.error("Error moving folder to bin:", error));
   };
 
   return (
@@ -87,17 +100,17 @@ function FolderCard({ folder }) {
         <p>{folder.size || "N/A"} KB</p>
         <p>Last modified: {folder.modifiedDate || "N/A"}</p>
       </div>
-      <button className="dropdown-btn" onClick={() => setShowDropdown(!showDropdown)}>
+      <button className="dropdown-btn" onClick={() => setShowDropdown(folder.id)}>
         <FaEllipsisV />
       </button>
-      {showDropdown && (
+      {showDropdown == folder.id && (
         <div className="dropdown-menu">
           <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>
             Rename
           </button>
           <button onClick={handleDownload}>Download</button>
           <button onClick={handleMove}>Move</button>
-          <button onClick={handleDelete}>Delete</button>
+          <button onClick={handleMoveToBin}>Move to Bin</button>
         </div>
       )}
       {displayRenameForm && (

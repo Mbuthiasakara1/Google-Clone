@@ -132,6 +132,13 @@ function Sidebar() {
             </p>
           </div>
         </Link>
+        <Link to={"/trash"}>
+          <div id="hmd" style={{ cursor: "pointer" }}>
+            <p>
+            <i className="fa-solid fa-trash"></i> Trash
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   );

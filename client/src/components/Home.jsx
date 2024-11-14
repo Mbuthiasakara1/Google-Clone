@@ -174,9 +174,46 @@ function Home() {
           <div className="content">
             {filteredFolders.map((folder) => (
               <div key={folder.id}>
-                <p style={{ display: "inline-block" }}>
+                <p style={{ display: "inline-block", border:'1px solid gray', padding:'10px', width:'200px' }}>
                   <FaFolder style={{ color: "burlywood" }} /> {folder.name}
                 </p>
+                
+                <button
+                  className="folder-dropdown"
+                  onClick={() =>
+                    setDropdownId(dropdownId === folder.id ? null : folder.id)
+                  }
+                >
+                  <FaEllipsisV />
+                </button>
+                {dropdownId === folder.id && (
+                  <div className="folder-dropdown-menu">
+                    <button onClick={() => setRenameId(folder.id)}>Rename</button>
+                    <button onClick={() => handleDownload(folder)}>
+                      Download
+                    </button>
+                    <button>Move</button>
+                    <button onClick={() => handleDelete(folder.id)}>
+                      Delete
+                    </button>
+                  </div>
+                )}
+                {renameId === folder.id && (
+                  <div className="rename-form">
+                    <label htmlFor="renameInput">New Name:</label>
+                    <input
+                      type="text"
+                      id="renameInput"
+                      value={rename}
+                      onChange={(e) => setRename(e.target.value)}
+                      placeholder="Enter new name"
+                    />
+                    <button onClick={() => handleRename(folder.id)}>
+                      Submit
+                    </button>
+                    <button onClick={() => setRenameId(null)}>Cancel</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
