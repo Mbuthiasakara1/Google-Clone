@@ -839,7 +839,7 @@ button:disabled {
 
 }
 
-.card-title {
+
 .app {
   text-align: center;
   width: 50%;
@@ -957,7 +957,7 @@ button:disabled {
   background-color: #ff1a1a;
 }
 
-  flex-direction: column;
+  /* flex-direction: column;
   align-items: center;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
@@ -966,7 +966,7 @@ button:disabled {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%; 
   z-index: 20; 
-}
+} */
 
 
 .rename-form label {

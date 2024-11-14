@@ -6,6 +6,7 @@ import UserProfile from "./Profile";
 import Home from "./Home";
 import Sidebar from "./Sidebar";
 import Container from "./Container";
+import Trash from "./Trash";
 
 const routes = [
     {
@@ -36,6 +37,10 @@ const routes = [
     {
         path:"/sidebar",
         element:<Sidebar/>
+    },
+    {
+        path:"/trash",
+        element:<Trash />
     }
 
 ]
