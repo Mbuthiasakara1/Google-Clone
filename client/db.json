@@ -2,7 +2,7 @@
   "files": [
     {
       "id": "1",
-      "name": "Ryne",
+      "name": "Ryne Pic",
       "type": "image",
       "mimeType": "image/png",
       "size": "2.4 MB",
@@ -12,7 +12,7 @@
     },
     {
       "id": "2",
-      "name": "kevin",
+      "name": "Alex.doc",
       "type": "pdf",
       "mimeType": "application/pdf",
       "size": "1.2 MB",
@@ -32,7 +32,7 @@
     },
     {
       "id": "4",
-      "name": "Spreadsheet.xlsx",
+      "name": "Test.xlsx",
       "type": "spreadsheet",
       "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "size": "854 KB",
@@ -60,7 +60,19 @@
     },
     {
       "id": "4ec9",
-      "name": "folder1"
+      "name": "folder1",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "3"
+    },
+    {
+      "id": "23a2",
+      "name": "Kalvine Ndei"
+    },
+    {
+      "id": "a171",
+      "name": "Sam"
     }
   ],
   "users": [

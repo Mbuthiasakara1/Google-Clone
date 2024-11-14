@@ -103,7 +103,34 @@ class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.all()]
         return jsonify(folders_dict, 200)
-    
+class FolderContents(Resource):
+    def get(self, folder_id):
+        try:
+            folder = Folder.query.get_or_404(folder_id)
+            return {
+                'id': folder.id,
+                'name': folder.name,
+                'files': [
+                    {
+                        'id': file.id,
+                        'name': file.name,
+                        'filetype': file.filetype,
+                        'filesize': file.filesize,
+                        'created_at': file.created_at.isoformat(),
+                        'updated_at': file.updated_at.isoformat()
+                    } for file in folder.files
+                ],
+                'subfolders': [
+                    {
+                        'id': subfolder.id,
+                        'name': subfolder.name,
+                        'created_at': subfolder.created_at.isoformat(),
+                        'updated_at': subfolder.updated_at.isoformat()
+                    } for subfolder in folder.subfolders
+                ]
+            }
+        except Exception as e:
+            return {'error': str(e)}, 500    
     
 api.add_resource(UserInfo, "/api/users", endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
@@ -111,7 +138,7 @@ api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(FileInfo, "/api/files", endpoint='files')
 api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
-    
+api.add_resource(FolderContents, '/api/folders/<int:folder_id>', endpoint='folder_contents')    
 
 
 # if __name__ == "__main__":
