@@ -279,8 +279,6 @@ api.add_resource(UserInfo, "/api/users",endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
-api.add_resource(FileInfo, "/api/files", endpoint='files')
-api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
 api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')    
 
     
