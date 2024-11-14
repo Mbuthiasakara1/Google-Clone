@@ -24,7 +24,7 @@ function FolderCard({ folder }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        folder.name = data.name; // Update the folder's name directly or use a callback if passed down
+        folder.name = data.name; 
         setDisplayRenameForm(false);
       });
   };
@@ -104,6 +104,7 @@ function FolderCard({ folder }) {
         <div className="rename-form">
           <label htmlFor="renameInput">New Name:</label>
           <input
+          style={{height:'40px'}}
             type="text"
             id="renameInput"
             value={rename}

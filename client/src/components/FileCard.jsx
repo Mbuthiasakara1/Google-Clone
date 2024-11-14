@@ -125,6 +125,7 @@ function FileCard({ file }) {
         <div className="rename-form">
           <label htmlFor="renameInput">New Name:</label>
           <input
+          style={{height:'40px'}}
             type="text"
             id="renameInput"
             value={rename}

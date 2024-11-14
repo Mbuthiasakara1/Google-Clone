@@ -4,7 +4,7 @@ import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
 import Container from "./components/Container";
-import { AuthProvider, useAuth } from './components/AuthContext'
+
 
 
 const lightTheme = {

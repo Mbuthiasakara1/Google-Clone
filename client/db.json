@@ -1,26 +1,6 @@
 {
   "files": [
     {
-      "id": "1",
-      "name": "new",
-      "type": "image",
-      "mimeType": "image/png",
-      "size": "2.4 MB",
-      "lastOpened": "Aug 16, 2024",
-      "path": "/",
-      "url": "https://example.com/example.png"
-    },
-    {
-      "id": "2",
-      "name": "kevin",
-      "type": "pdf",
-      "mimeType": "application/pdf",
-      "size": "1.2 MB",
-      "lastOpened": "Aug 16, 2024",
-      "path": "/",
-      "url": "https://example.com/document.pdf"
-    },
-    {
       "id": "3",
       "name": "Spreadsheet.xlsx",
       "type": "spreadsheet",
@@ -44,18 +24,8 @@
   ],
   "folders": [
     {
-
-      "id": "5",
-      "name": "Documents",
-      "type": "folder",
-      "lastOpened": "Aug 16, 2024",
-      "path": "/",
-      "folderId": "2"
-    },
-    {
-      
       "id": "6",
-      "name": "Kelvin",
+      "name": "iwaschanged",
       "type": "folder",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
