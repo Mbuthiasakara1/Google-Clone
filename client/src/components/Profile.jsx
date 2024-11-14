@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from "./AuthContext"
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useAuth } from "./AuthContext"
+
 
 const UserProfile = () => {
   const [error, setError] = useState(null);
