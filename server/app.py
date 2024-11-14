@@ -177,8 +177,36 @@ class FileByUserId(Resource):
 class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.all()]
-        return make_response(folders_dict, 200)
-   
+        return jsonify(folders_dict, 200)
+class FolderContents(Resource):
+    def get(self, folder_id):
+        try:
+            folder = Folder.query.get_or_404(folder_id)
+            return {
+                'id': folder.id,
+                'name': folder.name,
+                'files': [
+                    {
+                        'id': file.id,
+                        'name': file.name,
+                        'filetype': file.filetype,
+                        'filesize': file.filesize,
+                        'created_at': file.created_at.isoformat(),
+                        'updated_at': file.updated_at.isoformat()
+                    } for file in folder.files
+                ],
+                'subfolders': [
+                    {
+                        'id': subfolder.id,
+                        'name': subfolder.name,
+                        'created_at': subfolder.created_at.isoformat(),
+                        'updated_at': subfolder.updated_at.isoformat()
+                    } for subfolder in folder.subfolders
+                ]
+            }
+        except Exception as e:
+            return {'error': str(e)}, 500    
+        
 class FolderByUserId(Resource):
     def get(self, id):
         folders = Folder.query.filter_by(user_id=id).all()
@@ -255,6 +283,9 @@ api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(UploadAvatar,"/api/upload-avatar/<int:user_id>")
+api.add_resource(FileInfo, "/api/files", endpoint='files')
+api.add_resource(FolderInfo, "/api/folders", endpoint='folders')
+api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')    
 
     
 

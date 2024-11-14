@@ -7,6 +7,7 @@ import FolderCard from "./FolderCard";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 
+  
 function Container({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -14,7 +15,10 @@ function Container({ toggleTheme }) {
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [viewType, setViewType] = useState("folders");
   const { user, loading, setLoading } = useAuth();
- 
+  const [items, setItems] = useState([]);  
+  // New state variables for folder navigation
+  const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [folderName, setFolderName] = useState("Drive");
 
   // Pagination states
   const [filePage, setFilePage] = useState(1);
@@ -54,8 +58,44 @@ function Container({ toggleTheme }) {
     fetchData();
   }, [user]);
 
-  
+  useEffect(() => {
+    if (currentFolderId) {
+      // Fetch contents of the current folder
+      fetch(`http://127.0.0.1:5555/api/content/${currentFolderId}`)
+        .then(res => res.json())
+        .then(data => {
+          // Combine files and subfolders into a single array
+          const allItems = [
+            ...(data.files || []),
+            ...(data.subfolders || []).map(folder => ({ 
+              ...folder, 
+              type: 'folder' // Ensure folders are properly marked
+            }))
+          ];
+          setItems(allItems);
+          setFilteredFiles(allItems);
+          setFolderName(data.name || "Folder");
+        })
+        .catch(error => console.error("Error fetching folder contents:", error));
+    } else {
+      // Fetch root level items (original functionality)
+      Promise.all([
+        fetch("http://localhost:3001/files").then((res) => res.json()),
+        fetch("http://localhost:3001/folders").then((res) => res.json()),
+      ])
+        .then(([files, folders]) => {
+          const allItems = [...files, ...folders];
+          setItems(allItems);
+          setFilteredFiles(allItems);
+          setFolderName("Drive"); // Reset folder name when at root
+        })
+        .catch((error) =>
+          console.error("Error fetching files and folders:", error)
+        );
+    }
+  }, [currentFolderId]); // Re-run when folder ID changes
 
+  // Original search filter functionality
   const handleFilter = (query) => {
     if (!query) {
       setFilteredFiles(files);
@@ -78,6 +118,11 @@ function Container({ toggleTheme }) {
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
 
+  // New handler for folder navigation
+  const handleFolderClick = (folderId) => {
+    setCurrentFolderId(folderId);
+  };
+
   return (
     <>
       <Header onFilter={handleFilter} toggleTheme={toggleTheme} />
@@ -86,8 +131,7 @@ function Container({ toggleTheme }) {
         className="Container"
         style={{ backgroundColor: "white", borderRadius: "10px" }}
       >
-        <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-
+      
         <div style={{ display: "flex", marginRight: "10px" }}>
           <button
             onClick={() => setViewType("folders")}
@@ -105,6 +149,41 @@ function Container({ toggleTheme }) {
           >
             <FaFileAlt />
           </button>
+        {/* Added navigation header with back button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {currentFolderId && (
+            <button
+              onClick={() => setCurrentFolderId(null)}
+              style={{
+                padding: '5px 10px',
+                background: 'none',
+                border: 'none',
+                color: '#4285f4',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              ← Back to Drive
+            </button>
+          )}
+          <h1 style={{ color: "black" }}>
+            {currentFolderId ? folderName : "Welcome to Drive"}
+          </h1>
+        </div>
+        
+        {/* File/folder grid with empty state handling */}
+        <div className="content">
+          {filteredFiles.length > 0 ? (
+            filteredFiles.map((item) => (
+              <FileCard 
+                key={item.id} 
+                file={item} 
+                onFolderClick={handleFolderClick}  // Pass folder click handler
+              />
+            ))
+          ) : (
+            <h2 style={{ color: "gray" }}>No files found</h2>
+          )}
         </div>
 
         {viewType === "folders" && displayedFolders.length > 0 && (
@@ -134,6 +213,7 @@ function Container({ toggleTheme }) {
             )}
           </>
         )}
+      </div>
       </div>
     </>
   );
