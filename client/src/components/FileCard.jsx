@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
-import { useAuth } from './AuthContext';
-import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from './AuthContext'
 import { useSnackbar } from "notistack";
 import { Description, Image, PictureAsPdf, VideoFile, AudioFile, InsertDriveFile, Folder, TableChart, Article } from '@mui/icons-material';
