@@ -253,7 +253,6 @@ class UploadAvatar(Resource):
         #now we upload to cloudinary
         try:
             result=cloudinary.uploader.upload(file)
-            print(result)
             image_url=result['secure_url']
             
             #retrieve the user
@@ -282,7 +281,8 @@ api.add_resource(UserInfo, "/api/users",endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
-api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')    
+api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')
+api.add_resource(UploadAvatar, '/api/upload-avatar/<int:user_id>', endpoint='upload_avatar')
 
     
 

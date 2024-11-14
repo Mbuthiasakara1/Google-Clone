@@ -82,8 +82,6 @@ function Container({ toggleTheme }) {
     } else {
       // Fetch root level items (original functionality)
       Promise.all([
-        fetch("http://localhost:3001/files").then((res) => res.json()),
-        fetch("http://localhost:3001/folders").then((res) => res.json()),
       ])
         .then(([files, folders]) => {
           const allItems = [...files, ...folders];
