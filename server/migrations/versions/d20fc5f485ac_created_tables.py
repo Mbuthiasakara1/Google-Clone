@@ -1,8 +1,8 @@
-"""created models
+"""created tables
 
-Revision ID: bcc8ecc1cf96
+Revision ID: d20fc5f485ac
 Revises: 
-Create Date: 2024-11-14 22:51:07.375108
+Create Date: 2024-11-15 08:57:09.471608
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bcc8ecc1cf96'
+revision = 'd20fc5f485ac'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,8 +38,8 @@ def upgrade():
     sa.Column('bin', sa.Boolean(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('parent_folder_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['parent_folder_id'], ['folders.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['parent_folder_id'], ['folders.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('files',
@@ -54,8 +54,8 @@ def upgrade():
     sa.Column('bin', sa.Boolean(), nullable=True),
     sa.Column('folder_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['folder_id'], ['folders.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['folder_id'], ['folders.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

@@ -28,7 +28,10 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
-CORS(app, supports_credentials=True)
+
+# CORS(app, supports_credentials=True ,origins="http://localhost:5173/")
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+
 
 bcrypt = Bcrypt(app)
 api = Api(app)
@@ -285,7 +288,6 @@ api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folde
 api.add_resource(UploadAvatar, '/api/upload-avatar/<int:user_id>', endpoint='upload_avatar')
 
     
-
 
 # if __name__ == "__main__":
 #     port = int(os.environ.get("PORT", 5555))

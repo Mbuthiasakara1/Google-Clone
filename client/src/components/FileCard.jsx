@@ -60,7 +60,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   };
 
   const handleRename = () => {
-    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
+    fetch(`http://localhost:5555/api/files/${file.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -73,7 +73,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   };
 
   const handleDownload = () => {
-    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
+    fetch(`http://localhost:5555/api/files/${file.id}`, {
       method: "GET",
       headers: { "Content-Type": "application/octet-stream" },
     })
@@ -150,7 +150,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
       try {
-        const response = await fetch(`http://127.0.0.1:5555/api/files/${user.id}`, {
+        const response = await fetch(`http://localhost:5555/api/files/${user.id}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
         });

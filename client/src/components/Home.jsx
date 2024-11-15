@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 
@@ -26,7 +27,7 @@ function Home() {
       try {
         if (user && user.id) {
           const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}`
+            `http://localhost:5173/api/fileuser/${user.id}`
           );
           setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
           setFilteredFiles(
@@ -34,7 +35,7 @@ function Home() {
           );
 
           const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}`
+            `http://localhost:5173/api/folderuser/${user.id}`
           );
           setFolders(
             Array.isArray(folderResponse.data) ? folderResponse.data : []
@@ -72,7 +73,7 @@ function Home() {
 
   const handleRename = async (fileId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+      const response = await fetch(`http://localhost:5173/api/files/${fileId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -134,7 +135,7 @@ function Home() {
     ) {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5555/api/files/${fileId}`,
+          `http://localhost:5173/api/files/${fileId}`,
           {
             method: "DELETE",
             headers: {
@@ -219,8 +220,9 @@ function Home() {
           </div>
           <div>
             <h3>Files</h3>
+            <FileCard />
 
-            {filteredFiles.map((file) => (
+            {/* {filteredFiles.map((file) => (
               <div
                 className="file-card"
                 key={file.id}
@@ -271,7 +273,7 @@ function Home() {
                   </div>
                 )}
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

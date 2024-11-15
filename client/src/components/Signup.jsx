@@ -49,7 +49,7 @@ function Signup() {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const response = await fetch("http://127.0.0.1:5555/api/users", {
+        const response = await fetch("http://localhost:5173/api/users", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
