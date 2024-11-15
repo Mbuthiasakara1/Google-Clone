@@ -210,6 +210,7 @@ class FolderInfo(Resource):
         return jsonify(folders_dict, 200)
    
     
+<<<<<<< HEAD
     def post(self):
         data = request.get_json()
         
@@ -236,6 +237,8 @@ class FolderInfo(Resource):
             db.session.rollback()
             return {"error": str(e)}, 500
     
+=======
+>>>>>>> fa2807f (resolved merge conflicts)
 class FolderContents(Resource):
     def get(self, folder_id):
         try:
