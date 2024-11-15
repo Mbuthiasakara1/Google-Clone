@@ -17,7 +17,7 @@ function Trash() {
     if (!user) return;
 
     setLoading(true);
-  
+
     const fetchFiles = axios
       .get(`http://localhost:5555/api/trash/file/${user.id}`)
       .then((res) => {
