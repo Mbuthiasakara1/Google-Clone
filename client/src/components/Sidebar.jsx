@@ -12,8 +12,7 @@ function Sidebar() {
   const [showForm, setShowForm] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [files, setFiles] = useState([]);
-  const { user } = useAuth();
-
+ 
   function handleClick() {
     setDropDown(!dropDown);
     setShowForm(false);
