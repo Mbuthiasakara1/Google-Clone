@@ -8,7 +8,7 @@ import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 
   
-function Container({ toggleTheme }) {
+function Drive({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
@@ -241,4 +241,4 @@ function Container({ toggleTheme }) {
   );
 }
 
-export default Container;
+export default Drive;

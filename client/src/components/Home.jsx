@@ -6,7 +6,6 @@ import Sidebar from "./Sidebar";
 import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
-import FileCard from "./FileCard";
 import FolderCard from "./FolderCard";
 
 function Home() {
