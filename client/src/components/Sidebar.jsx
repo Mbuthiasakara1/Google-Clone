@@ -1,12 +1,13 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { FaFolderPlus } from "react-icons/fa6";
 import { MdUploadFile } from "react-icons/md";
+import { useAuth } from "./AuthContext";
+import { Link, useParams } from "react-router-dom";
+import UploadWidget from "./UploadWidget";
 
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 function Sidebar() {
+  const { user } = useAuth();
+  const { folderId } = useParams(); // Get folderId from URL params
   const [dropDown, setDropDown] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [folderName, setFolderName] = useState("");
@@ -22,42 +23,35 @@ function Sidebar() {
     setDropDown(false);
   }
 
+  // Handle form submission to create a folder
   function handleFormSubmit(e) {
     e.preventDefault();
-    fetch("http://localhost:3001/folders", {
+    const parentId = folderId ? folderId : null; // If there's no folderId, send null
+
+    fetch("http://127.0.0.1:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: folderName }),
+      body: JSON.stringify({
+        name: folderName,
+        user_id: user.id,
+        parent_id: parentId, // Automatically use the folderId from URL as parent_id
+      }),
     })
       .then((response) => response.json())
-      .then((data) => setFolderName(data))
-      .catch((error) => console.error("Error:", error));
-    setFolderName("");
-    setShowForm(false);
-  }
-
-  function handleFileChange(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      fetch("http://localhost:3001/files", {
-        method: "POST",
-        body: formData,
+      .then((data) => {
+        console.log("Folder created:", data);
+        setFolderName("");
+        setShowForm(false);
       })
-        .then((response) => response.json())
-        .then((data) => {
-          const url = URL.createObjectURL(file);
-          setFiles((prevFiles) => [...prevFiles, url]);
-        })
-        .catch((error) => console.error("File upload failed:", error));
-    } else {
-      console.log("No file selected");
-    }
+      .catch((error) => console.error("Error:", error));
   }
+
+  // Function to handle successful file uploads
+  const handleFileUpload = (url) => {
+    setFiles((prevFiles) => [...prevFiles, url]);
+  };
 
   return (
     <div id="sidebar-container">
@@ -69,8 +63,7 @@ function Sidebar() {
           onMouseLeave={() => setShowForm(false)}
         >
           <h3 style={{ color: "black" }}>
-            <i className="fa-solid fa-plus" style={{ color: "#030303" }}></i>{" "}
-            New
+            <i className="fa-solid fa-plus" style={{ color: "#030303" }}></i> New
           </h3>
         </div>
         {dropDown && (
@@ -81,26 +74,14 @@ function Sidebar() {
                 <FaFolderPlus className="dropdown-icons" /> Create Folder
               </li>
               <li>
-                <label htmlFor="fileInput" style={{ cursor: "pointer" }}>
-                  <MdUploadFile className="dropdown-icons" /> Upload File
-                </label>
-                <input
-                  type="file"
-                  id="fileInput"
-                  style={{ display: "none" }}
-                  accept="*/*"
-                  onChange={handleFileChange}
-                />
+                <MdUploadFile /> <UploadWidget onUpload={handleFileUpload} />
               </li>
             </ul>
           </>
         )}
         {showForm && (
           <>
-            <div
-              className="form-overlay"
-              onClick={() => setShowForm(false)}
-            ></div>
+            <div className="form-overlay" onClick={() => setShowForm(false)}></div>
             <form onSubmit={handleFormSubmit} className="folder-form">
               <label htmlFor="folderName">New Folder</label>
               <input
@@ -120,8 +101,7 @@ function Sidebar() {
         <Link to={"/home"}>
           <div id="hmd" style={{ cursor: "pointer" }}>
             <p>
-              <i className="fa-solid fa-house" style={{ color: "#393b3c" }}></i>{" "}
-              Home
+              <i className="fa-solid fa-house" style={{ color: "#393b3c" }}></i> Home
             </p>
           </div>
         </Link>
@@ -135,7 +115,7 @@ function Sidebar() {
         <Link to={"/trash"}>
           <div id="hmd" style={{ cursor: "pointer" }}>
             <p>
-            <i className="fa-solid fa-trash"></i> Trash
+              <i className="fa-solid fa-trash"></i> Trash
             </p>
           </div>
         </Link>

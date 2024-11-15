@@ -206,6 +206,32 @@ class FolderInfo(Resource):
         folders_dict = [folder.to_dict() for folder in Folder.query.filter_by()]
         return jsonify(folders_dict, 200)
     
+    def post(self):
+        data = request.get_json()
+        
+        name = data.get('name')
+        if not name:
+            return {'error': 'No name provided'}, 400
+        
+        parent_folder_id = data.get('parent_id')
+        user_id = data.get('user_id')
+        
+        new_folder = Folder(
+            name=name,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            user_id=user_id,
+            parent_folder_id=parent_folder_id
+        )
+        
+        try:
+            db.session.add(new_folder)
+            db.session.commit()
+            return new_folder.to_dict(), 201
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+    
 class FolderContents(Resource):
     def get(self, folder_id):
         try:
@@ -322,6 +348,7 @@ class UploadAvatar(Resource):
         #now we upload to cloudinary
         try:
             result=cloudinary.uploader.upload(file)
+            print(result)
             image_url=result['secure_url']
             
             #retrieve the user
