@@ -257,6 +257,7 @@ function Home() {
           <div>
             <h3>Files</h3>
             {/* <FileCard /> */}
+            {/* <FileCard /> */}
 
             {filteredFiles.map((file) => ( 
               <div
@@ -310,6 +311,7 @@ function Home() {
                 )}
               </div>
             ))} 
+           
           </div>
         </div>
       </div>
