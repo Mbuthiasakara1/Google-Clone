@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";
 import { AuthProvider, useAuth } from './components/AuthContext'
 import Drive from "./components/Drive";
+import Drive from "./components/Drive";
 
 
 
@@ -38,7 +39,6 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        <Drive />
         <Drive />
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
