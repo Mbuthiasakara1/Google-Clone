@@ -165,11 +165,38 @@ class FileById(Resource):
         if file:
             db.session.delete(file)
             db.session.commit()
-            return {}, 204 
+            return {}, 204
+        
+@app.route('/api/files/<int:id>/move-to-trash', methods=['PATCH'])
+def move_file_to_bin(id):
+    file = File.query.filter_by(id=id).first()
+    if not file:
+        return {'error': 'file not found'}, 404
+    
+    data = request.get_json()
+    bin_state = data.get('bin')
+    if bin_state is None:
+        return {'error': 'Bin state not provided'}, 400
+    
+    file.bin = bin_state
+    db.session.commit()
+    
+    return {'message': 'File moved to bin', 'file': {'id': file.id, 'bin': file.bin}}, 200
+
           
 class FileByUserId(Resource):
     def get(self, id):
-        files = File.query.filter_by(user_id=id).all()
+        files = File.query.filter_by(user_id=id, bin=False).all()
+        if files:
+            files_dict = [file.to_dict() for file in files]
+            return make_response(files_dict, 200)
+        return {
+            "message": "No files found for this user"
+            }, 404
+    
+class TrashFileByUserId(Resource):
+    def get(self, id):
+        files = File.query.filter_by(user_id=id, bin=True).all()
         if files:
             files_dict = [file.to_dict() for file in files]
             return make_response(files_dict, 200)
@@ -179,8 +206,9 @@ class FileByUserId(Resource):
            
 class FolderInfo(Resource):
     def get(self):
-        folders_dict = [folder.to_dict() for folder in Folder.query.all()]
+        folders_dict = [folder.to_dict() for folder in Folder.query.filter_by()]
         return jsonify(folders_dict, 200)
+    
 class FolderContents(Resource):
     def get(self, folder_id):
         try:
@@ -212,13 +240,23 @@ class FolderContents(Resource):
         
 class FolderByUserId(Resource):
     def get(self, id):
-        folders = Folder.query.filter_by(user_id=id).all()
+        folders = Folder.query.filter_by(user_id=id, bin=False).all()
         if folders:
             folders_dict = [folder.to_dict() for folder in folders]
             return make_response(folders_dict, 200)
         return {
             "message": "No folders found for this user"
-            }, 404    
+            }, 404
+
+class TrashFolderByUserID(Resource):
+     def get(self, id):
+        folders = Folder.query.filter_by(user_id=id, bin=True).all()
+        if folders:
+            folders_dict = [folder.to_dict() for folder in folders]
+            return make_response(folders_dict, 200)
+        return {
+            "message": "No folders found for this user"
+            }, 404 
 
 class FolderById(Resource):
     def get(self, id):
@@ -227,7 +265,21 @@ class FolderById(Resource):
             return make_response(folder.to_dict(), 200)
         return {
             "message": "Folder not found"
-            }, 404    
+            }, 404
+        
+    def patch(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        if folder:
+            data = request.get_json()
+            new_name = data.get('name')
+            if not new_name:
+                return {'error': 'No new name provided'}, 400
+            
+            folder.name = new_name            
+            db.session.commit()
+            
+            return {'message': 'Name updated successfully'}, 200
+        return {'error': 'Folder not found'}, 404  
 
     def delete(self, id):
         folder = Folder.query.filter_by(id=id).first()
@@ -235,7 +287,24 @@ class FolderById(Resource):
         if folder:
             db.session.delete(folder)
             db.session.commit()
-            return {}, 204   
+            return {}, 204
+        
+@app.route('/api/folders/<int:id>/move-to-trash', methods=['PATCH'])
+def move_folder_to_bin(id):
+    folder = Folder.query.filter_by(id=id).first()
+    if not folder:
+        return {'error': 'Folder not found'}, 404
+    
+    data = request.get_json()
+    bin_state = data.get('bin')
+    if bin_state is None:
+        return {'error': 'Bin state not provided'}, 400
+    
+    folder.bin = bin_state
+    db.session.commit()
+    
+    return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
+
        
 #avatar cloudinary api
 class UploadAvatar(Resource):
@@ -286,6 +355,8 @@ api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
 api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')
 api.add_resource(UploadAvatar, '/api/upload-avatar/<int:user_id>', endpoint='upload_avatar')
+api.add_resource(TrashFolderByUserID, "/api/trash/folder/<int:id>", endpoint='trash_folder')
+api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_file')
 
     
 

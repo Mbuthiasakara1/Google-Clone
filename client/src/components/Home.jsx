@@ -6,6 +6,8 @@ import Sidebar from "./Sidebar";
 import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
+import FileCard from "./FileCard";
+import FolderCard from "./FolderCard";
 
 function Home() {
   const [files, setFiles] = useState([]);
@@ -71,7 +73,7 @@ function Home() {
     }
   };
 
-  const handleRename = async (fileId) => {
+  const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(`http://localhost:5173/api/files/${fileId}`, {
         method: "PATCH",
@@ -97,6 +99,40 @@ function Home() {
       setRename("");
       setRenameId(null);
       enqueueSnackbar("File renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
+  };
+
+  const handleRenameFolder = async (folderId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename folder. Status: ${response.status}`);
+      }
+  
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
+  
+      setFiles((prevFolders) =>
+        prevFolders.map((folder) =>
+          folder.id === folderId ? { ...folder, name: data.name } : folder
+        )
+      );
+  
+      setRename("");
+      setRenameId(null);
+      enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
     } catch (error) {
       console.error("Rename error:", error);
       enqueueSnackbar(error.message || "An error occurred while renaming.", {
@@ -169,7 +205,8 @@ function Home() {
         style={{ backgroundColor: "white", borderRadius: "10px" }}
       >
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-
+      {/* <FileCard />
+      <FolderCard /> */}
         <div>
           <h3>Folders</h3>
           <div className="content">
@@ -194,8 +231,8 @@ function Home() {
                       Download
                     </button>
                     <button>Move</button>
-                    <button onClick={() => handleDelete(folder.id)}>
-                      Delete
+                    <button onClick={() => handleMoveToTrash(folder.id)}>
+                      Move to Trash
                     </button>
                   </div>
                 )}
@@ -209,7 +246,7 @@ function Home() {
                       onChange={(e) => setRename(e.target.value)}
                       placeholder="Enter new name"
                     />
-                    <button onClick={() => handleRename(folder.id)}>
+                    <button onClick={() => handleRenameFolder(folder.id)}>
                       Submit
                     </button>
                     <button onClick={() => setRenameId(null)}>Cancel</button>
@@ -251,8 +288,8 @@ function Home() {
                       Download
                     </button>
                     <button>Move</button>
-                    <button onClick={() => handleDelete(file.id)}>
-                      Delete
+                    <button onClick={() => handleMoveToTrash(file.id)}>
+                      Move to Trash
                     </button>
                   </div>
                 )}
@@ -266,7 +303,7 @@ function Home() {
                       onChange={(e) => setRename(e.target.value)}
                       placeholder="Enter new name"
                     />
-                    <button onClick={() => handleRename(file.id)}>
+                    <button onClick={() => handleRenameFile(file.id)}>
                       Submit
                     </button>
                     <button onClick={() => setRenameId(null)}>Cancel</button>

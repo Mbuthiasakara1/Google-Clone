@@ -5,7 +5,7 @@ import Login from "./Login";
 import UserProfile from "./Profile";
 import Home from "./Home";
 import Sidebar from "./Sidebar";
-import Drive from "./Container";
+import Drive from "./Drive";
 import Trash from "./Trash";
 
 const routes = [
@@ -33,6 +33,7 @@ const routes = [
     {
         path:'/my-drive',
         element:<Drive />
+        
     },
     {
         path:"/sidebar",

@@ -3,39 +3,59 @@ import axios from "axios";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { FaFileAlt, FaFolder, FaEllipsisV } from "react-icons/fa";
+import { useAuth } from "./AuthContext";
 
 function Trash() {
-  const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
+  const { user, loading, setLoading } = useAuth()
 
   useEffect(() => {
     setLoading(true);
-
+  
     const fetchFiles = axios
-      .get(`http://localhost:3001/files?bin=true`)
+      .get(`http://127.0.0.1:5555/api/trash/file/${user.id}`) // Corrected URL
       .then((res) => {
-        setFiles(res.data);
-        setFilteredFiles(res.data);
-      });
-
-    const fetchFolders = axios
-      .get(`http://localhost:3001/folders?bin=true`)
-      .then((res) => {
-        setFolders(res.data);
-        setFilteredFolders(res.data);
-      });
-
-    Promise.all([fetchFiles, fetchFolders])
-      .then(() => setLoading(false))
+        if (Array.isArray(res.data)) {
+          setFiles(res.data);
+          setFilteredFiles(res.data);
+        } else {
+          console.error("Expected an array of files, got:", res.data);
+          setFiles([]);
+          setFilteredFiles([]);
+        }
+      })
       .catch((error) => {
-        console.error("Error fetching data:", error);
-        setLoading(false);
+        console.error("Error fetching files:", error);
+        setFiles([]);
+        setFilteredFiles([]);
       });
+  
+    const fetchFolders = axios
+      .get(`http://127.0.0.1:5555/api/trash/folder/${user.id}`) // Make sure this URL is correct
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setFolders(res.data);
+          setFilteredFolders(res.data);
+        } else {
+          console.error("Expected an array of folders, got:", res.data);
+          setFolders([]);
+          setFilteredFolders([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching folders:", error);
+        setFolders([]);
+        setFilteredFolders([]);
+      });
+  
+    Promise.all([fetchFiles, fetchFolders])
+      .finally(() => setLoading(false));
   }, []);
+  
 
   const handleFilter = (query) => {
     if (!query) {
@@ -55,7 +75,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://localhost:3001/files/${fileId}`, { bin: false })
+      .patch(`http://127.0.0.1:5555/api/files/${fileId}`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -71,54 +91,67 @@ function Trash() {
       .catch((error) => console.error("Error restoring folder:", error));
   };
 
-  const handleFileDelete= async () => {
-    if (window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+  const handleFileDelete = async (fileId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this file? This action cannot be undone."
+      )
+    ) {
       try {
-        const response = await fetch(`http://localhost:5173/api/files/${file.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `http://127.0.0.1:5555/api/files/${fileId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
-          throw new Error('Failed to delete file');
+          throw new Error("Failed to delete file ");
         }
 
-        enqueueSnackbar('File Deleted!', {
-          variant: 'success',
+        enqueueSnackbar("File Deleted!", {
+          variant: "success",
         });
-
       } catch (error) {
         setError(error);
-        enqueueSnackbar(error.message || 'An error occurred. Try again.', {
-          variant: 'error' 
+        enqueueSnackbar(error.message || "An error occurred. Try again.", {
+          variant: "error",
         });
       }
     }
   };
-  const handleFolderDelete= async () => {
-    if (window.confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+
+  const handleFolderDelete = async (folderId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this folder? This action cannot be undone."
+      )
+    ) {
       try {
-        const response = await fetch(`http://localhost:3001/folders/${folder.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `http://127.0.0.1:5555/api/folders/${folderId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
-          throw new Error('Failed to delete file');
+          throw new Error("Failed to delete folder ");
         }
 
-        enqueueSnackbar('File Deleted!', {
-          variant: 'success',
+        enqueueSnackbar("Folder Deleted!", {
+          variant: "success",
         });
-
       } catch (error) {
         setError(error);
-        enqueueSnackbar(error.message || 'An error occurred. Try again.', {
-          variant: 'error' 
+        enqueueSnackbar(error.message || "An error occurred. Try again.", {
+          variant: "error",
         });
       }
     }

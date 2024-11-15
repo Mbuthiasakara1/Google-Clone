@@ -95,21 +95,21 @@ function Container({ toggleTheme }) {
     }
   }, [currentFolderId]); // Re-run when folder ID changes
 
-  useEffect(() => {
-    const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
-      setFiles(res.data);
-      setFilteredFiles(res.data);
-    });
+  // useEffect(() => {
+  //   const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
+  //     setFiles(res.data);
+  //     setFilteredFiles(res.data);
+  //   });
 
-    const fetchFolders = axios
-      .get("http://localhost:3001/folders")
-      .then((res) => {
-        setFolders(res.data);
-        setFilteredFolders(res.data);
-      });
+  //   const fetchFolders = axios
+  //     .get("http://localhost:3001/folders")
+  //     .then((res) => {
+  //       setFolders(res.data);
+  //       setFilteredFolders(res.data);
+  //     });
 
-    Promise.all([fetchFiles, fetchFolders]);
-  }, []);
+  //   Promise.all([fetchFiles, fetchFolders]);
+  // }, []);
 
   
   const handleFilter = (query) => {
@@ -188,7 +188,7 @@ function Container({ toggleTheme }) {
         </div>
         
         {/* File/folder grid with empty state handling */}
-        <div className="content">
+        {/* <div className="content">
           {filteredFiles.length > 0 ? (
             filteredFiles.map((item) => (
               <FileCard 
@@ -200,14 +200,20 @@ function Container({ toggleTheme }) {
           ) : (
             <h2 style={{ color: "gray" }}>No files found</h2>
           )}
-        </div>
+        </div> */}
 
         {viewType === "folders" && displayedFolders.length > 0 && (
           <>
             <h3>Folders</h3>
             <div className="content">
               {displayedFolders.map((folder) => (
-                <FolderCard key={folder.id} folder={folder} folders={folders} setFolders={setFolders}/>
+                <FolderCard 
+                key={folder.id} 
+                folder={folder} 
+                folders={folders} 
+                setFolders={setFolders}
+                onFolderClick={handleFolderClick}
+                />
               ))}
             </div>
             {filteredFolders.length > displayedFolders.length && (
