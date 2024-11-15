@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { FaFolderPlus } from "react-icons/fa6";
 import { MdUploadFile } from "react-icons/md";
+import { useAuth } from './AuthContext';
 
 // import axios from "axios";
 // import { useNavigate } from "react-router-dom";
@@ -11,6 +12,7 @@ function Sidebar() {
   const [showForm, setShowForm] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [files, setFiles] = useState([]);
+  const { user } = useAuth();
 
   function handleClick() {
     setDropDown(!dropDown);
@@ -24,12 +26,15 @@ function Sidebar() {
 
   function handleFormSubmit(e) {
     e.preventDefault();
-    fetch("http://localhost:3001/folders", {
+    fetch("http://localhost:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: folderName }),
+      body: JSON.stringify({
+        name: folderName,
+        user_id: user.id  
+      }),
     })
       .then((response) => response.json())
       .then((data) => setFolderName(data))
@@ -44,7 +49,7 @@ function Sidebar() {
       const formData = new FormData();
       formData.append("file", file);
 
-      fetch("http://localhost:3001/files", {
+      fetch("http://localhost:5555/files", {
         method: "POST",
         body: formData,
       })

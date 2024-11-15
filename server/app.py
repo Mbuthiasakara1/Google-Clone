@@ -208,6 +208,7 @@ class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.filter_by()]
         return jsonify(folders_dict, 200)
+   
     
 class FolderContents(Resource):
     def get(self, folder_id):
@@ -269,17 +270,25 @@ class FolderById(Resource):
         
     def patch(self, id):
         folder = Folder.query.filter_by(id=id).first()
+        
         if folder:
             data = request.get_json()
+            
             new_name = data.get('name')
-            if not new_name:
-                return {'error': 'No new name provided'}, 400
+            bin_value = data.get('bin')
             
-            folder.name = new_name            
+            if not new_name and bin_value is None:
+                return {'error': 'No new name or bin status provided'}, 400
+            
+            if new_name:
+                folder.name = new_name
+            
+            if bin_value is not None:
+                folder.bin = bin_value
+    
             db.session.commit()
-            
-            return {'message': 'Name updated successfully'}, 200
-        return {'error': 'Folder not found'}, 404  
+            return {'message': 'Folder updated successfully'}, 200
+        return {'error': 'Folder not found'}, 404
 
     def delete(self, id):
         folder = Folder.query.filter_by(id=id).first()

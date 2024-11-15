@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
+import useStore from "./Store";
 
-function FolderCard({ folder, setFolders, folders }) {
+function FolderCard({ folder}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
+  const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
   const { enqueueSnackbar } = useSnackbar();
-
+   
+ 
   // Function to handle renaming a folder
   const handleRenameFolder = async (folderId) => {
+    console.log("Renaming folder with ID:", folderId); 
     try {
       const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
         method: "PATCH",
@@ -22,20 +26,13 @@ function FolderCard({ folder, setFolders, folders }) {
       if (!response.ok) {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
-  
-      const contentType = response.headers.get("content-type");
-      const data = contentType && contentType.includes("application/json")
-        ? await response.json()
-        : {};
-  
-      setFiles((prevFolders) =>
+      setFolders((prevFolders) =>
         prevFolders.map((folder) =>
           folder.id === folderId ? { ...folder, name: data.name } : folder
         )  
       );
   
       setRename("");
-      setRenameId(null);
       enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
     } catch (error) {
       console.error("Rename error:", error);
@@ -47,7 +44,7 @@ function FolderCard({ folder, setFolders, folders }) {
 
   // Function to handle downloading folder content
   const handleDownload = () => {
-    fetch(`http://127.0.0.1:5555/api/folders/${folder.id}`, {
+    fetch(`http://localhost:5555/api/folders/${folder.id}`, {
       method: "GET",
       headers: { "Content-Type": "application/octet-stream" },
     })
@@ -73,7 +70,7 @@ function FolderCard({ folder, setFolders, folders }) {
   // Function to confirm moving a folder
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://localhost:3001/folders/${folder.id}`, {
+      fetch(`http://localhost:5555/folders/${folder.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
@@ -96,7 +93,7 @@ function FolderCard({ folder, setFolders, folders }) {
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folder.id}/move-to-trash`, {
       method: 'PATCH',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -152,11 +149,11 @@ function FolderCard({ folder, setFolders, folders }) {
             onChange={(e) => setRename(e.target.value)}
             placeholder="Enter new name"
           />
-          <button onClick={handleRename}>Submit</button>
+          <button onClick={() => handleRenameFolder(folder.id)}>Submit</button>
           <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
         </div>
       )}
-      {showMoveCard && (
+      {showMoveCard  && (
         <div className="move-card">
           <h4>Choose a Folder</h4>
           <select
