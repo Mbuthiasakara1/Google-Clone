@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { useSnackbar } from "notistack";
 import { Description, Image, PictureAsPdf, VideoFile, AudioFile, InsertDriveFile, Folder, TableChart, Article } from '@mui/icons-material';
 
-function FileCard({ file, onFolderClick, folders }) {
+function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState("");
@@ -92,6 +92,39 @@ function FileCard({ file, onFolderClick, folders }) {
       .catch((error) => console.error("Download error:", error));
   };
 
+  const handleMoveToTrash = () => {
+    if (!file || !file.id) {
+      console.error("No file selected or file id is missing");
+      enqueueSnackbar("No file selected or file ID is missing", { variant: 'error' });
+      return;
+    }
+
+    fetch(`http://127.0.0.1:5555/api/files/${file.id}/move-to-trash`, {
+      method: 'PATCH',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bin: true }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to move file to bin");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("File moved to bin:", data);
+        enqueueSnackbar("file successfully moved to bin", { variant: 'success' });
+        setFiles((prevFiles) => prevFiles.filter((f) => f.id !== file.id));
+      })
+      .catch((error) => {
+        console.error("Error moving file to bin:", error);
+        enqueueSnackbar("Error moving file to bin", { variant: 'error' });
+      });
+  }
+  
+  const handleMove = () => {
+    setShowMoveCard(true);
+  };
+
   const confirmMove = () => {
     if (selectedFolderId) {
       fetch(`http://localhost:3001/files/${file.id}`, {
@@ -99,13 +132,12 @@ function FileCard({ file, onFolderClick, folders }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
       })
-      .then((response) => response.json())
-      .then((updatedFile) => {
-        console.log("File moved to folder:", updatedFile.folderId);
-        setShowMoveCard(false);
-        setShowDropdown(false);
-      })
-      .catch((error) => console.error("Move error:", error));
+        .then((response) => response.json())
+        .then((updatedFile) => {
+          console.log("File moved to folder:", updatedFile.folderId);
+          setShowMoveCard(false);
+          setShowDropdown(false);
+        });
     }
   };
 
@@ -117,10 +149,9 @@ function FileCard({ file, onFolderClick, folders }) {
           headers: { 'Content-Type': 'application/json' },
         });
 
-        if (!response.ok) throw new Error('Failed to delete file');
-
-        enqueueSnackbar('File Deleted!', { variant: 'success' });
-
+        if (!response.ok) {
+          throw new Error('Failed to delete file');
+        }
       } catch (error) {
         enqueueSnackbar(error.message || 'An error occurred. Try again.', { variant: 'error' });
       }
@@ -129,84 +160,20 @@ function FileCard({ file, onFolderClick, folders }) {
 
   return (
     <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>
-      <div 
-        className="file-card" 
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-          transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
-          position: 'relative',
-          overflow: 'hidden',
-          cursor: file.type === "folder" || file.filetype === "folder" ? 'pointer' : 'default'
-        }}
-        onClick={() => {
-          if (file.type === "folder" || file.filetype === "folder") {
-            onFolderClick && onFolderClick(file.id);
-          }
-        }}
-      >
-        <div 
-          className="file-icon-wrapper"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px',
-            backgroundColor: '#f8f9fa'
-          }}
-        >
+      <div className="file-card-inner">
+        <div onClick={() => (file.type === "folder" || file.filetype === "folder") && onFolderClick(file.id)}>
           {getFileIcon()}
         </div>
-        
-        <div 
-          className="file-details"
-          style={{
-            padding: '12px',
-            borderTop: '1px solid #eee'
-          }}
-        >
-          <div 
-            className="file-name" 
-            style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '4px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {file.name}
-          </div>
-          
-          <div 
-            className="file-info"
-            style={{
-              fontSize: '12px',
-              color: '#666'
-            }}
-          >
+
+        <div className="file-details">
+          <div className="file-name">{file.name}</div>
+          <div className="file-info">
             <div>{formatFileSize(file.filesize)}</div>
             <div>{formatDate(file.updated_at || file.created_at)}</div>
           </div>
         </div>
 
-        <button
-          className="dropdown-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowDropdown(!showDropdown);
-          }}
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
+        <button className="dropdown-btn" onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }}>
           <FaEllipsisV />
         </button>
 
@@ -214,38 +181,29 @@ function FileCard({ file, onFolderClick, folders }) {
           <div className="dropdown-menu">
             <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
             <button onClick={handleDownload}>Download</button>
-            <button onClick={handleDelete}>Delete</button>
+            <button onClick={handleMove}>Move</button>
+            <button onClick={handleMoveToTrash}>Move to Trash</button>
+          </div>
+        )}
+
+        {displayRenameForm && (
+          <div className="rename-form">
+            <input value={rename} onChange={(e) => setRename(e.target.value)} placeholder="Enter new name" />
+            <button onClick={handleRename}>Confirm</button>
+            <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
+          </div>
+        )}
+
+        {showMoveCard && (
+          <div className="move-card">
+            <select value={selectedFolderId} onChange={(e) => setSelectedFolderId(e.target.value)}>
+              <option value="">Select Folder</option>
+              {folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}
+            </select>
+            <button onClick={confirmMove}>Move</button>
           </div>
         )}
       </div>
-      
-      {displayRenameForm && (
-        <div className="rename-form">
-          <input 
-            value={rename} 
-            onChange={(e) => setRename(e.target.value)} 
-            placeholder="Enter new name"
-          />
-          <button onClick={handleRename}>Confirm</button>
-          <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
-        </div>
-      )}
-      
-      {showMoveCard && (
-        <div className="move-form">
-          <select 
-            value={selectedFolderId} 
-            onChange={(e) => setSelectedFolderId(e.target.value)}
-          >
-            <option value="">Select Folder</option>
-            {folders.map(folder => (
-              <option key={folder.id} value={folder.id}>{folder.name}</option>
-            ))}
-          </select>
-          <button onClick={confirmMove}>Move</button>
-          <button onClick={() => setShowMoveCard(false)}>Cancel</button>
-        </div>
-      )}
     </div>
   );
 }

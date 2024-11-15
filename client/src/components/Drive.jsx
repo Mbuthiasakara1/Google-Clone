@@ -20,6 +20,8 @@ function Container({ toggleTheme }) {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folderName, setFolderName] = useState("Drive");
 
+  
+
   // Pagination states
   const [filePage, setFilePage] = useState(1);
   const [folderPage, setFolderPage] = useState(1);
@@ -80,8 +82,6 @@ function Container({ toggleTheme }) {
     } else {
       // Fetch root level items (original functionality)
       Promise.all([
-        fetch("http://localhost:3001/files").then((res) => res.json()),
-        fetch("http://localhost:3001/folders").then((res) => res.json()),
       ])
         .then(([files, folders]) => {
           const allItems = [...files, ...folders];
@@ -95,7 +95,23 @@ function Container({ toggleTheme }) {
     }
   }, [currentFolderId]); // Re-run when folder ID changes
 
-  // Original search filter functionality
+  // useEffect(() => {
+  //   const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
+  //     setFiles(res.data);
+  //     setFilteredFiles(res.data);
+  //   });
+
+  //   const fetchFolders = axios
+  //     .get("http://localhost:3001/folders")
+  //     .then((res) => {
+  //       setFolders(res.data);
+  //       setFilteredFolders(res.data);
+  //     });
+
+  //   Promise.all([fetchFiles, fetchFolders]);
+  // }, []);
+
+  
   const handleFilter = (query) => {
     if (!query) {
       setFilteredFiles(files);
@@ -172,7 +188,7 @@ function Container({ toggleTheme }) {
         </div>
         
         {/* File/folder grid with empty state handling */}
-        <div className="content">
+        {/* <div className="content">
           {filteredFiles.length > 0 ? (
             filteredFiles.map((item) => (
               <FileCard 
@@ -184,14 +200,20 @@ function Container({ toggleTheme }) {
           ) : (
             <h2 style={{ color: "gray" }}>No files found</h2>
           )}
-        </div>
+        </div> */}
 
         {viewType === "folders" && displayedFolders.length > 0 && (
           <>
             <h3>Folders</h3>
             <div className="content">
               {displayedFolders.map((folder) => (
-                <FolderCard key={folder.id} folder={folder} />
+                <FolderCard 
+                key={folder.id} 
+                folder={folder} 
+                folders={folders} 
+                setFolders={setFolders}
+                onFolderClick={handleFolderClick}
+                />
               ))}
             </div>
             {filteredFolders.length > displayedFolders.length && (
@@ -205,7 +227,7 @@ function Container({ toggleTheme }) {
             <h3>Files</h3>
             <div className="content">
               {displayedFiles.map((file) => (
-                <FileCard key={file.id} file={file} />
+                <FileCard key={file.id} file={file} files={files} setFiles={setFiles} />
               ))}
             </div>
             {filteredFiles.length > displayedFiles.length && (

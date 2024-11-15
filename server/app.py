@@ -26,13 +26,9 @@ app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Or however long you need
-
-
-
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 CORS(app, supports_credentials=True)
-
 
 bcrypt = Bcrypt(app)
 api = Api(app)
@@ -40,11 +36,9 @@ migrate= Migrate(app,db)
 db.init_app(app)
 
 
-
 @app.route('/api')
 def index():
     return '<h1>Index of Google Drive Clone</h1>'
-
 
 class UserLogin(Resource):
     def post(self):
@@ -59,7 +53,9 @@ class UserLogin(Resource):
             
             }, 200
             
-        return {"message": "Invalid email or password"}, 401
+        return {
+            "message": "Invalid email or password"
+            }, 401
     
     
 class CheckSession(Resource):
@@ -72,9 +68,13 @@ class CheckSession(Resource):
             if user:
                 return user.to_dict(only = ("id", "first_name", "last_name",'birthday', "gender", "email",'profile_pic' ))
             
-            return {"message": "User not found"}, 404
+            return {
+                "message": "User not found"
+                }, 404
         else:
-            return {"message": "Not Authorised"}, 401
+            return {
+                "message": "Not Authorised"
+                }, 401
 
 class Logout(Resource):
     def delete(self):
@@ -89,7 +89,6 @@ class UserInfo(Resource):
     def post(self):
         data = request.get_json()
        
-        
         date_obj = datetime.strptime(data.get('birthday'), '%Y-%m-%d').date()
 
         new_user = User(
@@ -112,76 +111,101 @@ class UserInfo(Resource):
 class UserById(Resource):
     def get(self, id):
         user = User.query.filter_by(id=id).first()
-        return (user.to_dict(),200)
-
-      
+        return (user.to_dict(),200) 
         
     def delete(self, id):
         user = User.query.filter_by(id=id).first()
         
         if user:
+            File.query.filter_by(user_id=id).delete(synchronize_session=False)
+        
+            Folder.query.filter_by(user_id=id).delete(synchronize_session=False)
+        
             db.session.delete(user)
             db.session.commit()
             return {}, 204
+        return {"message": "User not found"}, 404
 
 
 class FileInfo(Resource):
     def get(self):
         files_dict = [file.to_dict() for file in File.query.all()]
         return make_response(files_dict, 200)
-    
-    
-# class FileById(Resource):
-#     def get(self,id):
-#         file = File.query.filter_by(id=id).first()
-#         print(file)
-#         return make_response(file.to_dict(),200)
 
 class FileById(Resource):
     def get(self, id):
         file = File.query.filter_by(id=id).first()
         if file:
             return make_response(file.to_dict(), 200)
-        return {"message": "File not found"}, 404
+        return {
+            "message": "File not found"
+            }, 404
     
-
-    def patch(self,id):
+    def patch(self, id):
         file = File.query.filter_by(id=id).first()
         if file:
-            data=request.get_json()
-            new_name=data['name']
-            file.name=new_name
+            data = request.get_json()
+            new_name = data.get('name')
+            if not new_name:
+                return {'error': 'No new name provided'}, 400
+            
+            file.name = new_name
             db.session.commit()
-            return jsonify({'message':'name updated successfully'})
-        return jsonify({'error':'Failed to Rename'})
-        
+            
+            return {'message': 'Name updated successfully'}, 200
+        return {'error': 'File not found'}, 404
 
     
-
     def delete(self, id):
         file = File.query.filter_by(id=id).first()
         
         if file:
             db.session.delete(file)
             db.session.commit()
-            return {}, 204 
+            return {}, 204
         
-        
+@app.route('/api/files/<int:id>/move-to-trash', methods=['PATCH'])
+def move_file_to_bin(id):
+    file = File.query.filter_by(id=id).first()
+    if not file:
+        return {'error': 'file not found'}, 404
+    
+    data = request.get_json()
+    bin_state = data.get('bin')
+    if bin_state is None:
+        return {'error': 'Bin state not provided'}, 400
+    
+    file.bin = bin_state
+    db.session.commit()
+    
+    return {'message': 'File moved to bin', 'file': {'id': file.id, 'bin': file.bin}}, 200
 
-            
+          
 class FileByUserId(Resource):
     def get(self, id):
-        files = File.query.filter_by(user_id=id).all()
+        files = File.query.filter_by(user_id=id, bin=False).all()
         if files:
             files_dict = [file.to_dict() for file in files]
             return make_response(files_dict, 200)
-        return {"message": "No files found for this user"}, 404
-           
+        return {
+            "message": "No files found for this user"
+            }, 404
     
+class TrashFileByUserId(Resource):
+    def get(self, id):
+        files = File.query.filter_by(user_id=id, bin=True).all()
+        if files:
+            files_dict = [file.to_dict() for file in files]
+            return make_response(files_dict, 200)
+        return {
+            "message": "No files found for this user"
+            }, 404
+           
 class FolderInfo(Resource):
     def get(self):
-        folders_dict = [folder.to_dict() for folder in Folder.query.all()]
+        folders_dict = [folder.to_dict() for folder in Folder.query.filter_by()]
         return jsonify(folders_dict, 200)
+    
 class FolderContents(Resource):
     def get(self, folder_id):
         try:
@@ -213,24 +237,46 @@ class FolderContents(Resource):
         
 class FolderByUserId(Resource):
     def get(self, id):
-        folders = Folder.query.filter_by(user_id=id).all()
+        folders = Folder.query.filter_by(user_id=id, bin=False).all()
         if folders:
             folders_dict = [folder.to_dict() for folder in folders]
             return make_response(folders_dict, 200)
-        return {"message": "No folders found for this user"}, 404    
-        
-    
-# class FolderById(Resource):
-#     def get(self,id):
-#         folder = Folder.query.filter_by(id=id).first()
-#         print(folder)
-        # return make_response(folder.to_dict(),200)
+        return {
+            "message": "No folders found for this user"
+            }, 404
+
+class TrashFolderByUserID(Resource):
+     def get(self, id):
+        folders = Folder.query.filter_by(user_id=id, bin=True).all()
+        if folders:
+            folders_dict = [folder.to_dict() for folder in folders]
+            return make_response(folders_dict, 200)
+        return {
+            "message": "No folders found for this user"
+            }, 404 
+
 class FolderById(Resource):
     def get(self, id):
         folder = Folder.query.filter_by(id=id).first()
         if folder:
             return make_response(folder.to_dict(), 200)
-        return {"message": "Folder not found"}, 404    
+        return {
+            "message": "Folder not found"
+            }, 404
+        
+    def patch(self, id):
+        folder = Folder.query.filter_by(id=id).first()
+        if folder:
+            data = request.get_json()
+            new_name = data.get('name')
+            if not new_name:
+                return {'error': 'No new name provided'}, 400
+            
+            folder.name = new_name            
+            db.session.commit()
+            
+            return {'message': 'Name updated successfully'}, 200
+        return {'error': 'Folder not found'}, 404  
 
     def delete(self, id):
         folder = Folder.query.filter_by(id=id).first()
@@ -238,34 +284,59 @@ class FolderById(Resource):
         if folder:
             db.session.delete(folder)
             db.session.commit()
-            return {}, 204   
-
-
+            return {}, 204
         
+@app.route('/api/folders/<int:id>/move-to-trash', methods=['PATCH'])
+def move_folder_to_bin(id):
+    folder = Folder.query.filter_by(id=id).first()
+    if not folder:
+        return {'error': 'Folder not found'}, 404
+    
+    data = request.get_json()
+    bin_state = data.get('bin')
+    if bin_state is None:
+        return {'error': 'Bin state not provided'}, 400
+    
+    folder.bin = bin_state
+    db.session.commit()
+    
+    return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
+
+       
 #avatar cloudinary api
-@app.route('/upload-avatar/<int:user_id>',methods=['POST'])  
-def upload_avatar(user_id):
-    #check if file is submitted as part of the request
-      if 'file'  not in request.files:
-         return jsonify ({'message':'file not part of request'}) ,400
-     
-     #check if request has a file
-      file=request.files.get('file')
-      if file.filename == '':
-          return jsonify({'message':'no selected file found'}),400
-      
-      #now we upload to cloudinary
-      try:
-          result=cloudinary.uploader.upload(file)
-          print(result)
-          image_url=result['secure_url']
-          #retrieve the user
-          user=User.query.get(user_id)
-          user.profile_pic=image_url
-          db.session.commit()
-          return jsonify({'message':'image updates successfully','url':image_url})
-      except Exception as e:
-          return jsonify({'message':f'the error is {str(e)}'}),500
+class UploadAvatar(Resource):
+    def post(self, user_id):
+        #check if file is submitted as part of the request
+        if 'file'  not in request.files:
+            return jsonify ({
+                'message':'file not part of request'
+                }) ,400
+        
+        #check if request has a file
+        file=request.files.get('file')
+        if file.filename == '':
+            return jsonify({
+                'message':'no selected file found'
+                }),404
+        
+        #now we upload to cloudinary
+        try:
+            result=cloudinary.uploader.upload(file)
+            image_url=result['secure_url']
+            
+            #retrieve the user
+            user=User.query.get(user_id)
+            user.profile_pic=image_url
+            db.session.commit()
+            
+            return jsonify({
+                'message':'image updates successfully',
+                'url':image_url
+                })
+        except Exception as e:
+            return jsonify({
+                'message':f'the error is {str(e)}'
+                }),500
   
 
 api.add_resource(FileByUserId,"/api/fileuser/<int:id>")  
@@ -279,7 +350,10 @@ api.add_resource(UserInfo, "/api/users",endpoint='users')
 api.add_resource(UserLogin, "/api/login", endpoint='login')
 api.add_resource(CheckSession, "/api/session", endpoint='session')
 api.add_resource(Logout, "/api/logout", endpoint='logout')
-api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')    
+api.add_resource(FolderContents, '/api/content/<int:folder_id>', endpoint='folder_contents')
+api.add_resource(UploadAvatar, '/api/upload-avatar/<int:user_id>', endpoint='upload_avatar')
+api.add_resource(TrashFolderByUserID, "/api/trash/folder/<int:id>", endpoint='trash_folder')
+api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_file')
 
     
 

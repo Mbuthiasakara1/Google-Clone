@@ -5,6 +5,8 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
+import FileCard from "./FileCard";
+import FolderCard from "./FolderCard";
 
 function Home() {
   const [files, setFiles] = useState([]);
@@ -70,29 +72,79 @@ function Home() {
     }
   };
 
-  const handleRename = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: rename }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setFiles((prevFiles) =>
-          prevFiles.map((file) =>
-            file.id === fileId ? { ...file, name: data.name } : file
-          )
-        );
-        setRename("");
-        setRenameId(null);
+  const handleRenameFile = async (fileId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
       });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename file. Status: ${response.status}`);
+      }
+  
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
+  
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === fileId ? { ...file, name: data.name } : file
+        )
+      );
+  
+      setRename("");
+      setRenameId(null);
+      enqueueSnackbar("File renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
+  };
+
+  const handleRenameFolder = async (folderId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename folder. Status: ${response.status}`);
+      }
+  
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
+  
+      setFiles((prevFolders) =>
+        prevFolders.map((folder) =>
+          folder.id === folderId ? { ...folder, name: data.name } : folder
+        )
+      );
+  
+      setRename("");
+      setRenameId(null);
+      enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
   };
 
   const handleDownload = (file) => {
     fetch(`http://localhost:3001/files/${file.id}`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/octet-stream",
+        "Content-Type": "application/json",
       },
     })
       .then((response) => response.blob())
@@ -110,45 +162,8 @@ function Home() {
       .catch((error) => console.error("Download error:", error));
   };
 
-  // const handleDelete = (fileId) => {
-  //   fetch(`http://127.0.0.1:5555/api/files/${fileId}`, { method: "DELETE" })
-  //     .then((response) => response.json())
-  //     .then((data) => setFiles(data));
-  // };
 
-
-  const handleDelete = async (fileId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this file? This action cannot be undone."
-      )
-    ) {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:5555/api/files/${fileId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to delete file ");
-        }
-
-        enqueueSnackbar("File Deleted!", {
-          variant: "success",
-        });
-      } catch (error) {
-        setError(error);
-        enqueueSnackbar(error.message || "An error occurred. Try again.", {
-          variant: "error",
-        });
-      }
-    }
-  };
+  // const handleMoveToTrash
 
   return (
     <>
@@ -159,15 +174,53 @@ function Home() {
         style={{ backgroundColor: "white", borderRadius: "10px" }}
       >
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-
+      {/* <FileCard />
+      <FolderCard /> */}
         <div>
           <h3>Folders</h3>
           <div className="content">
             {filteredFolders.map((folder) => (
               <div key={folder.id}>
-                <p style={{ display: "inline-block" }}>
+                <p style={{ display: "inline-block", border:'1px solid gray', padding:'10px', width:'200px' }}>
                   <FaFolder style={{ color: "burlywood" }} /> {folder.name}
                 </p>
+                
+                <button
+                  className="folder-dropdown"
+                  onClick={() =>
+                    setDropdownId(dropdownId === folder.id ? null : folder.id)
+                  }
+                >
+                  <FaEllipsisV />
+                </button>
+                {dropdownId === folder.id && (
+                  <div className="folder-dropdown-menu">
+                    <button onClick={() => setRenameId(folder.id)}>Rename</button>
+                    <button onClick={() => handleDownload(folder)}>
+                      Download
+                    </button>
+                    <button>Move</button>
+                    <button onClick={() => handleMoveToTrash(folder.id)}>
+                      Move to Trash
+                    </button>
+                  </div>
+                )}
+                {renameId === folder.id && (
+                  <div className="rename-form">
+                    <label htmlFor="renameInput">New Name:</label>
+                    <input
+                      type="text"
+                      id="renameInput"
+                      value={rename}
+                      onChange={(e) => setRename(e.target.value)}
+                      placeholder="Enter new name"
+                    />
+                    <button onClick={() => handleRenameFolder(folder.id)}>
+                      Submit
+                    </button>
+                    <button onClick={() => setRenameId(null)}>Cancel</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -203,8 +256,8 @@ function Home() {
                       Download
                     </button>
                     <button>Move</button>
-                    <button onClick={() => handleDelete(file.id)}>
-                      Delete
+                    <button onClick={() => handleMoveToTrash(file.id)}>
+                      Move to Trash
                     </button>
                   </div>
                 )}
@@ -218,7 +271,7 @@ function Home() {
                       onChange={(e) => setRename(e.target.value)}
                       placeholder="Enter new name"
                     />
-                    <button onClick={() => handleRename(file.id)}>
+                    <button onClick={() => handleRenameFile(file.id)}>
                       Submit
                     </button>
                     <button onClick={() => setRenameId(null)}>Cancel</button>

@@ -22,14 +22,23 @@
     },
     {
       "id": "3",
+      "name": "my-pdf",
+      "type": "pdf",
+      "size": "854 KB",
+      "url": "https://www.lifewire.com/thmb/kW6qmOK-xA4wXMtPShm-RV9cJRI=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/chrome-save-as-pdf-7b631e4c76bb4eb5a7afd9b67e729f8d.png",
+      "bin": true
+    },
+    {
+      "id": "4",
       "name": "Spreadsheet.xlsx",
       "type": "spreadsheet",
       "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "size": "854 KB",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "url": "https://example.com/spreadsheet.xlsx",
-      "folderId": null
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/LibreOffice_7.2.4.1_Calc_with_csv_screenshot.png",
+      "folderId": null,
+      "bin": false
     },
     {
       "id": "4",
@@ -39,21 +48,24 @@
       "size": "854 KB",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "url": "https://example.com/spreadsheet.xlsx"
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/LibreOffice_7.2.4.1_Calc_with_csv_screenshot.png",
+      "bin": false
     }
   ],
   "folders": [
     {
       "id": "6",
-      "name": "iwaschanged",
+      "name": "renamed",
       "type": "folder",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "folderId": "1"
+      "folderId": "1",
+      "bin": false
     },
     {
       "id": "4ec9",
-      "name": "folder1"
+      "name": "folder1",
+      "bin": true
     },
     {
       "id": "c655",
@@ -69,15 +81,8 @@
     },
     {
       "id": "a171",
-      "name": "Sam"
-    },
-    {
-      "id": "cdf3",
-      "name": "Folders",
-      "type": "folder",
-      "lastOpened": "Aug 16, 2024",
-      "path": "/",
-      "folderId": "3"
+      "name": "Sam",
+      "bin": false
     }
   ],
   "users": [

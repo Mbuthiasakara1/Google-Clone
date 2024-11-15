@@ -14,7 +14,6 @@ class File(db.Model, sm):
         '-user.password',
     )
 
-    
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
     filetype = db.Column(db.String(50), nullable=False)
@@ -23,10 +22,10 @@ class File(db.Model, sm):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     thumbnail_path = db.Column(db.String(255))
-    bin=db.Column(db.Boolean,default=False)
+    bin = db.Column(db.Boolean, default=False)
     
-    folder_id = db.Column(db.Integer, db.ForeignKey('folders.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    folder_id = db.Column(db.Integer, db.ForeignKey('folders.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.Integer,db.ForeignKey('users.id', ondelete='CASCADE'),nullable=False)
     
     folder = db.relationship('Folder', back_populates='files')
     user = db.relationship('User', back_populates='files')

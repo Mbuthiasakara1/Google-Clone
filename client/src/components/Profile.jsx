@@ -44,10 +44,6 @@ const UserProfile = () => {
     return <p>Loading user information...</p>;
   }
 
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
-
   if (!user) {
     return <p>No user information available.</p>;
   }
