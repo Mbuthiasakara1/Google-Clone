@@ -11,19 +11,38 @@ function FolderCard({ folder, setFolders, folders }) {
   const { enqueueSnackbar } = useSnackbar();
 
   // Function to handle renaming a folder
-  const handleRename = () => {
-    fetch(`http://localhost:3001/folders/${folder.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: rename }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setFolders((prevFolders) =>
-          prevFolders.map((f) => (f.id === data.id ? data : f))
-        );
-        setDisplayRenameForm(false);
+  const handleRenameFolder = async (folderId) => {
+    try {
+      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
       });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename folder. Status: ${response.status}`);
+      }
+  
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
+  
+      setFiles((prevFolders) =>
+        prevFolders.map((folder) =>
+          folder.id === folderId ? { ...folder, name: data.name } : folder
+        )  
+      );
+  
+      setRename("");
+      setRenameId(null);
+      enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
   };
 
   // Function to handle downloading folder content

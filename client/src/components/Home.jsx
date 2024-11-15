@@ -256,9 +256,9 @@ function Home() {
           </div>
           <div>
             <h3>Files</h3>
-            <FileCard />
+            {/* <FileCard /> */}
 
-            {/* {filteredFiles.map((file) => (
+            {filteredFiles.map((file) => ( 
               <div
                 className="file-card"
                 key={file.id}
@@ -309,7 +309,7 @@ function Home() {
                   </div>
                 )}
               </div>
-            ))} */}
+            ))} 
           </div>
         </div>
       </div>

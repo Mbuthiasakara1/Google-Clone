@@ -29,7 +29,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'image'];
     const videoTypes = ['mp4', 'mov', 'avi', 'webm', 'mkv', 'video'];
     const audioTypes = ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'audio'];
-
+     
+    /*fix this*/
     const isType = (types) => types.some(type => fileType.includes(type) || extension === type || (file.mimeType && file.mimeType.includes(type)));
 
     if (isType(imageTypes)) return <Image sx={{ fontSize: 60, color: '#4285f4' }} />;
