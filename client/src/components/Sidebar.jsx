@@ -28,7 +28,7 @@ function Sidebar() {
     e.preventDefault();
     const parentId = folderId ? folderId : null; // If there's no folderId, send null
 
-    fetch("/api/folders", {
+    fetch("http://127.0.0.1:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

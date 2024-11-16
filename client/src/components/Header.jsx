@@ -178,7 +178,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   if (loading) return <div>Loading...</div>;
 
   const handleLogout = () => {
-    fetch("/api/logout", {
+    fetch("http://127.0.0.1:5555/api/logout", {
       method: "DELETE",
       credentials: "include",
     })
@@ -220,7 +220,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
     try {
       const response = await fetch(
-        `/api/upload-avatar/${user.id}`,
+        `http://127.0.0.1:5555/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",

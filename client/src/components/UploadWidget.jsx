@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
 import { useParams } from "react-router-dom";
@@ -46,7 +46,7 @@ function UploadWidget({ onUpload }) {
 
             try {
               // Post the uploaded file data to the Flask backend
-              const response = await axios.post('/api/files', fileData, {
+              const response = await axios.post('http://127.0.0.1:5555/api/files', fileData, {
                 withCredentials: true,
               });
 
