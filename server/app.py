@@ -33,7 +33,10 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
-CORS(app, supports_credentials=True)
+
+# CORS(app, supports_credentials=True ,origins="http://localhost:5173/")
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+
 
 bcrypt = Bcrypt(app)
 api = Api(app)
@@ -248,6 +251,34 @@ class FolderInfo(Resource):
     def get(self):
         folders_dict = [folder.to_dict() for folder in Folder.query.filter_by()]
         return jsonify(folders_dict, 200)
+   
+    
+    def post(self):
+        data = request.get_json()
+        
+        name = data.get('name')
+        if not name:
+            return {'error': 'No name provided'}, 400
+        
+        parent_folder_id = data.get('parent_id')
+        user_id = data.get('user_id')
+        
+        new_folder = Folder(
+            name=name,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            user_id=user_id,
+            parent_folder_id=parent_folder_id
+        )
+        
+        try:
+            db.session.add(new_folder)
+            db.session.commit()
+            return new_folder.to_dict(), 201
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+
     
     def post(self):
         data = request.get_json()
@@ -335,17 +366,29 @@ class FolderById(Resource):
         
     def patch(self, id):
         folder = Folder.query.filter_by(id=id).first()
+        
         if folder:
             data = request.get_json()
+            
             new_name = data.get('name')
-            if not new_name:
-                return {'error': 'No new name provided'}, 400
+            bin_value = data.get('bin')
+            parent_folder_id = data.get("parent_folder_id")
             
-            folder.name = new_name            
+            if not new_name and bin_value is None:
+                return {'error': 'No new name or bin status provided'}, 400
+            
+            if new_name:
+                folder.name = new_name
+            
+            if bin_value is not None:
+                folder.bin = bin_value
+            
+            if parent_folder_id:
+                folder.parent_folder_id = parent_folder_id    
+    
             db.session.commit()
-            
-            return {'message': 'Name updated successfully'}, 200
-        return {'error': 'Folder not found'}, 404  
+            return {'message': 'Folder updated successfully'}, 200
+        return {'error': 'Folder not found'}, 404
 
     def delete(self, id):
         folder = Folder.query.filter_by(id=id).first()
@@ -547,7 +590,6 @@ api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_
 # NEW: Add resource routes for download functionality
 api.add_resource(FileDownload, '/api/files/<int:file_id>/download', endpoint='file_download')
 api.add_resource(FolderDownload, '/api/folders/<int:folder_id>/download', endpoint='folder_download')
-
 
 # if __name__ == "__main__":
 #     port = int(os.environ.get("PORT", 5555))

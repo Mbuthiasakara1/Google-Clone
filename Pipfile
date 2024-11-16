@@ -16,6 +16,8 @@ flask-restful = "*"
 flask-cors = "*"
 faker = "*"
 requests = "*"
+cloudinary = "*"
+
 
 [dev-packages]
 

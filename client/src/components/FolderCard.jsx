@@ -3,8 +3,9 @@ import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
 // NEW: Import Download icon
 import { Download as DownloadIcon } from '@mui/icons-material';
+import useStore from "./Store";
 
-function FolderCard({ folder, setFolders, folders }) {
+function FolderCard({ folder, onFolderClick}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState(folder.name);
@@ -12,57 +13,72 @@ function FolderCard({ folder, setFolders, folders }) {
   const [showMoveCard, setShowMoveCard] = useState(false);
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
+  const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
+  
   // Function to handle renaming a folder
-  const handleRename = () => {
-    fetch(`http://localhost:3001/folders/${folder.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: rename }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setFolders((prevFolders) =>
-          prevFolders.map((f) => (f.id === data.id ? data : f))
-        );
-        setDisplayRenameForm(false);
+  const handleRenameFolder = async (folderId) => {
+    console.log("Renaming folder with ID:", folderId); 
+    try {
+      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rename }),
       });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to rename folder. Status: ${response.status}`);
+      }
+      const data = await response.json();
+      setFolders((prevFolders) =>
+        prevFolders.map((folder) =>
+          folder.id === folderId ? { ...folder, name: data.name } : folder
+        )  
+      );
+  
+      setRename("");
+      enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Rename error:", error);
+      enqueueSnackbar(error.message || "An error occurred while renaming.", {
+        variant: "error",
+      });
+    }
   };
 
   // NEW: Add folder download handler
   const handleFolderDownload = async () => {
+    setIsDownloading(true);
+    enqueueSnackbar("Preparing folder for download...", { variant: "info" });
+  
     try {
-      setIsDownloading(true);
-      enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
-
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
-        method: 'GET',
-        credentials: 'include'
+      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
+        method: "GET",
+        credentials: "include",
       });
-
-      if (!response.ok) {
-        throw new Error('Folder download failed');
-      }
-
+      if (!response.ok) throw new Error("Folder download failed");
+  
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+  
+      const link = document.createElement("a");
       link.href = url;
       link.download = `${folder.name}.zip`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      enqueueSnackbar('Folder downloaded successfully', { variant: 'success' });
+  
+      enqueueSnackbar("Folder downloaded successfully!", { variant: "success" });
     } catch (error) {
-      console.error('Folder download error:', error);
-      enqueueSnackbar('Failed to download folder', { variant: 'error' });
+      console.error("Folder download error:", error);
+      enqueueSnackbar("Failed to download folder", { variant: "error" });
     } finally {
       setIsDownloading(false);
     }
   };
+  
 
   // Function to handle showing the move card
   const handleMove = () => {
@@ -72,7 +88,7 @@ function FolderCard({ folder, setFolders, folders }) {
   // Function to confirm moving a folder
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://localhost:3001/folders/${folder.id}`, {
+      fetch(`http://localhost:5555/folders/${folder.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
@@ -95,7 +111,7 @@ function FolderCard({ folder, setFolders, folders }) {
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folder.id}/move-to-trash`, {
       method: 'PATCH',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -118,16 +134,17 @@ function FolderCard({ folder, setFolders, folders }) {
   }; 
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>
+    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
         <FaFolder />
       </div>
       <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-        <p>{folder.size || "N/A"} KB</p>
+      <p>{folder.size != null ? `${folder.size} KB` : "N/A"}</p>
         <p>Last modified: {folder.modifiedDate || "N/A"}</p>
       </div>
-      <button className="dropdown-btn" onClick={() => setShowDropdown(folder.id)}>
+      <button className="dropdown-btn" onClick={() => setShowDropdown((prev) => (prev === folder.id ? null : folder.id))}
+      >
         <FaEllipsisV />
       </button>
       {showDropdown === folder.id && (
@@ -165,11 +182,11 @@ function FolderCard({ folder, setFolders, folders }) {
             onChange={(e) => setRename(e.target.value)}
             placeholder="Enter new name"
           />
-          <button onClick={handleRename}>Submit</button>
+          <button onClick={() => handleRenameFolder(folder.id)}>Submit</button>
           <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
         </div>
       )}
-      {showMoveCard && (
+      {showMoveCard  && (
         <div className="move-card">
           <h4>Choose a Folder</h4>
           <select

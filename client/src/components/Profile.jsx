@@ -15,7 +15,7 @@ const UserProfile = () => {
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
-        const response = await fetch(`http://127.0.0.1:5555/api/users/${user.id}`, {
+        const response = await fetch(`http://localhost:5555/api/users/${user.id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
