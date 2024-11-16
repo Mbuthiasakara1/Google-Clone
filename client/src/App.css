@@ -351,33 +351,60 @@ button:disabled {
  
 /* Container styles */
 .Container{
-  top: 0;
-  left: 0;
-  width:80%;
-  height:100vh;
+  /* top: 0; */
+  /* left: 0; */
+  width:90vw;
+  height:auto;
   margin-top: 65px;
-  margin-left: 328px;
+  margin-left: 15em;
   /* display: flex; */
-  /* position: fixed; */
+  position: fixed;
   /* overflow-y: hidden; */
-  flex-wrap: nowrap;
-  background-color: #c2d5eb;
+  /* flex-wrap: nowrap; */
+  background-color: #F0F0F3;
 
+}
+.Container h1{
+margin-left: .8em;
+margin-top: 1em;
 }
 
 .content {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   position: relative; 
   top: 0;
   left: 0;
-  width: 80%;
   gap: 10px;
   padding: 20px;
   height: 100vh;
   overflow: auto; 
-  /* overflow-y: scroll; */
+  overflow-y: scroll;
+  margin-left:3em;
  
 }
+.folder-container{
+  display: flex;
+  flex-direction: column; 
+  margin-bottom:2em;
+}
+.folder-container h3 , .file-container h3{
+  margin-bottom: .5em;
+}
+.folder-list{
+  display: flex;
+  gap:1em;
+}
+.file-container{
+  display: flex;
+  flex-direction: column; 
+}
+.file-list{
+  display: flex;
+  flex-wrap: wrap;
+  gap:1em;
+}
+
 
 .file-card {
   position: relative;
@@ -423,8 +450,53 @@ button:disabled {
   
 }
 
+/* Home folder dropdown */
+.folder-item{
+  display: flex;
+  cursor: pointer;
+  border: 1px solid black;
+  justify-content: space-between;
+  width:13em;
+  align-content: center;
+ 
+  
+}
+.folder-item p{
+  display: flex;
+  width:80%;
+  font-size:18px;
+  font-weight:500;
+  margin-top:0.7em;
+}
+.folder-item span{
+  margin-left:1em;
+}
+.folder-item button{
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #888;
+}
 
-
+.folder-dropdown {
+  font-size: 18px;
+  color:black;
+  position: relative;
+  cursor: pointer;
+}
+.folder-dropdown-menu {
+  position: absolute;
+  top: 120px;
+  /* right: 10px; */ 
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 180px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
 /* folders dropdown */
 .dropdownbtn {
   background: transparent;
@@ -871,6 +943,11 @@ button:disabled {
  
   #sidebar-container{
     display:none
+  }
+  .Container{
+    margin-left:0;
+    padding: 0;
+    width: 100%;
   }
   
 }

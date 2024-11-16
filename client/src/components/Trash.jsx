@@ -17,7 +17,7 @@ function Trash() {
     if (!user) return;
 
     setLoading(true);
-  
+
     const fetchFiles = axios
       .get(`http://127.0.0.1:5555/api/trash/file/${user.id}`)
       .then((res) => {
@@ -65,7 +65,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://127.0.0.1:5555/api/files/${fileId}`, { bin: false })
+      .patch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -121,14 +121,18 @@ function Trash() {
     <>
       <Header onFilter={handleFilter} />
       <Sidebar />
-      <div className="container" style={{ backgroundColor: "white", borderRadius: "10px" }}>
+      <div className="Container" style={{ borderRadius: "10px" }}>
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-
-        <div className="files-div">
-          <div className="content">
+        <div className="content">
+          <div className="files-container">
             <h3>Files</h3>
+            <div className="file-list">
             {filteredFiles.map((file) => (
-              <div key={file.id} className="file-card" onMouseLeave={() => setShowDropdown(null)}>
+              <div
+                key={file.id}
+                className="file-card"
+                onMouseLeave={() => setShowDropdown(null)}
+              >
                 <div className="file-icon">
                   <FaFileAlt />
                 </div>
@@ -137,25 +141,37 @@ function Trash() {
                   <p>{file.size} KB</p>
                   <p>Last modified: {file.modifiedDate}</p>
                 </div>
-                <button className="dropdown-btn" onClick={() => setShowDropdown(file.id)}>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => setShowDropdown(file.id)}
+                >
                   <FaEllipsisV />
                 </button>
                 {showDropdown === file.id && (
                   <div className="dropdown-menu">
-                    <button onClick={() => handleFileRestore(file.id)}>Restore</button>
-                    <button onClick={() => handleFileDelete(file.id)}>Delete</button>
+                    <button onClick={() => handleFileRestore(file.id)}>
+                      Restore
+                    </button>
+                    <button onClick={() => handleFileDelete(file.id)}>
+                      Delete
+                    </button>
                   </div>
                 )}
               </div>
             ))}
+            </div>
           </div>
-        </div>
+        
 
-        <div className="folders-div">
-          <div className="content">
+        <div className="folder-container">   
             <h3>Folders</h3>
+            <div className="file-list">
             {filteredFolders.map((folder) => (
-              <div key={folder.id} className="file-card" onMouseLeave={() => setShowDropdown(null)}>
+              <div
+                key={folder.id}
+                className="file-card"
+                onMouseLeave={() => setShowDropdown(null)}
+              >
                 <div className="file-icon">
                   <FaFolder style={{ color: "blurywood" }} />
                 </div>
@@ -164,18 +180,26 @@ function Trash() {
                   <p>{folder.size} KB</p>
                   <p>Last modified: {folder.modifiedDate}</p>
                 </div>
-                <button className="dropdown-btn" onClick={() => setShowDropdown(folder.id)}>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => setShowDropdown(folder.id)}
+                >
                   <FaEllipsisV />
                 </button>
                 {showDropdown === folder.id && (
                   <div className="dropdown-menu">
-                    <button onClick={() => handleFolderRestore(folder.id)}>Restore</button>
-                    <button onClick={() => handleFolderDelete(folder.id)}>Delete</button>
+                    <button onClick={() => handleFolderRestore(folder.id)}>
+                      Restore
+                    </button>
+                    <button onClick={() => handleFolderDelete(folder.id)}>
+                      Delete
+                    </button>
                   </div>
                 )}
               </div>
             ))}
-          </div>
+            </div>
+        </div>
         </div>
       </div>
     </>
