@@ -5,23 +5,23 @@ function Container({toggleTheme}) {
     const [filteredFiles, setFilteredFiles] = useState([]);
     
     // New state variables for folder navigation
-    const [currentFolderId, setCurrentFolderId] = useState(null);
-    const [folderName, setFolderName] = useState("Drive");
+    // const [currentFolderId, setCurrentFolderId] = useState(null);
+    // const [folderName, setFolderName] = useState("Drive");
   
-    useEffect(() => {
-      Promise.all([
-        fetch("http://localhost:3001/files").then((res) => res.json()),
-        fetch("http://localhost:3001/folders").then((res) => res.json()),
-      ])
-        .then(([files, folders]) => {
-          const allItems = [...files, ...folders];
-          setItems(allItems);
-          setFilteredFiles(allItems); 
-        })
-        .catch((error) =>
-          console.error("Error fetching files and folders:", error)
-        );
-    }, []);
+    // useEffect(() => {
+    //   Promise.all([
+    //     fetch("http://localhost:3001/files").then((res) => res.json()),
+    //     fetch("http://localhost:3001/folders").then((res) => res.json()),
+    //   ])
+    //     .then(([files, folders]) => {
+    //       const allItems = [...files, ...folders];
+    //       setItems(allItems);
+    //       setFilteredFiles(allItems); 
+    //     })
+    //     .catch((error) =>
+    //       console.error("Error fetching files and folders:", error)
+    //     );
+    // }, []);
       if (currentFolderId) {
         // Fetch contents of the current folder
         fetch(`http://127.0.0.1:5555/api/folders/${currentFolderId}`)
@@ -440,3 +440,50 @@ function Container({toggleTheme}) {
     function dl(){
       { showD}
     }
+
+// New state variables for folder navigation
+  // const [currentFolderId, setCurrentFolderId] = useState(null);
+  // const [folderName, setFolderName] = useState("Drive");
+
+  // const [currentFolderId, setCurrentFolderId] = useState(null);
+  //   const [folderName, setFolderName] = useState("Drive");
+//   if (currentFolderId) {
+//     Fetch contents of the current folder
+//     fetch(`http://127.0.0.1:5555/api/folders/${currentFolderId}`)
+//       .then(res => res.json())
+//       .then(data => {
+//         Combine files and subfolders into a single array
+//         const allItems = [
+//           ...(data.files || []),
+//           ...(data.subfolders || []).map(folder => ({ 
+//             ...folder, 
+//             type: 'folder' Ensure folders are properly marked
+//           }))
+//         ];
+//         setItems(allItems);
+//         setFilteredFiles(allItems);
+//         setFolderName(data.name || "Folder");
+//       })
+//       .catch(error => console.error("Error fetching folder contents:", error));
+//   } else {
+//      Fetch root level items (original functionality)
+//     Promise.all([
+//       fetch("http://localhost:3001/files").then((res) => res.json()),
+//       fetch("http://localhost:3001/folders").then((res) => res.json()),
+//     ])
+//       .then(([files, folders]) => {
+//         const allItems = [...files, ...folders];
+//         setItems(allItems);
+//         setFilteredFiles(allItems);
+//         setFolderName("Drive"); Reset folder name when at root
+//       })
+//       .catch((error) =>
+//         console.error("Error fetching files and folders:", error)
+//       );
+//   }
+// }, [currentFolderId]);
+
+// const handleFolderClick = (folderId) => {
+//   setCurrentFolderId(folderId);
+// };
+ 

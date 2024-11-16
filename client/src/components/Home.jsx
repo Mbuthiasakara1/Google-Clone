@@ -3,10 +3,9 @@ import axios from "axios";
 import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
-import FolderCard from "./FolderCard";
+
 
 function Home() {
   const [files, setFiles] = useState([]);
@@ -28,7 +27,7 @@ function Home() {
       try {
         if (user && user.id) {
           const fileResponse = await axios.get(
-            `http://localhost:5173/api/fileuser/${user.id}`
+            `http://localhost:5555/api/fileuser/${user.id}`
           );
           setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
           setFilteredFiles(
@@ -36,7 +35,7 @@ function Home() {
           );
 
           const folderResponse = await axios.get(
-            `http://localhost:5173/api/folderuser/${user.id}`
+            `http://localhost:5555/api/folderuser/${user.id}`
           );
           setFolders(
             Array.isArray(folderResponse.data) ? folderResponse.data : []
@@ -74,7 +73,7 @@ function Home() {
 
   const handleRenameFile = async (fileId) => {
     try {
-      const response = await fetch(`http://localhost:5173/api/files/${fileId}`, {
+      const response = await fetch(`http://localhost:5555/api/files/${fileId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -118,10 +117,10 @@ function Home() {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
   
-      const contentType = response.headers.get("content-type");
-      const data = contentType && contentType.includes("application/json")
-        ? await response.json()
-        : {};
+      // const contentType = response.headers.get("content-type");
+      // const data = contentType && contentType.includes("application/json")
+      //   ? await response.json()
+      //   : {};
   
       setFiles((prevFolders) =>
         prevFolders.map((folder) =>
@@ -140,72 +139,38 @@ function Home() {
     }
   };
 
-  const handleDownload = (file) => {
-    fetch(`http://localhost:3001/files/${file.id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const handleMoveFolderToTrash = (folderId) => {
+    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
+      method: 'PATCH',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bin: true }),
     })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        const extension = file.name.split(".").pop();
-        link.setAttribute("download", `${file.id}.${extension}`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error("Download error:", error));
-  };
-
-  const handleDelete = async (fileId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this file? This action cannot be undone."
-      )
-    ) {
-      try {
-        const response = await fetch(
-          `http://localhost:5173/api/files/${fileId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
+      .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to delete file ");
+          throw new Error("Failed to move folder to bin");
         }
-
-        enqueueSnackbar("File Deleted!", {
-          variant: "success",
-        });
-      } catch (error) {
-        setError(error);
-        enqueueSnackbar(error.message || "An error occurred. Try again.", {
-          variant: "error",
-        });
-      }
-    }
-  };
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Folder moved to bin:", data);
+        enqueueSnackbar("Folder successfully moved to bin", { variant: 'success' });
+        setFolders((prevFolders) => prevFolders.filter((f) => f.id !== folderId));
+      })
+      .catch((error) => {
+        console.error("Error moving folder to bin:", error);
+        enqueueSnackbar("Error moving folder to bin", { variant: 'error' });
+      });
+  }; 
 
   return (
     <>
-      <Header onFilter={handleFilter} /*toggleTheme={toggleTheme}*/ />
+      <Header onFilter={handleFilter} />
       <Sidebar />
       <div
         className="Container"
         style={{ backgroundColor: "white", borderRadius: "10px" }}
       >
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-      {/* <FileCard />
-      <FolderCard /> */}
         <div>
           <h3>Folders</h3>
           <div className="content">
@@ -226,11 +191,7 @@ function Home() {
                 {dropdownId === folder.id && (
                   <div className="folder-dropdown-menu">
                     <button onClick={() => setRenameId(folder.id)}>Rename</button>
-                    <button onClick={() => handleDownload(folder)}>
-                      Download
-                    </button>
-                    <button>Move</button>
-                    <button onClick={() => handleMoveToTrash(folder.id)}>
+                    <button onClick={() => handleMoveFolderToTrash(folder.id)}>
                       Move to Trash
                     </button>
                   </div>
@@ -256,8 +217,6 @@ function Home() {
           </div>
           <div>
             <h3>Files</h3>
-            {/* <FileCard /> */}
-            {/* <FileCard /> */}
 
             {filteredFiles.map((file) => ( 
               <div

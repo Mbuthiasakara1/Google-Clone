@@ -29,4 +29,4 @@ dist-ssr
 
 # Files
 client/src/components/folderopen.jsx
-client/src/components/Store.jsx
+# client/src/components/Store.jsx

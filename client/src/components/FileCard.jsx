@@ -22,18 +22,22 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  
+  if(!file){
+    return null;
+  }
 
   const getFileIcon = () => {
-    if (file.type === "folder" || file.filetype === "folder") {
-      return (
-        <div
-          onClick={() => onFolderClick && onFolderClick(file.id)}
-          style={{ cursor: "pointer" }}
-        >
-          <Folder sx={{ fontSize: 60, color: "#5f6368" }} />
-        </div>
-      );
-    }
+    // if (file.type === "folder" || file.filetype === "folder") {
+    //   return (
+    //     <div
+    //       onClick={() => onFolderClick && onFolderClick(file.id)}
+    //       style={{ cursor: "pointer" }}
+    //     >
+    //       <Folder sx={{ fontSize: 60, color: "#5f6368" }} />
+    //     </div>
+    //   );
+    // }
 
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
@@ -215,16 +219,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
           position: "relative",
           // overflow: "hidden",
-          cursor:
-            file.type === "folder" || file.filetype === "folder"
-              ? "pointer"
-              : "default",
         }}
-        onClick={() => {
-          if (file.type === "folder" || file.filetype === "folder") {
-            onFolderClick && onFolderClick(file.id);
-          }
-        }}
+       
       >
         <div
           className="file-icon-wrapper"

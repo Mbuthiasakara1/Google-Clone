@@ -33,7 +33,7 @@ function Drive({ toggleTheme }) {
       try {
         if (user && user.id) {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}`
+            `http://localhost:5555/api/fileuser/${user.id}?bin=false`
           );
           setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
           setFilteredFiles(
@@ -41,7 +41,7 @@ function Drive({ toggleTheme }) {
           );
 
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}`
+            `http://localhost:5555/api/folderuser/${user.id}?bin=false`
           );
           setFolders(
             Array.isArray(folderResponse.data) ? folderResponse.data : []
@@ -80,7 +80,6 @@ function Drive({ toggleTheme }) {
         })
         .catch(error => console.error("Error fetching folder contents:", error));
     } else {
-      // Fetch root level items (original functionality)
       Promise.all([
       ])
         .then(([files, folders]) => {
@@ -95,21 +94,6 @@ function Drive({ toggleTheme }) {
     }
   }, [currentFolderId]); // Re-run when folder ID changes
 
-  // useEffect(() => {
-  //   const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
-  //     setFiles(res.data);
-  //     setFilteredFiles(res.data);
-  //   });
-
-  //   const fetchFolders = axios
-  //     .get("http://localhost:3001/folders")
-  //     .then((res) => {
-  //       setFolders(res.data);
-  //       setFilteredFolders(res.data);
-  //     });
-
-  //   Promise.all([fetchFiles, fetchFolders]);
-  // }, []);
 
   
   const handleFilter = (query) => {
@@ -143,30 +127,18 @@ function Drive({ toggleTheme }) {
     <>
       <Header onFilter={handleFilter} toggleTheme={toggleTheme} />
       <Sidebar />
-      <div
-        className="Container"
-        style={{ backgroundColor: "white", borderRadius: "10px" }}
-      >
-      
-        <div style={{ display: "flex", marginRight: "10px" }}>
-          <button
-            onClick={() => setViewType("folders")}
-            style={{
-              marginRight: "10px",
-              border: "none",
-              backgroundColor: "inherit",
-            }}
-          >
+      <div className="Container"style={{ backgroundColor: "white", borderRadius: "10px" }}>   
+        <div style={{ display: "flex", marginRight: "10px" }} className="content">
+          <button onClick={() => setViewType("folders")}
+            style={{ marginRight: "10px", border: "none", backgroundColor: "inherit", }} >
             <FaFolder />
           </button>
-          <button
-            onClick={() => setViewType("files")}
-            style={{ border: "none", backgroundColor: "inherit" }}
-          >
+          <button onClick={() => setViewType("files")}
+            style={{ border: "none", backgroundColor: "inherit" }} >
             <FaFileAlt />
           </button>
-        {/* Added navigation header with back button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        
+        <div >
           {currentFolderId && (
             <button
               onClick={() => setCurrentFolderId(null)}
@@ -187,21 +159,6 @@ function Drive({ toggleTheme }) {
           </h1>
         </div>
         
-        {/* File/folder grid with empty state handling */}
-        {/* <div className="content">
-          {filteredFiles.length > 0 ? (
-            filteredFiles.map((item) => (
-              <FileCard 
-                key={item.id} 
-                file={item} 
-                onFolderClick={handleFolderClick}  // Pass folder click handler
-              />
-            ))
-          ) : (
-            <h2 style={{ color: "gray" }}>No files found</h2>
-          )}
-        </div> */}
-
         {viewType === "folders" && displayedFolders.length > 0 && (
           <>
             <h3>Folders</h3>
@@ -226,9 +183,10 @@ function Drive({ toggleTheme }) {
           <>
             <h3>Files</h3>
             <div className="content">
-              {displayedFiles.map((file) => (
-                <FileCard key={file.id} file={file} files={files} setFiles={setFiles} />
-              ))}
+            {displayedFiles.map((file) => {
+            console.log(file);
+            return <FileCard key={file.id} file={file} files={files} setFiles={setFiles} />;
+          })}
             </div>
             {filteredFiles.length > displayedFiles.length && (
               <button onClick={handleViewMoreFiles}>View More</button>

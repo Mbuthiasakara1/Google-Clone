@@ -485,12 +485,6 @@ button:disabled {
   background-color: #f0f0f0;
 }
 
-.content {
-  display: grid;
-  gap: 10px;
-  padding: 20px;
-  overflow-y: scroll;
-}
 .btn.btn-primary{
     margin-top: 10px;
     display: flex;
@@ -501,23 +495,6 @@ button:disabled {
     padding: 10px;
 }
 
-
-/* Default for larger screens (4 cards per row) */
-/* Default for larger screens (4 cards per row) */
-@media (min-width: 992px) {
-  .content {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Medium screens (2 cards per row) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .content {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
- 
-}
 .btn.btn-primary{
     margin-top: 10px;
     display: flex;
@@ -528,20 +505,6 @@ button:disabled {
     padding: 10px;
 }
 
-
-/* Default for larger screens (4 cards per row) */
-@media (min-width: 992px) {
-  .content {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Medium screens (2 cards per row) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .content {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 
 /* Container for the grid */
 .container {
@@ -549,13 +512,6 @@ button:disabled {
   
 }
 
-/* Main content grid */
-.content {
-  display: grid;
-  gap: 20px;
-  overflow-y: scroll;
-  overflow-y: scroll;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -567,10 +523,10 @@ button:disabled {
 }
 
 /* Rename Form Styles */
-.rename-form {
+.rename-form { 
   position: absolute;
-  left: 40%;
-  transform: translateX(-50%);
+  left: 100%;
+  /* transform: translateX(-50%);  1*/
   border-radius: 8px;
   background-color: #fff;
   padding: 15px;
@@ -611,7 +567,7 @@ button:disabled {
   cursor: pointer;
   transition: transform 0.2s;
   width: 230px; 
-  height: 230px; 
+  /* height: 230px;  */
 }
 
 .file-card:hover {
@@ -692,14 +648,6 @@ button:disabled {
   background-color: #f0f0f0;
 }
 
-.Container{
-  width:80%;
-  margin-top: 65px;
-  margin-left: 270px;
-  /* position: fixed; */
-  overflow-y: hidden;
-
-}
 /* UserProfile.styling */
 .card-container{
   background-color: #fff;
@@ -797,29 +745,6 @@ button:disabled {
 }
 
 
-/* Default for larger screens (4 cards per row) */
-@media (min-width: 992px) {
-  .content {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Medium screens (2 cards per row) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .content {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Small screens (1 card per row) */
-@media (max-width: 767px) {
-  .content {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-
 /* UserProfile.styling */
 .card-container{
   background-color: #fff;
@@ -850,39 +775,6 @@ button:disabled {
   display: grid;
   gap: 10px;
   padding: 20px;
-  overflow-y: scroll;
-}
-
-/* Default for larger screens (4 cards per row) */
-@media (min-width: 992px) {
-  .content {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Medium screens (2 cards per row) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .content {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Small screens (1 card per row) */
-@media (max-width: 767px) {
-  .content {
-    grid-template-columns: 1fr;
-  }
-}
-/* Container for the grid */
-.container {
-  padding: 20px;
-  
-}
-
-/* Main content grid */
-.content {
-  display: grid;
-  gap: 20px;
   overflow-y: scroll;
 }
 
@@ -928,17 +820,6 @@ button:disabled {
 }
 
 
-/* Rename Form Styles */
-.rename-form {
-  position: absolute;
-  left: 40%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  width: 60%;
-  height: 20em;
-}
-
 .card-button {
   display: block;
   width: 100%;
@@ -957,38 +838,7 @@ button:disabled {
   background-color: #ff1a1a;
 }
 
-  /* flex-direction: column;
-  align-items: center;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%; 
-  z-index: 20; 
-} */
 
-
-.rename-form label {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 5px;
-}
-
-.rename-form input {
-  width: 80%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.rename-form input:focus {
-  border-color: #4a90e2;
-  outline: none;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
-}
 
 .rename-form button {
   padding: 8px 16px;
@@ -1000,20 +850,7 @@ button:disabled {
   cursor: pointer;
 }
 
-.rename-form button:hover {
-  background-color: #357ab8;
-}
 
-.Container{
-  width:80%;
-  /* height:100vh; */
-  margin-top: 65px;
-  margin-left: 328px;
-  /* position: fixed; */
-  overflow-y: hidden;
-  flex-wrap: nowrap;
-
-}
 .move-card {
   position: absolute;
   background-color: #fff;
@@ -1055,7 +892,6 @@ button:disabled {
 }
 
 
-}
 .file-thumbnail {
   width: 100%;
   height: 120px;

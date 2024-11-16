@@ -3,7 +3,7 @@ import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
 import useStore from "./Store";
 
-function FolderCard({ folder}) {
+function FolderCard({ folder, onFolderClick}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState(folder.name);
@@ -11,8 +11,8 @@ function FolderCard({ folder}) {
   const [showMoveCard, setShowMoveCard] = useState(false);
   const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
   const { enqueueSnackbar } = useSnackbar();
-   
- 
+
+  
   // Function to handle renaming a folder
   const handleRenameFolder = async (folderId) => {
     console.log("Renaming folder with ID:", folderId); 
@@ -116,7 +116,7 @@ function FolderCard({ folder}) {
   }; 
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>
+    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
         <FaFolder />
       </div>
