@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
+import { Download as DownloadIcon } from '@mui/icons-material';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
@@ -15,12 +16,10 @@ function Home() {
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
+  // NEW: Add download state
+  const [isDownloading, setIsDownloading] = useState(false);
   const {user,loading,setLoading} = useAuth()
   const {enqueueSnackbar}=useSnackbar()
-  
-  
-
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,7 +52,6 @@ function Home() {
 
     fetchData();
   }, [user]);
-
 
   const handleFilter = (query) => {
     if (!query) {
@@ -139,6 +137,73 @@ function Home() {
     }
   };
 
+  // NEW: File download handler
+  const handleDownload = async (file) => {
+    try {
+      setIsDownloading(true);
+      enqueueSnackbar('Starting download...', { variant: 'info' });
+
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Download error:', error);
+      enqueueSnackbar('Failed to download file', { variant: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // NEW: Folder download handler
+  const handleFolderDownload = async (folder) => {
+    try {
+      setIsDownloading(true);
+      enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
+
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Folder download failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${folder.name}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Folder downloaded successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Folder download error:', error);
+      enqueueSnackbar('Failed to download folder', { variant: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleMoveFolderToTrash = (folderId) => {
     fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
@@ -166,6 +231,7 @@ function Home() {
   return (
     <>
       <Header onFilter={handleFilter} />
+      <Header onFilter={handleFilter} />
       <Sidebar />
       <div
         className="Container"
@@ -192,7 +258,22 @@ function Home() {
                 {dropdownId === folder.id && (
                   <div className="folder-dropdown-menu">
                     <button onClick={() => setRenameId(folder.id)}>Rename</button>
-                    <button onClick={() => handleMoveFolderToTrash(folder.id)}>
+                    <button 
+                      className="download-button"
+                      onClick={() => handleFolderDownload(folder)}
+                      disabled={isDownloading}
+                    >
+                      {isDownloading ? (
+                        <span>Downloading...</span>
+                      ) : (
+                        <>
+                          <DownloadIcon className="dropdown-icon" />
+                          <span>Download</span>
+                        </>
+                      )}
+                    </button>
+                    <button>Move</button>
+                    <button onClick={() => handleMoveToTrash(folder.id)}>
                       Move to Trash
                     </button>
                   </div>
@@ -219,7 +300,8 @@ function Home() {
           <div>
             <h3>Files</h3>
 
-            {filteredFiles.map((file) => ( 
+            
+            {filteredFiles.map((file) => (
               <div
                 className="file-card"
                 key={file.id}
@@ -244,8 +326,19 @@ function Home() {
                 {dropdownId === file.id && (
                   <div className="dropdown-menu">
                     <button onClick={() => setRenameId(file.id)}>Rename</button>
-                    <button onClick={() => handleDownload(file)}>
-                      Download
+                    <button 
+                      className="download-button"
+                      onClick={() => handleDownload(file)}
+                      disabled={isDownloading}
+                    >
+                      {isDownloading ? (
+                        <span>Downloading...</span>
+                      ) : (
+                        <>
+                          <DownloadIcon className="dropdown-icon" />
+                          <span>Download</span>
+                        </>
+                      )}
                     </button>
                     <button>Move</button>
                     <button onClick={() => handleMoveToTrash(file.id)}>

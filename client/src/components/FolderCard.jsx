@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
+// NEW: Import Download icon
+import { Download as DownloadIcon } from '@mui/icons-material';
 import useStore from "./Store";
 
 function FolderCard({ folder, onFolderClick}) {
@@ -9,6 +11,8 @@ function FolderCard({ folder, onFolderClick}) {
   const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
+  // NEW: Add download state
+  const [isDownloading, setIsDownloading] = useState(false);
   const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
@@ -42,25 +46,40 @@ function FolderCard({ folder, onFolderClick}) {
     }
   };
 
-  // Function to handle downloading folder content
-  const handleDownload = () => {
-    fetch(`http://localhost:5555/api/folders/${folder.id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/octet-stream" },
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `${folder.name}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error("Download error:", error));
-  }; 
+  // NEW: Add folder download handler
+  const handleFolderDownload = async () => {
+    try {
+      setIsDownloading(true);
+      enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
+
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Folder download failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${folder.name}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Folder downloaded successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Folder download error:', error);
+      enqueueSnackbar('Failed to download folder', { variant: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+  
 
   // Function to handle showing the move card
   const handleMove = () => {
@@ -133,7 +152,21 @@ function FolderCard({ folder, onFolderClick}) {
           <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>
             Rename
           </button>
-          <button onClick={handleDownload}>Download</button>
+          {/* NEW: Add download button with icon and loading state */}
+          <button 
+            className="download-button"
+            onClick={handleFolderDownload}
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <span>Downloading...</span>
+            ) : (
+              <>
+                <DownloadIcon className="dropdown-icon" />
+                <span>Download</span>
+              </>
+            )}
+          </button>
           <button onClick={handleMove}>Move</button>
           <button onClick={handleMoveToTrash}>Move to Trash</button>
         </div>

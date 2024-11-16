@@ -20,6 +20,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
+  // NEW: Add state for download status
+  const [isDownloading, setIsDownloading] = useState(false);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   
@@ -109,6 +111,43 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       });
   };
 
+  // UPDATED: Enhanced download handler with progress feedback
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      enqueueSnackbar('Starting download...', { variant: 'info' });
+
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : file.name;
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Download error:', error);
+      enqueueSnackbar('Failed to download file', { variant: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
   const handleDownload = () => {
     fetch(`http://localhost:5555/api/files/${file.id}`, {
       method: "GET",
@@ -286,10 +325,26 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           <FaEllipsisV />
         </button>
 
+        {/* UPDATED: Enhanced dropdown menu with download button */}
         {showDropdown && (
           <div className="dropdown-menu">
-            <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
-            <button onClick={handleDownload}>Download</button>
+            <button onClick={() => setDisplayRenameForm(true)}>
+              Rename
+            </button>
+            <button 
+              className="download-button"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <span>Downloading...</span>
+              ) : (
+                <>
+                  <DownloadIcon className="dropdown-icon" />
+                  <span>Download</span>
+                </>
+              )}
+            </button>
             <button onClick={handleMove}>Move</button>
             <button onClick={handleMoveToTrash}>Move To Trash</button>
           </div>

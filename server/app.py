@@ -1,4 +1,6 @@
 from flask import Flask, make_response, request, jsonify, session
+# New imports for download functionality
+from flask import send_file
 from config import db
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -13,10 +15,13 @@ import cloudinary.uploader
 from utils.cloudinaryconfig import cloudconfig
 from werkzeug.utils import secure_filename
 import os
+# New imports for download functionality
+import requests
+import tempfile
+import zipfile
+import io
 
 app = Flask(__name__)
-
-
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
@@ -440,8 +445,127 @@ class UploadAvatar(Resource):
             return jsonify({
                 'message':f'the error is {str(e)}'
                 }),500
-  
 
+# NEW CLASS: Handle individual file downloads from Cloudinary
+class FileDownload(Resource):
+    def get(self, file_id):
+        try:
+            # Get file information from database
+            file = File.query.get_or_404(file_id)
+            
+            # Get the Cloudinary URL
+            cloudinary_url = file.storage_path
+            
+            # Create a temporary file
+            temp_file = tempfile.NamedTemporaryFile(delete=False)
+            
+            # Download file from Cloudinary
+            response = requests.get(cloudinary_url, stream=True)
+            response.raise_for_status()
+            
+            # Write content to temporary file
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    temp_file.write(chunk)
+            
+            temp_file.close()
+            
+            # Send file to client
+            return send_file(
+                temp_file.name,
+                as_attachment=True,
+                download_name=file.name,
+                mimetype=file.filetype
+            )
+            
+        except Exception as e:
+            # Clean up temporary file in case of error
+            if 'temp_file' in locals():
+                os.unlink(temp_file.name)
+            return {'error': str(e)}, 500
+        
+        finally:
+            # Clean up temporary file after sending
+            if 'temp_file' in locals():
+                os.unlink(temp_file.name)
+
+# NEW CLASS: Handle folder downloads (creates zip file containing all files in folder)
+class FolderDownload(Resource):
+    def get(self, folder_id):
+        try:
+            folder = Folder.query.get_or_404(folder_id)
+            
+            # Create in-memory zip file
+            memory_file = io.BytesIO()
+            
+            with zipfile.ZipFile(memory_file, 'w') as zf:
+                # Get all files in folder
+                files = File.query.filter_by(folder_id=folder_id).all()
+                
+                for file in files:
+                    try:
+# Download each file from Cloudinary
+                        response = requests.get(file.storage_path)
+                        response.raise_for_status()
+                        
+                        # Add file to zip with original name
+                        zf.writestr(file.name, response.content)
+                    except Exception as e:
+                        print(f"Error processing file {file.name}: {str(e)}")
+                        continue
+            
+            # Prepare zip file for download
+            memory_file.seek(0)
+            
+            return send_file(
+                memory_file,
+                as_attachment=True,
+                download_name=f'{folder.name}.zip',
+                mimetype='application/zip'
+            )
+            
+        except Exception as e:
+            return {'error': str(e)}, 500
+
+# Add this new route after your existing routes but before the api.add_resource() calls
+@app.route('/api/folders/<int:folder_id>/download', methods=['GET'])
+def download_folder(folder_id):
+    try:
+        folder = Folder.query.filter_by(id=folder_id).first()
+        if not folder:
+            return {'error': 'Folder not found'}, 404
+        
+        # Create in-memory zip file
+        memory_file = io.BytesIO()
+        with zipfile.ZipFile(memory_file, 'w') as zf:
+            # Get all files in folder
+            files = File.query.filter_by(folder_id=folder_id, bin=False).all()
+            
+            for file in files:
+                try:
+                    # Download each file from Cloudinary
+                    response = requests.get(file.storage_path)
+                    response.raise_for_status()
+                    
+                    # Add file to zip with its original name
+                    zf.writestr(file.name, response.content)
+                except Exception as e:
+                    print(f"Error adding file {file.name} to zip: {str(e)}")
+                    continue
+        
+        # Prepare zip file for download
+        memory_file.seek(0)
+        
+        return send_file(
+            memory_file,
+            as_attachment=True,
+            download_name=f'{folder.name}.zip',
+            mimetype='application/zip'
+        )
+        
+    except Exception as e:
+        return {'error': str(e)}, 500
+# Existing resource registrations
 api.add_resource(FileByUserId,"/api/fileuser/<int:id>")  
 api.add_resource(FolderByUserId,"/api/folderuser/<int:id>")    
 api.add_resource(FileById,"/api/files/<int:id>") 
@@ -458,7 +582,9 @@ api.add_resource(UploadAvatar, '/api/upload-avatar/<int:user_id>', endpoint='upl
 api.add_resource(TrashFolderByUserID, "/api/trash/folder/<int:id>", endpoint='trash_folder')
 api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_file')
 
-    
+# NEW: Add resource routes for download functionality
+api.add_resource(FileDownload, '/api/files/<int:file_id>/download', endpoint='file_download')
+api.add_resource(FolderDownload, '/api/folders/<int:folder_id>/download', endpoint='folder_download')
 
 # if __name__ == "__main__":
 #     port = int(os.environ.get("PORT", 5555))
