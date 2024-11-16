@@ -4,6 +4,7 @@ import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
 import { Download as DownloadIcon } from '@mui/icons-material';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 

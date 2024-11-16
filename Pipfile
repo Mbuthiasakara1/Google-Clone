@@ -15,8 +15,15 @@ flask-bcrypt = "*"
 flask-restful = "*"
 flask-cors = "*"
 faker = "*"
+<<<<<<< HEAD
 requests = "*"
+<<<<<<< HEAD
 cloudinary = "*"
+=======
+=======
+cloudinary = "*"
+>>>>>>> 78c8163 (modified files)
+>>>>>>> a96d54c (resolved conflicts)
 
 [dev-packages]
 

@@ -224,7 +224,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
         {
           method: "POST",
           credentials: "include",
-          // Remove the Content-Type header - let the browser set it with the boundary
           headers: {
             Accept: "application/json",
           },
