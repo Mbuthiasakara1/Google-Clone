@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from './AuthContext';
 import { useSnackbar } from "notistack";
-import { Description, Image, PictureAsPdf, VideoFile, AudioFile, InsertDriveFile, Folder, TableChart, Article } from '@mui/icons-material';
+import { Description, Image, PictureAsPdf, VideoFile, AudioFile, InsertDriveFile, Folder, TableChart,
+  Article,
+  // NEW: Import Download icon
+  Download as DownloadIcon 
+} from '@mui/icons-material';
 
 function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -10,6 +14,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
+  // NEW: Add state for download status
+  const [isDownloading, setIsDownloading] = useState(false);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -72,24 +78,43 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       });
   };
 
-  const handleDownload = () => {
-    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/octet-stream" },
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        const extension = file.name.split(".").pop();
-        link.setAttribute("download", `${file.id}.${extension}`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error("Download error:", error));
+  // UPDATED: Enhanced download handler with progress feedback
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      enqueueSnackbar('Starting download...', { variant: 'info' });
+
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : file.name;
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Download error:', error);
+      enqueueSnackbar('Failed to download file', { variant: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleMoveToTrash = () => {
@@ -177,10 +202,26 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           <FaEllipsisV />
         </button>
 
+        {/* UPDATED: Enhanced dropdown menu with download button */}
         {showDropdown && (
           <div className="dropdown-menu">
-            <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
-            <button onClick={handleDownload}>Download</button>
+            <button onClick={() => setDisplayRenameForm(true)}>
+              Rename
+            </button>
+            <button 
+              className="download-button"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <span>Downloading...</span>
+              ) : (
+                <>
+                  <DownloadIcon className="dropdown-icon" />
+                  <span>Download</span>
+                </>
+              )}
+            </button>
             <button onClick={handleMove}>Move</button>
             <button onClick={handleMoveToTrash}>Move to Trash</button>
           </div>
