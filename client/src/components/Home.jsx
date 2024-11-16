@@ -107,7 +107,7 @@ function Home() {
 
   const handleRenameFolder = async (folderId) => {
     try {
-      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -117,10 +117,10 @@ function Home() {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
   
-      // const contentType = response.headers.get("content-type");
-      // const data = contentType && contentType.includes("application/json")
-      //   ? await response.json()
-      //   : {};
+      const contentType = response.headers.get("content-type");
+      const data = contentType && contentType.includes("application/json")
+        ? await response.json()
+        : {};
   
       setFiles((prevFolders) =>
         prevFolders.map((folder) =>
@@ -138,6 +138,7 @@ function Home() {
       });
     }
   };
+
 
   const handleMoveFolderToTrash = (folderId) => {
     fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
