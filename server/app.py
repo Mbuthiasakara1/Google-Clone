@@ -372,6 +372,7 @@ class FolderById(Resource):
             
             new_name = data.get('name')
             bin_value = data.get('bin')
+            parent_folder_id = data.get("parent_folder_id")
             
             if not new_name and bin_value is None:
                 return {'error': 'No new name or bin status provided'}, 400
@@ -381,6 +382,9 @@ class FolderById(Resource):
             
             if bin_value is not None:
                 folder.bin = bin_value
+            
+            if parent_folder_id:
+                folder.parent_folder_id = parent_folder_id    
     
             db.session.commit()
             return {'message': 'Folder updated successfully'}, 200

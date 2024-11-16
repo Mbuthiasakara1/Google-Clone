@@ -30,6 +30,7 @@ function FolderCard({ folder, onFolderClick}) {
       if (!response.ok) {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
+      const data = await response.json();
       setFolders((prevFolders) =>
         prevFolders.map((folder) =>
           folder.id === folderId ? { ...folder, name: data.name } : folder
@@ -48,33 +49,31 @@ function FolderCard({ folder, onFolderClick}) {
 
   // NEW: Add folder download handler
   const handleFolderDownload = async () => {
+    setIsDownloading(true);
+    enqueueSnackbar("Preparing folder for download...", { variant: "info" });
+  
     try {
-      setIsDownloading(true);
-      enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
-
       const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
-        method: 'GET',
-        credentials: 'include'
+        method: "GET",
+        credentials: "include",
       });
-
-      if (!response.ok) {
-        throw new Error('Folder download failed');
-      }
-
+      if (!response.ok) throw new Error("Folder download failed");
+  
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+  
+      const link = document.createElement("a");
       link.href = url;
       link.download = `${folder.name}.zip`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      enqueueSnackbar('Folder downloaded successfully', { variant: 'success' });
+  
+      enqueueSnackbar("Folder downloaded successfully!", { variant: "success" });
     } catch (error) {
-      console.error('Folder download error:', error);
-      enqueueSnackbar('Failed to download folder', { variant: 'error' });
+      console.error("Folder download error:", error);
+      enqueueSnackbar("Failed to download folder", { variant: "error" });
     } finally {
       setIsDownloading(false);
     }
@@ -141,10 +140,11 @@ function FolderCard({ folder, onFolderClick}) {
       </div>
       <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-        <p>{folder.size || "N/A"} KB</p>
+      <p>{folder.size != null ? `${folder.size} KB` : "N/A"}</p>
         <p>Last modified: {folder.modifiedDate || "N/A"}</p>
       </div>
-      <button className="dropdown-btn" onClick={() => setShowDropdown(folder.id)}>
+      <button className="dropdown-btn" onClick={() => setShowDropdown((prev) => (prev === folder.id ? null : folder.id))}
+      >
         <FaEllipsisV />
       </button>
       {showDropdown === folder.id && (

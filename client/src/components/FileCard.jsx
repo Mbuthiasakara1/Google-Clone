@@ -150,8 +150,9 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     }
   };
 
-  const handleMoveToTrash = () => {
-    if (!file || !file.id) {
+  const handleMoveToTrash = (fileId) => {
+    console.log(fileId)
+    if (!fileId) {
       console.error("No file selected or file id is missing");
       enqueueSnackbar("No file selected or file ID is missing", {
         variant: "error",
@@ -162,7 +163,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       return;
     }
 
-    fetch(`http://localhost:5555/api/files/${file.id}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -243,7 +244,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   };
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)}>
+    <div className="file-card" >
       <div
         className="file-card"
         style={{
@@ -252,7 +253,9 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
           transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
           position: "relative",
+         
         }}
+        onMouseLeave={() => setShowDropdown(false)}
       >
         <div
           className="file-icon-wrapper"
@@ -336,7 +339,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
               )}
             </button>
             <button onClick={handleMove}>Move</button>
-            <button onClick={handleMoveToTrash}>Move To Trash</button>
+            <button onClick={()=>handleMoveToTrash(file.id)}>Move To Trash</button>
           </div>
         )}
       </div>

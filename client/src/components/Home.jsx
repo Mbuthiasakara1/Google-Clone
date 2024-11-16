@@ -16,6 +16,9 @@ function Home() {
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
+  const [showMoveCard, setShowMoveCard] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState(null);
+
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
   const {user,loading,setLoading} = useAuth()
@@ -26,7 +29,7 @@ function Home() {
       try {
         if (user && user.id) {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}`
+            `http://localhost:5555/api/fileuser/${user.id}?bin=false`
           );
           setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
           setFilteredFiles(
@@ -34,7 +37,7 @@ function Home() {
           );
 
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}`
+            `http://localhost:5555/api/folderuser/${user.id}?bin=false`
           );
           setFolders(
             Array.isArray(folderResponse.data) ? folderResponse.data : []
@@ -104,6 +107,11 @@ function Home() {
   };
 
   const handleRenameFolder = async (folderId) => {
+    setFiles((prevFolders) =>
+      prevFolders.map((folder) =>
+        folder.id === folderId ? { ...folder, name: rename } : folder
+      )
+    );
     try {
       const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
         method: "PATCH",
@@ -129,6 +137,7 @@ function Home() {
       setRename("");
       setRenameId(null);
       enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
+      
     } catch (error) {
       console.error("Rename error:", error);
       enqueueSnackbar(error.message || "An error occurred while renaming.", {
@@ -140,7 +149,7 @@ function Home() {
 
 
   // NEW: File download handler
-  const handleDownload = async (file) => {
+  const handleFileDownload = async (file) => {
     try {
       setIsDownloading(true);
       enqueueSnackbar('Starting download...', { variant: 'info' });
@@ -229,7 +238,60 @@ function Home() {
         enqueueSnackbar("Error moving folder to bin", { variant: 'error' });
       });
   }; 
+  const handleMoveFileToTrash = (fileId) => {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
+      method: 'PATCH',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bin: true }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to move folder to bin");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("File moved to bin:", data);
+        enqueueSnackbar("File successfully moved to bin", { variant: 'success' });
+        setFiles((prevFiles) => prevFiles.filter((f) => f.id !== fileId));
+      })
+      .catch((error) => {
+        // console.error("Error moving folder to bin:", error);
+        enqueueSnackbar("Error moving file to bin", { variant: 'error' });
+      });
+  }; 
 
+  const handleMove = () => {
+    setShowMoveCard(true);
+  };
+
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", { variant: "warning" });
+      return;
+    }
+    console.log(selectedFolderId)
+    try {
+      const response = await fetch(`http://localhost:5555/api/folders/${selectedFolderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parent_folder_id: selectedFolderId }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to move item. Status: ${response.status}`);
+      }
+  
+      const updatedFolder = await response.json();
+      console.log("Item moved successfully:", updatedFolder);
+      setShowMoveCard(false);
+      enqueueSnackbar("Item moved successfully!", { variant: "success" });
+    } catch (error) {
+      console.error("Error moving item:", error);
+      enqueueSnackbar("Failed to move item.", { variant: "error" });
+    }
+  };
+  
   return (
     <>
       <Header onFilter={handleFilter} />
@@ -274,8 +336,21 @@ function Home() {
                         </>
                       )}
                     </button>
-                    <button>Move</button>
-                    
+                    <button onClick={handleMove}>Move</button>
+                    {showMoveCard && (
+                    <div className="move-card">
+                      <select value={selectedFolderId} onChange={(e) => setSelectedFolderId(e.target.value)}>
+                      <option value="">Select Folder</option>
+                      {folders.map(folder => (
+                        <option key={folder.id} value={folder.id}>
+                          {folder.name}
+                        </option>
+                      ))}
+</select>
+
+                      <button onClick={confirmMove}>Move</button>
+                    </div>
+                  )}
 
                     <button onClick={() => handleMoveFolderToTrash(folder.id)}>
 
@@ -333,7 +408,7 @@ function Home() {
                     <button onClick={() => setRenameId(file.id)}>Rename</button>
                     <button 
                       className="download-button"
-                      onClick={() => handleDownload(file)}
+                      onClick={() => handleFileDownload(file)}
                       disabled={isDownloading}
                     >
                       {isDownloading ? (
@@ -345,8 +420,17 @@ function Home() {
                         </>
                       )}
                     </button>
-                    <button>Move</button>
-                    <button onClick={() => handleMoveToTrash(file.id)}>
+                    <button onClick={handleMove}>Move</button>
+                    {showMoveCard && (
+                    <div className="move-card">
+                      <select value={selectedFolderId} onChange={(e) => setSelectedFolderId(e.target.value)}>
+                        <option value="">Select Folder</option>
+                        {folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}
+                      </select>
+                      <button onClick={confirmMove}>Move</button>
+                    </div>
+                  )}
+                    <button onClick={() => handleMoveFileToTrash(file.id)}>
                       Move to Trash
                     </button>
                   </div>
