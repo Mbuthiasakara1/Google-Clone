@@ -73,7 +73,7 @@
       "type": "folder",
       "lastOpened": "Aug 16, 2024",
       "path": "/",
-      "folderId": "3"
+      "folderId": "4"
     },
     {
       "id": "23a2",
@@ -81,8 +81,20 @@
     },
     {
       "id": "a171",
+<<<<<<< HEAD
       "name": "Sam",
       "bin": false
+=======
+      "name": "Sam"
+    },
+    {
+      "id": "cdf3",
+      "name": "Folders",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "3"
+>>>>>>> ca5b77b (Min Updates)
     }
   ],
   "users": [
