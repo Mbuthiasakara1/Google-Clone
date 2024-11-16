@@ -19,7 +19,7 @@ function Trash() {
     setLoading(true);
   
     const fetchFiles = axios
-      .get(`http://localhost:5555/api/trash/file/${user.id}`)
+      .get(`http://127.0.0.1:5555/api/trash/file/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFiles(res.data);
@@ -31,7 +31,7 @@ function Trash() {
       .catch((error) => console.error("Error fetching files:", error));
 
     const fetchFolders = axios
-      .get(`http://localhost:5555/api/trash/folder/${user.id}`)
+      .get(`http://127.0.0.1:5555/api/trash/folder/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFolders(res.data);
@@ -65,7 +65,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://localhost:5555/api/files/${fileId}`, { bin: false })
+      .patch(`http://127.0.0.1:5555/api/files/${fileId}`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -74,7 +74,7 @@ function Trash() {
 
   const handleFolderRestore = (folderId) => {
     axios
-      .patch(`http://localhost:5555/api/folders/${folderId}`, { bin: false })
+      .patch(`http://127.0.0.1:5555/api/folders/${folderId}`, { bin: false })
       .then(() => {
         setFilteredFolders(
           filteredFolders.filter((folder) => folder.id !== folderId)
@@ -87,7 +87,7 @@ function Trash() {
     if (window.confirm("Are you sure you want to delete this file?")) {
       try {
         const response = await fetch(
-          `http://localhost:5555/api/files/${fileId}`,
+          `http://127.0.0.1:5555/api/files/${fileId}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete file");
@@ -102,7 +102,7 @@ function Trash() {
     if (window.confirm("Are you sure you want to delete this folder?")) {
       try {
         const response = await fetch(
-          `http://localhost:5555/api/folders/${folderId}`,
+          `http://127.0.0.1:5555/api/folders/${folderId}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete folder");

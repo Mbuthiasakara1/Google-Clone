@@ -96,13 +96,13 @@ function Container({ toggleTheme }) {
   }, [currentFolderId]); // Re-run when folder ID changes
 
   // useEffect(() => {
-  //   const fetchFiles = axios.get(`http://localhost:3001/files?bin=false`).then((res) => {
+  //   const fetchFiles = axios.get(`http://127.0.0.1:3001/files?bin=false`).then((res) => {
   //     setFiles(res.data);
   //     setFilteredFiles(res.data);
   //   });
 
   //   const fetchFolders = axios
-  //     .get("http://localhost:3001/folders")
+  //     .get("http://127.0.0.1:3001/folders")
   //     .then((res) => {
   //       setFolders(res.data);
   //       setFilteredFolders(res.data);

@@ -99,7 +99,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
 })};
 
   const handleRename = () => {
-    fetch(`http://localhost:5555/api/files/${file.id}`, {
+    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -117,7 +117,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       setIsDownloading(true);
       enqueueSnackbar('Starting download...', { variant: 'info' });
 
-      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -163,7 +163,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       return;
     }
 
-    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -199,7 +199,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
 
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://localhost:5555/files/${file.id}`, {
+      fetch(`http://127.0.0.1:5555/files/${file.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
@@ -221,7 +221,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     ) {
       try {
         const response = await fetch(
-          `http://localhost:5555/api/files/${user.id}`,
+          `http://127.0.0.1:5555/api/files/${user.id}`,
           {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
