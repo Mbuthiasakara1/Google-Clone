@@ -131,6 +131,44 @@ class FileInfo(Resource):
     def get(self):
         files_dict = [file.to_dict() for file in File.query.all()]
         return make_response(files_dict, 200)
+    
+    def post(self):
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'filetype', 'filesize', 'storage_path', 'user_id']
+        for field in required_fields:
+            if field not in data:
+                print("error:" f"'{field}' is required")
+                return {"error": f"'{field}' is required"}, 400
+        
+        # Ensure numeric types are correctly converted
+        filesize = int(data['filesize']) if data.get('filesize') else 0
+        
+        # Handle optional fields and default values
+        new_file = File(
+            name=data['name'],
+            filetype=data['filetype'],
+            filesize=filesize,
+            storage_path=data['storage_path'],
+            created_at=datetime.strptime(data['created_at'], '%Y-%m-%dT%H:%M:%SZ') if data.get('created_at') else datetime.now(),
+            updated_at=datetime.now(),
+            thumbnail_path=data.get('thumbnail_path'),
+            bin=False,
+            folder_id=data.get('folder_id'), 
+            user_id=data['user_id'],
+        )
+        
+        try:
+            db.session.add(new_file)
+            db.session.commit()
+            return new_file.to_dict(), 201
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error occurred while saving file: {e}")
+            return {"error": f"Database error: {str(e)}"}, 500
+
+
 
 class FileById(Resource):
     def get(self, id):
