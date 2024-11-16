@@ -46,7 +46,7 @@ function UploadWidget({ onUpload }) {
 
             try {
               // Post the uploaded file data to the Flask backend
-              const response = await axios.post('http://127.0.0.1:5555/api/files', fileData, {
+              const response = await axios.post('/api/files', fileData, {
                 withCredentials: true,
               });
 

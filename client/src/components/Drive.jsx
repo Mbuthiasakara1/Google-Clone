@@ -33,7 +33,7 @@ function Container({ toggleTheme }) {
       try {
         if (user && user.id) {
           const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}`
+            `/api/fileuser/${user.id}`
           );
           setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
           setFilteredFiles(
@@ -41,7 +41,7 @@ function Container({ toggleTheme }) {
           );
 
           const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}`
+            `/api/folderuser/${user.id}`
           );
           setFolders(
             Array.isArray(folderResponse.data) ? folderResponse.data : []
@@ -63,7 +63,7 @@ function Container({ toggleTheme }) {
   useEffect(() => {
     if (currentFolderId) {
       // Fetch contents of the current folder
-      fetch(`http://127.0.0.1:5555/api/content/${currentFolderId}`)
+      fetch(`/api/content/${currentFolderId}`)
         .then(res => res.json())
         .then(data => {
           // Combine files and subfolders into a single array
