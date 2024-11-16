@@ -52,7 +52,7 @@ function FolderCard({ folder, onFolderClick}) {
       setIsDownloading(true);
       enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
 
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });

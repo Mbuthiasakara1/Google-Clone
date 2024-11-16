@@ -1,19 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "sha256": "f0858f088b349332af669019c765b94c154c022b15221bc91a0d2e96c5150c1c"
-=======
-<<<<<<< HEAD
-            "sha256": "b3c53ad5ed71aecd7e0a8d8ed5c0468bbc3db7099445c445e6bb8079069d9334"
-=======
-            "sha256": "f0858f088b349332af669019c765b94c154c022b15221bc91a0d2e96c5150c1c"
->>>>>>> 78c8163 (modified files)
->>>>>>> a96d54c (resolved conflicts)
-=======
-            "sha256": "b3c53ad5ed71aecd7e0a8d8ed5c0468bbc3db7099445c445e6bb8079069d9334"
->>>>>>> bcf4d42 (Download Folders and Files)
+            "sha256": "342df6ce2969f2f2cf0d0ce7c010d09b82c519e6716a751d5e5365396341d2d5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -92,12 +80,6 @@
             "markers": "python_version >= '3.6'",
             "version": "==2024.8.30"
         },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> bcf4d42 (Download Folders and Files)
         "charset-normalizer": {
             "hashes": [
                 "sha256:0099d79bdfcf5c1f0c2c72f91516702ebf8b0b8ddd8905f97a8aecf49712c621",
@@ -209,12 +191,6 @@
             "markers": "python_full_version >= '3.7.0'",
             "version": "==3.4.0"
         },
-<<<<<<< HEAD
-=======
->>>>>>> 78c8163 (modified files)
->>>>>>> a96d54c (resolved conflicts)
-=======
->>>>>>> bcf4d42 (Download Folders and Files)
         "click": {
             "hashes": [
                 "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",

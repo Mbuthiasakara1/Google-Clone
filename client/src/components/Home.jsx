@@ -105,7 +105,7 @@ function Home() {
 
   const handleRenameFolder = async (folderId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -145,7 +145,7 @@ function Home() {
       setIsDownloading(true);
       enqueueSnackbar('Starting download...', { variant: 'info' });
 
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -179,7 +179,7 @@ function Home() {
       setIsDownloading(true);
       enqueueSnackbar('Preparing folder for download...', { variant: 'info' });
 
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });

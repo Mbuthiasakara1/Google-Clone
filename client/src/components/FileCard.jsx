@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
-import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import {
   Description,
@@ -23,8 +22,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   // NEW: Add state for download status
   const [isDownloading, setIsDownloading] = useState(false);
-  // NEW: Add state for download status
-  const [isDownloading, setIsDownloading] = useState(false);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   
@@ -44,29 +41,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     //   );
     // }
 
-    const extension = file.name?.split(".").pop()?.toLowerCase() || "";
-    const fileType = (file.filetype || file.type || "").toLowerCase();
-    const documentTypes = [
-      "doc",
-      "docx",
-      "txt",
-      "rtf",
-      "odt",
-      "text",
-      "document",
-    ];
-    const spreadsheetTypes = ["xlsx", "xls", "csv", "ods", "spreadsheet"];
-    const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
-    const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
-    const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
-
-    const isType = (types) =>
-      types.some(
-        (type) =>
-          fileType.includes(type) ||
-          extension === type ||
-          (file.mimeType && file.mimeType.includes(type))
-      );
+  
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -103,20 +78,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
     if (isType(documentTypes))
       return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
-    if (isType(imageTypes))
-      return <Image sx={{ fontSize: 60, color: "#4285f4" }} />;
-    if (isType(["pdf"]))
-      return <PictureAsPdf sx={{ fontSize: 60, color: "#FF4B4B" }} />;
-    if (isType(videoTypes))
-      return <VideoFile sx={{ fontSize: 60, color: "#673ab7" }} />;
-    if (isType(audioTypes))
-      return <AudioFile sx={{ fontSize: 60, color: "#00c853" }} />;
-    if (isType(spreadsheetTypes))
-      return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
-    if (isType(documentTypes))
-      return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
-
-    return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
     return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
   };
 
@@ -124,11 +85,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     if (!bytes) return "N/A";
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     if (bytes === 0) return "0 Byte";
-    if (!bytes) return "N/A";
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "0 Byte";
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-    return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
     return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
   };
 
@@ -138,13 +95,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       year: "numeric",
       month: "short",
       day: "numeric",
-    if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+   
+})};
 
   const handleRename = () => {
     fetch(`http://localhost:5555/api/files/${file.id}`, {
@@ -165,7 +117,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       setIsDownloading(true);
       enqueueSnackbar('Starting download...', { variant: 'info' });
 
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -196,24 +148,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     } finally {
       setIsDownloading(false);
     }
-  const handleDownload = () => {
-    fetch(`http://localhost:5555/api/files/${file.id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/octet-stream" },
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        const extension = file.name.split(".").pop();
-        link.setAttribute("download", `${file.id}.${extension}`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error("Download error:", error));
   };
 
   const handleMoveToTrash = () => {
@@ -228,8 +162,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       return;
     }
 
-    fetch(`http://localhost:5555/api/files/${file.id}/move-to-trash`, {
-      method: "PATCH",
     fetch(`http://localhost:5555/api/files/${file.id}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -258,7 +190,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       });
   };
 
-  };
+  
 
   const handleMove = () => {
     setShowMoveCard(true);
@@ -266,7 +198,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
 
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://localhost:5555/files/${file.id}`, {
       fetch(`http://localhost:5555/files/${file.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -287,19 +218,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         "Are you sure you want to delete this file? This action cannot be undone."
       )
     ) {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this file? This action cannot be undone."
-      )
-    ) {
       try {
-        const response = await fetch(
-          `http://localhost:5555/api/files/${user.id}`,
-          {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
         const response = await fetch(
           `http://localhost:5555/api/files/${user.id}`,
           {
@@ -333,9 +252,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
           transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
           position: "relative",
-          // overflow: "hidden",
         }}
-       
       >
         <div
           className="file-icon-wrapper"
@@ -349,7 +266,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         >
           {getFileIcon()}
         </div>
-
+  
         <div
           className="file-details"
           style={{
@@ -370,35 +287,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           >
             {file.name}
           </div>
-
-          <div
-            className="file-info"
-            style={{
-              fontSize: "12px",
-              color: "#666",
-            }}
-          >
-        <div
-          className="file-details"
-          style={{
-            padding: "12px",
-            borderTop: "1px solid #eee",
-          }}
-        >
-          <div
-            className="file-name"
-            style={{
-              fontSize: "14px",
-              fontWeight: "500",
-              marginBottom: "4px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {file.name}
-          </div>
-
+  
           <div
             className="file-info"
             style={{
@@ -410,22 +299,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
             <div>{formatDate(file.updated_at || file.created_at)}</div>
           </div>
         </div>
-
-        <button
-          className="dropdown-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowDropdown(!showDropdown);
-          }}
-          style={{
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
         <button
           className="dropdown-btn"
           onClick={(e) => {
@@ -443,14 +316,12 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         >
           <FaEllipsisV />
         </button>
-
-        {/* UPDATED: Enhanced dropdown menu with download button */}
+  
+        {/* Dropdown Menu */}
         {showDropdown && (
           <div className="dropdown-menu">
-            <button onClick={() => setDisplayRenameForm(true)}>
-              Rename
-            </button>
-            <button 
+            <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
+            <button
               className="download-button"
               onClick={handleDownload}
               disabled={isDownloading}
@@ -459,19 +330,17 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
                 <span>Downloading...</span>
               ) : (
                 <>
-                  <DownloadIcon className="dropdown-icon" />
+                  <FaFileAlt className="dropdown-icon" />
                   <span>Download</span>
                 </>
               )}
             </button>
             <button onClick={handleMove}>Move</button>
             <button onClick={handleMoveToTrash}>Move To Trash</button>
-            <button onClick={handleMoveToTrash}>Move To Trash</button>
           </div>
         )}
       </div>
-      </div>
-
+  
       {displayRenameForm && (
         <div className="rename-form">
           <input
@@ -483,54 +352,26 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
         </div>
       )}
-      {displayRenameForm && (
-        <div className="rename-form">
-          <input
-            value={rename}
-            onChange={(e) => setRename(e.target.value)}
-            placeholder="Enter new name"
-          />
-          <button onClick={handleRename}>Confirm</button>
-          <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
-        </div>
-      )}
-
+  
       {showMoveCard && (
-        <div className="move-form">
+        <div className="move-card">
           <select
             value={selectedFolderId}
             onChange={(e) => setSelectedFolderId(e.target.value)}
           >
-            <option value="">Select Folder</option>
             {folders.map((folder) => (
               <option key={folder.id} value={folder.id}>
                 {folder.name}
               </option>
             ))}
           </select>
-          <button onClick={confirmMove}>Move</button>
-          <button onClick={() => setShowMoveCard(false)}>Cancel</button>
-        </div>
-      )}
-      {showMoveCard && (
-        <div className="move-form">
-          <select
-            value={selectedFolderId}
-            onChange={(e) => setSelectedFolderId(e.target.value)}
-          >
-            <option value="">Select Folder</option>
-            {folders.map((folder) => (
-              <option key={folder.id} value={folder.id}>
-                {folder.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={confirmMove}>Move</button>
+          <button onClick={confirmMove}>Confirm Move</button>
           <button onClick={() => setShowMoveCard(false)}>Cancel</button>
         </div>
       )}
     </div>
   );
-}
+  
+};
 
 export default FileCard;
