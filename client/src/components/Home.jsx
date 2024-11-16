@@ -106,7 +106,7 @@ function Home() {
 
   const handleRenameFolder = async (folderId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
