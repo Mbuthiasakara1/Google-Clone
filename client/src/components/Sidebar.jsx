@@ -49,8 +49,8 @@ function Sidebar() {
   }
 
   // Function to handle successful file uploads
-  const handleFileUpload = (url) => {
-    setFiles((prevFiles) => [...prevFiles, url]);
+  const handleFileUpload = (newFile) => {
+    setFiles((prevFiles) => [...prevFiles, newFile]);
   };
 
   return (

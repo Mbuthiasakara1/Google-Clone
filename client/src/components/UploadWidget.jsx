@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
+import { useParams } from "react-router-dom";
 
 function UploadWidget({ onUpload }) {
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
-  const { user } = useAuth()
+  const { user } = useAuth();
+  const { folderId } = useParams();
 
   useEffect(() => {
     if (window.cloudinary) {
@@ -28,17 +30,26 @@ function UploadWidget({ onUpload }) {
           } else if (result.event === "success") {
             console.log("File uploaded successfully:", result.info);
 
-            // Send the uploaded files to the server
-            try{
-              const response = await axios.post('http://127.0.0.1:5555/api/files', {
-                name: original_filename,
-                filetype: original_extension,
-                filesize: w,
-                storage_path: secure_url,
-                created_at: created_at,
-                updated_at: d,
-                user_id: user.id,
-              })
+            // Extract necessary details from the Cloudinary response
+            const { original_filename, format, bytes, secure_url, created_at, thumbnail_url } = result.info;
+            
+            const fileData = {
+              name: original_filename,
+              filetype: format,
+              filesize: bytes,
+              storage_path: secure_url,
+              thumbnail_path: thumbnail_url || null,
+              created_at: created_at,
+              folder_id: folderId || null,
+              user_id: user?.id,
+            };
+
+            try {
+              // Post the uploaded file data to the Flask backend
+              const response = await axios.post('http://127.0.0.1:5555/api/files', fileData, {
+                withCredentials: true,
+              });
+
               if (response.status === 201) {
                 console.log('File data saved to database:', response.data);
                 onUpload(secure_url); // Trigger the onUpload callback
@@ -50,7 +61,7 @@ function UploadWidget({ onUpload }) {
         }
       );
     }
-  }, [user, onUpload]);
+  }, [user, folderId, onUpload]);
 
   const handleOpenWidget = () => {
     if (widgetRef.current) {

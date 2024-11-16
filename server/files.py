@@ -15,16 +15,16 @@ class File(db.Model, sm):
     )
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False)
-    filetype = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String, nullable=False)
+    filetype = db.Column(db.String, nullable=False)
     filesize = db.Column(db.BigInteger, nullable=False)
-    storage_path = db.Column(db.String(255), nullable=False)
+    storage_path = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    thumbnail_path = db.Column(db.String(255))
+    thumbnail_path = db.Column(db.String)
     bin = db.Column(db.Boolean, default=False)
     
-    folder_id = db.Column(db.Integer, db.ForeignKey('folders.id', ondelete='CASCADE'), nullable=False)
+    folder_id = db.Column(db.Integer, db.ForeignKey('folders.id', ondelete='CASCADE'), nullable=True)
     user_id = db.Column(db.Integer,db.ForeignKey('users.id', ondelete='CASCADE'),nullable=False)
     
     folder = db.relationship('Folder', back_populates='files')
