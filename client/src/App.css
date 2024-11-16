@@ -891,6 +891,7 @@ button:disabled {
   }
 }
 
+
 /* New dropdown menu styles */
 .dropdown-menu {
   position: absolute;
@@ -1066,6 +1067,7 @@ button:disabled {
 .download-complete {
   animation: downloadComplete 0.3s ease;
 }
+
 
 .file-thumbnail {
   width: 100%;

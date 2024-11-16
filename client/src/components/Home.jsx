@@ -4,7 +4,6 @@ import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
 import { Download as DownloadIcon } from '@mui/icons-material';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 
@@ -116,10 +115,10 @@ function Home() {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
   
-      const contentType = response.headers.get("content-type");
-      const data = contentType && contentType.includes("application/json")
-        ? await response.json()
-        : {};
+      // const contentType = response.headers.get("content-type");
+      // const data = contentType && contentType.includes("application/json")
+      //   ? await response.json()
+      //   : {};
   
       setFiles((prevFolders) =>
         prevFolders.map((folder) =>
@@ -137,6 +136,7 @@ function Home() {
       });
     }
   };
+
 
   // NEW: File download handler
   const handleDownload = async (file) => {
@@ -259,7 +259,7 @@ function Home() {
                 {dropdownId === folder.id && (
                   <div className="folder-dropdown-menu">
                     <button onClick={() => setRenameId(folder.id)}>Rename</button>
-                    <button 
+                <button 
                       className="download-button"
                       onClick={() => handleFolderDownload(folder)}
                       disabled={isDownloading}
@@ -274,7 +274,10 @@ function Home() {
                       )}
                     </button>
                     <button>Move</button>
-                    <button onClick={() => handleMoveToTrash(folder.id)}>
+                    
+
+                    <button onClick={() => handleMoveFolderToTrash(folder.id)}>
+
                       Move to Trash
                     </button>
                   </div>
