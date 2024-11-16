@@ -23,6 +23,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   // NEW: Add state for download status
   const [isDownloading, setIsDownloading] = useState(false);
+  // NEW: Add state for download status
+  const [isDownloading, setIsDownloading] = useState(false);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   

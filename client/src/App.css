@@ -891,6 +891,181 @@ button:disabled {
   }
 }
 
+/* New dropdown menu styles */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #3c4043;
+  font-size: 14px;
+}
+
+.dropdown-menu button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f1f3f4;
+}
+
+.dropdown-icon {
+  font-size: 18px;
+  color: #5f6368;
+}
+
+.dropdown-menu button:hover:not(:disabled) {
+  background-color: #f1f3f4;
+}
+
+/* Download button specific styles */
+.download-button {
+  position: relative;
+}
+
+.download-button span {
+  white-space: nowrap;
+}
+
+/* Loading state styles */
+.download-button:disabled span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.download-button:disabled span::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid #5f6368;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Download button styles */
+.download-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #3c4043;
+  position: relative;
+  font-size: 14px;
+}
+
+.download-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f1f3f4;
+}
+
+.download-button:hover:not(:disabled) {
+  background-color: #f1f3f4;
+}
+
+/* NEW: Loading animation for download button */
+.download-button:disabled span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.download-button:disabled span::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid #5f6368;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: downloadSpin 1s linear infinite;
+}
+
+@keyframes downloadSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* NEW: Download icon styles */
+.download-icon {
+  font-size: 18px;
+  color: #5f6368;
+  margin-right: 8px;
+}
+
+/* NEW: Mobile optimization for download buttons */
+@media (max-width: 768px) {
+  .download-button {
+    padding: 12px 16px;
+    min-height: 44px;
+  }
+}
+
+/* NEW: Dark mode support for download elements */
+@media (prefers-color-scheme: dark) {
+  .download-button {
+    color: #e8eaed;
+  }
+  
+  .download-icon {
+    color: #9aa0a6;
+  }
+  
+  .download-button:disabled span::after {
+    border-color: #9aa0a6;
+    border-top-color: transparent;
+  }
+}
+
+/* NEW: Download states */
+.download-button.downloading {
+  background-color: #f8f9fa;
+  pointer-events: none;
+}
+
+.download-button.error {
+  color: #d93025;
+}
+
+.download-button.success {
+  color: #188038;
+}
+
+/* NEW: Animation for successful download */
+@keyframes downloadComplete {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.download-complete {
+  animation: downloadComplete 0.3s ease;
+}
 
 /* New dropdown menu styles */
 .dropdown-menu {
