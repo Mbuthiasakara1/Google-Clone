@@ -12,7 +12,7 @@ function Sidebar() {
   const [showForm, setShowForm] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [files, setFiles] = useState([]);
-
+ 
   function handleClick() {
     setDropDown(!dropDown);
     setShowForm(false);
@@ -28,7 +28,7 @@ function Sidebar() {
     e.preventDefault();
     const parentId = folderId ? folderId : null; // If there's no folderId, send null
 
-    fetch("http://127.0.0.1:5555/api/folders", {
+    fetch("http://localhost:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,8 +49,8 @@ function Sidebar() {
   }
 
   // Function to handle successful file uploads
-  const handleFileUpload = (url) => {
-    setFiles((prevFiles) => [...prevFiles, url]);
+  const handleFileUpload = (newFile) => {
+    setFiles((prevFiles) => [...prevFiles, newFile]);
   };
 
   return (

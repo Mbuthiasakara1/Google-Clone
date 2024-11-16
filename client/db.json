@@ -41,7 +41,7 @@
       "bin": false
     },
     {
-      "id": "4",
+      "id": "5",
       "name": "Test.xlsx",
       "type": "spreadsheet",
       "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -81,8 +81,20 @@
     },
     {
       "id": "a171",
+<<<<<<< HEAD
       "name": "Sam",
       "bin": false
+=======
+      "name": "Sam"
+    },
+    {
+      "id": "cdf3",
+      "name": "Folders",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "3"
+>>>>>>> ca5b77b (Min Updates)
     }
   ],
   "users": [
