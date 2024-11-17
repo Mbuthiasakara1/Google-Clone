@@ -6,6 +6,8 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
+import ImageView from "./ImageView";
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl,TextField, InputLabel, Select, MenuItem, Button } from '@mui/material';
 
 function Home() {
   const [moveItem, setMoveItem] = useState(null, true)
@@ -21,6 +23,9 @@ function Home() {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [currentFolderName, setCurrentFolderName] = useState("");
   const [folderHistory, setFolderHistory] = useState([]);
+  const [imageId, setImageId] = useState(0)
+  const [showImage, setShowImage] = useState(null)
+ 
 
 
   // NEW: Add download state
@@ -66,10 +71,20 @@ function Home() {
       setLoading(false);
     };
 
+  
     fetchData();
   }, [user, currentFolderId]);
 
 
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     console.log("Fetching data...");
+  //     fetchData();
+  //   }, 5000);
+
+  //   return () => clearInterval(interval);
+  // }, [user]);
 
   const handleFilter = (query) => {
     if (!query) {
@@ -394,6 +409,29 @@ function Home() {
       enqueueSnackbar("Failed to move item.", { variant: "error" });
     }
   };
+  const checkForImage = (file) => {
+    const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
+    const extension = file.name?.split(".").pop()?.toLowerCase();
+    const fileType = (file.filetype || file.type || "").toLowerCase();
+  
+    return imageTypes.some(
+      (type) =>
+        fileType.includes(type) || 
+        extension === type || 
+        (file.mimeType && file.mimeType.includes(type))
+    );
+  };
+
+  function handleFileClick(file){
+    const isImage = checkForImage(file);
+    if (isImage) {
+      setImageId(file); 
+      console.log(file)
+      setShowImage(true); 
+      
+    }
+  }
+
 
 
   return (
@@ -454,45 +492,85 @@ function Home() {
                           )}
                         </button>
                         <button onClick={() => handleMove(folder)}>Move</button>
-                        <button onClick={() => handleMoveFolderToTrash(folder.id)}>
-                          Move to Trash
-                        </button>
+                        {showMoveCard && (
+                         <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+                         <DialogTitle>Move to Folder</DialogTitle>
+                         <DialogContent>
+                           <FormControl fullWidth>
+                             <InputLabel>Choose Folder</InputLabel>
+                             <Select
+                               value={selectedFolderId}
+                               onChange={(e) => setSelectedFolderId(e.target.value)}
+                               label="Choose Folder"
+                             >
+                               {filteredFolders.map((folder) => (
+                                 <MenuItem key={folder.id} value={folder.id}>
+                                   {folder.name}
+                                 </MenuItem>
+                               ))}
+                             </Select>
+                           </FormControl>
+                         </DialogContent>
+                         <DialogActions>
+                           <Button onClick={confirmMove} color="primary">
+                             Confirm Move
+                           </Button>
+                           <Button onClick={() => setShowMoveCard(false)} color="secondary">
+                             Cancel
+                           </Button>
+                         </DialogActions>
+                       </Dialog>
+                        )}
+
+                        <button
+                          onClick={() => handleMoveFolderToTrash(folder.id)}
+                        >Move to Trash </button>
+                          
                       </div>
                     )}
                     {renameId === folder.id && (
-                      <div className="rename-form">
-                        <label htmlFor="renameInput">New Name:</label>
-                        <input
-                          type="text"
+                      <Dialog open={true} onClose={() => setRenameId(null)}>
+                      <DialogTitle>Rename Folder</DialogTitle>
+                      <DialogContent>
+                        <TextField
                           id="renameInput"
+                          label="New Name"
                           value={rename}
                           onChange={(e) => setRename(e.target.value)}
+                          fullWidth
                           placeholder="Enter new name"
                         />
-                        <button onClick={() => handleRenameFolder(folder.id)}>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => handleRenameFolder(folder.id)} color="primary">
                           Submit
-                        </button>
-                        <button onClick={() => setRenameId(null)}>Cancel</button>
-                      </div>
+                        </Button>
+                        <Button onClick={() => setRenameId(null)} color="secondary">
+                          Cancel
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
                     )}
                   </div>
                 ))
-              ) : (
-                <p>No folders found</p>
-              )}
+              ): (
+                <p>No folders found</p>)}
             </div>
           </div>
 
-          {/* File Container */}
           <div className="file-container">
             <h3>Files</h3>
             <div className="file-list">
-              {filteredFiles.length > 0 ? (
+              {filteredFiles.length === 0 ? (
+                <h3>No files found</h3>
+              ) : (
                 filteredFiles.map((file) => (
                   <div
-                    className="file-card"
+                    className="file-card "
                     key={file.id}
                     onMouseLeave={() => setDropdownId(null)}
+                    onDobleClick={()=>handleFileClick(file)}
+                    // onDoubleClick={}
                   >
                     <div className="file-icon">
                       <FaFileAlt />
@@ -525,35 +603,70 @@ function Home() {
                             </>
                           )}
                         </button>
-                        <button onClick={() => handleMove(file)}>Move</button>
+                        <button onClick={handleMove}>Move</button>
+                        {showMoveCard && (
+                           <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+                           <DialogTitle>Move to Folder</DialogTitle>
+                           <DialogContent>
+                             <FormControl fullWidth>
+                               <InputLabel>Choose Folder</InputLabel>
+                               <Select
+                                 value={selectedFolderId}
+                                 onChange={(e) => setSelectedFolderId(e.target.value)}
+                                 label="Choose Folder"
+                               >
+                                 {filteredFolders.map((folder) => (
+                                   <MenuItem key={folder.id} value={folder.id}>
+                                     {folder.name}
+                                   </MenuItem>
+                                 ))}
+                               </Select>
+                             </FormControl>
+                           </DialogContent>
+                           <DialogActions>
+                             <Button onClick={confirmMove} color="primary">
+                               Confirm Move
+                             </Button>
+                             <Button onClick={() => setShowMoveCard(false)} color="secondary">
+                               Cancel
+                             </Button>
+                           </DialogActions>
+                         </Dialog>
+                        )}
                         <button onClick={() => handleMoveFileToTrash(file.id)}>
                           Move to Trash
                         </button>
                       </div>
                     )}
                     {renameId === file.id && (
-                      <div className="rename-form">
-                        <label htmlFor="renameInput">New Name:</label>
-                        <input
-                          type="text"
-                          id="renameInput"
-                          value={rename}
-                          onChange={(e) => setRename(e.target.value)}
-                          placeholder="Enter new name"
-                        />
-                        <button onClick={() => handleRenameFile(file.id)}>
-                          Submit
-                        </button>
-                        <button onClick={() => setRenameId(null)}>Cancel</button>
-                      </div>
+                     <Dialog open={true} onClose={() => setRenameId(null)}>
+                     <DialogTitle>Rename File</DialogTitle>
+                     <DialogContent>
+                       <TextField
+                         id="renameInput"
+                         label="New Name"
+                         value={rename}
+                         onChange={(e) => setRename(e.target.value)}
+                         fullWidth
+                         placeholder="Enter new name"
+                       />
+                     </DialogContent>
+                     <DialogActions>
+                       <Button onClick={() => handleRenameFile(file.id)} color="primary">
+                         Submit
+                       </Button>
+                       <Button onClick={() => setRenameId(null)} color="secondary">
+                         Cancel
+                       </Button>
+                     </DialogActions>
+                   </Dialog>
                     )}
                   </div>
                 ))
-              ) : (
-                <p>No files found</p>
               )}
             </div>
           </div>
+          {showImage && <ImageView  imageId={imageId} onClose={() => setShowImage(false)} />}
         </div>
 
       </div>

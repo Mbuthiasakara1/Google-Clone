@@ -137,10 +137,13 @@ function Trash() {
       <div className="Container" style={{ borderRadius: "10px" }}>
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
         <div className="content">
-          <div className="file-container">
-            <h3>Files</h3>
+          <div className="files-container">
+            <h4>Files</h4>
             <div className="file-list">
-              {filteredFiles.map((file) => (
+             {filteredFiles.length === 0 ? (
+              <h3>No files found in trash</h3>
+            ):(
+              filteredFiles.map((file) => (
                 <div
                   key={file.id}
                   className="file-card"
@@ -171,7 +174,7 @@ function Trash() {
                     </div>
                   )}
                 </div>
-              ))}
+              )))}
             </div>
           </div>
 

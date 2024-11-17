@@ -3,6 +3,7 @@ import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
 // NEW: Import Download icon
 import { Download as DownloadIcon } from '@mui/icons-material';
+import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import useStore from "./Store";
 
 function FolderCard({ folder, onFolderClick}) {
@@ -172,37 +173,56 @@ function FolderCard({ folder, onFolderClick}) {
         </div>
       )}
       {displayRenameForm && (
-        <div className="rename-form">
-          <label htmlFor="renameInput">New Name:</label>
-          <input
-            style={{ height: '40px' }}
-            type="text"
+        <Dialog open={true} onClose={() => setRenameId(null)}>
+        <DialogTitle>Rename File</DialogTitle>
+        <DialogContent>
+          <TextField
             id="renameInput"
+            label="New Name"
             value={rename}
             onChange={(e) => setRename(e.target.value)}
+            fullWidth
             placeholder="Enter new name"
           />
-          <button onClick={() => handleRenameFolder(folder.id)}>Submit</button>
-          <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
-        </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleRenameFolder(folder.id)} color="primary">
+            Submit
+          </Button>
+          <Button onClick={() => setDisplayRenameForm(false)} color="secondary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
       )}
       {showMoveCard  && (
-        <div className="move-card">
-          <h4>Choose a Folder</h4>
-          <select
-            onChange={(e) => setSelectedFolderId(e.target.value)}
-            value={selectedFolderId || ""}
-          >
-            <option value="">Select Folder</option>
-            {folders.map((folder) => (
-              <option key={folder.id} value={folder.id}>
-                {folder.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={confirmMove}>Move</button>
-          <button onClick={() => setShowMoveCard(false)}>Cancel</button>
-        </div>
+        <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+        <DialogTitle>Move to Folder</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth>
+            <InputLabel>Choose Folder</InputLabel>
+            <Select
+              value={selectedFolderId}
+              onChange={(e) => setSelectedFolderId(e.target.value)}
+              label="Choose Folder"
+            >
+              {filteredFolders.map((folder) => (
+                <MenuItem key={folder.id} value={folder.id}>
+                  {folder.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={confirmMove} color="primary">
+            Confirm Move
+          </Button>
+          <Button onClick={() => setShowMoveCard(false)} color="secondary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
       )}
     </div>
   );

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
+import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+
 import {
   Description,
   Image,
@@ -14,7 +16,15 @@ import {
   Article,
 } from "@mui/icons-material";
 
-function FileCard({ file, files, setFiles, onFolderClick, folders }) {
+function FileCard({
+  file,
+  setFiles,
+  setFilteredFiles,
+  filteredFolders,
+  filteredFiles,
+  folders,
+  onFileClick,
+}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
   const [rename, setRename] = useState("");
@@ -24,8 +34,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
-  
-  if(!file){
+
+  if (!file) {
     return null;
   }
 
@@ -83,8 +93,8 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       year: "numeric",
       month: "short",
       day: "numeric",
-   
-})};
+    });
+  };
 
   const handleRename = () => {
     fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
@@ -103,25 +113,28 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      enqueueSnackbar('Starting download...', { variant: 'info' });
+      enqueueSnackbar("Starting download...", { variant: "info" });
 
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
-        method: 'GET',
-        credentials: 'include'
-      });
+      const response = await fetch(
+        `http://localhost:5555/api/files/${file.id}/download`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Download failed');
+        throw new Error("Download failed");
       }
 
-      const contentDisposition = response.headers.get('Content-Disposition');
+      const contentDisposition = response.headers.get("Content-Disposition");
       const filename = contentDisposition
-        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
         : file.name;
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = filename;
       document.body.appendChild(link);
@@ -129,17 +142,17 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
+      enqueueSnackbar("File downloaded successfully", { variant: "success" });
     } catch (error) {
-      console.error('Download error:', error);
-      enqueueSnackbar('Failed to download file', { variant: 'error' });
+      console.error("Download error:", error);
+      enqueueSnackbar("Failed to download file", { variant: "error" });
     } finally {
       setIsDownloading(false);
     }
   };
 
   const handleMoveToTrash = (fileId) => {
-    console.log(fileId)
+    console.log(fileId);
     if (!fileId) {
       console.error("No file selected or file id is missing");
       enqueueSnackbar("No file selected or file ID is missing", {
@@ -170,7 +183,9 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         enqueueSnackbar("file successfully moved to bin", {
           variant: "success",
         });
-        setFiles((prevFiles) => prevFiles.filter((f) => f.id !== file.id));
+        setFilteredFiles((prevFiles) =>
+          prevFiles.filter((f) => f.id !== file.id)
+        );
       })
       .catch((error) => {
         console.error("Error moving file to bin:", error);
@@ -178,8 +193,6 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         enqueueSnackbar("Error moving file to bin", { variant: "error" });
       });
   };
-
-  
 
   const handleMove = () => {
     setShowMoveCard(true);
@@ -201,18 +214,39 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     }
   };
 
- 
+  const checkForImage = (file) => {
+    const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
+    const extension = file.name?.split(".").pop()?.toLowerCase();
+    const fileType = (file.filetype || file.type || "").toLowerCase();
+
+    return imageTypes.some(
+      (type) =>
+        fileType.includes(type) ||
+        extension === type ||
+        (file.mimeType && file.mimeType.includes(type))
+    );
+  };
+
+  function handleFileClick(file) {
+    const isImage = checkForImage(file);
+    if (isImage) {
+      onFileClick(file.id);
+    } else {
+      console.log("This is not an image file.");
+    }
+  }
+
   return (
-    <div className="file-card" >
+    <div className="file-card">
       <div
         className="file-card"
+        onDoubleClick={() => handleFileClick(file)}
         style={{
           backgroundColor: "#fff",
           borderRadius: "8px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
           transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
           position: "relative",
-         
         }}
         onMouseLeave={() => setShowDropdown(false)}
       >
@@ -228,7 +262,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         >
           {getFileIcon()}
         </div>
-  
+
         <div
           className="file-details"
           style={{
@@ -249,7 +283,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
           >
             {file.name}
           </div>
-  
+
           <div
             className="file-info"
             style={{
@@ -278,7 +312,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
         >
           <FaEllipsisV />
         </button>
-  
+
         {/* Dropdown Menu */}
         {showDropdown && (
           <div className="dropdown-menu">
@@ -298,42 +332,70 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
               )}
             </button>
             <button onClick={handleMove}>Move</button>
-            <button onClick={()=>handleMoveToTrash(file.id)}>Move To Trash</button>
+            <button onClick={() => handleMoveToTrash(file.id)}>
+              Move To Trash
+            </button>
           </div>
         )}
       </div>
-  
+
       {displayRenameForm && (
-        <div className="rename-form">
-          <input
+        <Dialog open={true} onClose={() => setRenameId(null)}>
+        <DialogTitle>Rename File</DialogTitle>
+        <DialogContent>
+          <TextField
+            id="renameInput"
+            label="New Name"
             value={rename}
             onChange={(e) => setRename(e.target.value)}
+            fullWidth
             placeholder="Enter new name"
           />
-          <button onClick={handleRename}>Confirm</button>
-          <button onClick={() => setDisplayRenameForm(false)}>Cancel</button>
-        </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleRename} color="primary">
+            Submit
+          </Button>
+          <Button onClick={() => setDisplayRenameForm(false)} color="secondary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
       )}
-  
+
       {showMoveCard && (
-        <div className="move-card">
-          <select
-            value={selectedFolderId}
-            onChange={(e) => setSelectedFolderId(e.target.value)}
-          >
-            {folders.map((folder) => (
-              <option key={folder.id} value={folder.id}>
-                {folder.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={confirmMove}>Confirm Move</button>
-          <button onClick={() => setShowMoveCard(false)}>Cancel</button>
-        </div>
+        <>
+          <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+            <DialogTitle>Move to Folder</DialogTitle>
+            <DialogContent>
+              <FormControl fullWidth>
+                <InputLabel>Choose Folder</InputLabel>
+                <Select
+                  value={selectedFolderId}
+                  onChange={(e) => setSelectedFolderId(e.target.value)}
+                  label="Choose Folder"
+                >
+                  {filteredFolders.map((folder) => (
+                    <MenuItem key={folder.id} value={folder.id}>
+                      {folder.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={confirmMove} color="primary">
+                Confirm Move
+              </Button>
+              <Button onClick={() => setShowMoveCard(false)} color="secondary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
       )}
     </div>
   );
-  
-};
+}
 
 export default FileCard;
