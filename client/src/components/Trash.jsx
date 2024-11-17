@@ -31,7 +31,7 @@ function Trash() {
     setLoading(true);
 
     const fetchFiles = axios
-      .get(`http://127.0.0.1:5555/api/trash/file/${user.id}`)
+      .get(`http://localhost:5555/api/trash/file/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFiles(res.data);
@@ -43,7 +43,7 @@ function Trash() {
       .catch((error) => console.error("Error fetching files:", error));
 
     const fetchFolders = axios
-      .get(`http://127.0.0.1:5555/api/trash/folder/${user.id}`)
+      .get(`http://localhost:5555/api/trash/folder/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFolders(res.data);
@@ -88,7 +88,7 @@ function Trash() {
 
   const handleFolderRestore = (folderId) => {
     axios
-      .patch(`http://127.0.0.1:5555/api/folders/${folderId}`, { bin: false })
+      .patch(`http://localhost:5555/api/folders/${folderId}`, { bin: false })
       .then(() => {
         setFilteredFolders(
           filteredFolders.filter((folder) => folder.id !== folderId)

@@ -97,7 +97,7 @@ function FileCard({
   };
 
   const handleRename = () => {
-    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
+    fetch(`http://localhost:5555/api/files/${file.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -164,7 +164,7 @@ function FileCard({
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),

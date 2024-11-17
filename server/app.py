@@ -34,8 +34,8 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 
-# CORS(app, supports_credentials=True ,origins="http://127.0.0.1:5173/")
-CORS(app, origins=["http://127.0.0.1:5173"], supports_credentials=True)
+# CORS(app, supports_credentials=True ,origins="http://localhost:5173/")
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 
 
 bcrypt = Bcrypt(app)

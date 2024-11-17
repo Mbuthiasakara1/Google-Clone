@@ -60,7 +60,7 @@ function Drive({ toggleTheme }) {
   useEffect(() => {
     if (currentFolderId) {
       // Fetch contents of the current folder
-      fetch(`http://127.0.0.1:5555/api/content/${currentFolderId}`)
+      fetch(`http://localhost:5555/api/content/${currentFolderId}`)
         .then(res => res.json())
         .then(data => {
           // Combine files and subfolders into a single array

@@ -137,7 +137,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${fileId}`,
+        `http://localhost:5555/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -181,7 +181,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folderId}`,
+        `http://localhost:5555/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -224,7 +224,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/download`,
+        `http://localhost:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -261,7 +261,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folder.id}/download`,
+        `http://localhost:5555/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -292,7 +292,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://127.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -320,7 +320,7 @@ function Home() {
       fetchData()
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
