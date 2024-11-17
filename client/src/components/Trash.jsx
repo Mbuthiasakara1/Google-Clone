@@ -4,6 +4,15 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { FaFileAlt, FaFolder, FaEllipsisV } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
+import { useSnackbar } from "notistack";
 
 function Trash() {
   const [files, setFiles] = useState([]);
@@ -11,7 +20,10 @@ function Trash() {
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState({ type: "", id: null });
   const { user, loading, setLoading } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     if (!user) return;
@@ -65,7 +77,9 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, { bin: false })
+      .patch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+        bin: false,
+      })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -83,39 +97,38 @@ function Trash() {
       .catch((error) => console.error("Error restoring folder:", error));
   };
 
-  const handleFileDelete = async (fileId) => {
-    if (window.confirm("Are you sure you want to delete this file?")) {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:5555/api/files/${fileId}`,
-          { method: "DELETE", headers: { "Content-Type": "application/json" } }
-        );
-        if (!response.ok) throw new Error("Failed to delete file");
-        setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
-      } catch (error) {
-        console.error("Error deleting file:", error);
-      }
-    }
+  const handleDeleteClick = (type, id) => {
+    setDeleteTarget({ type, id });
+    setOpenDialog(true);
   };
 
-  const handleFolderDelete = async (folderId) => {
-    if (window.confirm("Are you sure you want to delete this folder?")) {
-      try {
+  const handleConfirmDelete = async () => {
+    const { type, id } = deleteTarget;
+    try {
+      if (type === "file") {
+        const response = await fetch(`http://127.0.0.1:5555/api/files/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error("Failed to delete file");
+        setFilteredFiles(filteredFiles.filter((file) => file.id !== id));
+        enqueueSnackbar("File deleted successfully", { variant: "success" });
+      } else if (type === "folder") {
         const response = await fetch(
-          `http://127.0.0.1:5555/api/folders/${folderId}`,
+          `http://127.0.0.1:5555/api/folders/${id}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete folder");
-        setFilteredFolders(
-          filteredFolders.filter((folder) => folder.id !== folderId)
-        );
-      } catch (error) {
-        console.error("Error deleting folder:", error);
+        setFilteredFolders(filteredFolders.filter((folder) => folder.id !== id));
+        enqueueSnackbar("Folder deleted successfully", { variant: "success" });
       }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      enqueueSnackbar("Failed to delete item", { variant: "error" });
+    } finally {
+      setOpenDialog(false);
     }
   };
-
-  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <>
@@ -124,84 +137,99 @@ function Trash() {
       <div className="Container" style={{ borderRadius: "10px" }}>
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
         <div className="content">
-          <div className="files-container">
+          <div className="file-container">
             <h3>Files</h3>
             <div className="file-list">
-            {filteredFiles.map((file) => (
-              <div
-                key={file.id}
-                className="file-card"
-                onMouseLeave={() => setShowDropdown(null)}
-              >
-                <div className="file-icon">
-                  <FaFileAlt />
-                </div>
-                <div className="file-name">{file.name}</div>
-                <div className="file-footer">
-                  <p>{file.size} KB</p>
-                  <p>Last modified: {file.modifiedDate}</p>
-                </div>
-                <button
-                  className="dropdown-btn"
-                  onClick={() => setShowDropdown(file.id)}
+              {filteredFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="file-card"
+                  onMouseLeave={() => setShowDropdown(null)}
                 >
-                  <FaEllipsisV />
-                </button>
-                {showDropdown === file.id && (
-                  <div className="dropdown-menu">
-                    <button onClick={() => handleFileRestore(file.id)}>
-                      Restore
-                    </button>
-                    <button onClick={() => handleFileDelete(file.id)}>
-                      Delete
-                    </button>
+                  <div className="file-icon">
+                    <FaFileAlt />
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="file-name">{file.name}</div>
+                  <div className="file-footer">
+                    <p>{file.size} KB</p>
+                    <p>Last modified: {file.modifiedDate}</p>
+                  </div>
+                  <button
+                    className="dropdown-btn"
+                    onClick={() => setShowDropdown(file.id)}
+                  >
+                    <FaEllipsisV />
+                  </button>
+                  {showDropdown === file.id && (
+                    <div className="dropdown-menu">
+                      <button onClick={() => handleFileRestore(file.id)}>
+                        Restore
+                      </button>
+                      <button onClick={() => handleDeleteClick("file", file.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        
 
-        <div className="folder-container">   
+          <div className="folder-container">
             <h3>Folders</h3>
             <div className="file-list">
-            {filteredFolders.map((folder) => (
-              <div
-                key={folder.id}
-                className="file-card"
-                onMouseLeave={() => setShowDropdown(null)}
-              >
-                <div className="file-icon">
-                  <FaFolder style={{ color: "blurywood" }} />
-                </div>
-                <div className="file-name">{folder.name}</div>
-                <div className="file-footer">
-                  <p>{folder.size} KB</p>
-                  <p>Last modified: {folder.modifiedDate}</p>
-                </div>
-                <button
-                  className="dropdown-btn"
-                  onClick={() => setShowDropdown(folder.id)}
+              {filteredFolders.map((folder) => (
+                <div
+                  key={folder.id}
+                  className="file-card"
+                  onMouseLeave={() => setShowDropdown(null)}
                 >
-                  <FaEllipsisV />
-                </button>
-                {showDropdown === folder.id && (
-                  <div className="dropdown-menu">
-                    <button onClick={() => handleFolderRestore(folder.id)}>
-                      Restore
-                    </button>
-                    <button onClick={() => handleFolderDelete(folder.id)}>
-                      Delete
-                    </button>
+                  <div className="file-icon">
+                    <FaFolder style={{ color: "blurywood" }} />
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="file-name">{folder.name}</div>
+                  <div className="file-footer">
+                    <p>{folder.size} KB</p>
+                    <p>Last modified: {folder.modifiedDate}</p>
+                  </div>
+                  <button
+                    className="dropdown-btn"
+                    onClick={() => setShowDropdown(folder.id)}
+                  >
+                    <FaEllipsisV />
+                  </button>
+                  {showDropdown === folder.id && (
+                    <div className="dropdown-menu">
+                      <button onClick={() => handleFolderRestore(folder.id)}>
+                        Restore
+                      </button>
+                      <button onClick={() => handleDeleteClick("folder", folder.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-        </div>
+          </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this item? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

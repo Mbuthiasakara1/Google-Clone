@@ -8,7 +8,7 @@ import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 
   
-function Container({ toggleTheme }) {
+function Drive({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
@@ -95,23 +95,6 @@ function Container({ toggleTheme }) {
     }
   }, [currentFolderId]); // Re-run when folder ID changes
 
-  // useEffect(() => {
-  //   const fetchFiles = axios.get(`http://127.0.0.1:3001/files?bin=false`).then((res) => {
-  //     setFiles(res.data);
-  //     setFilteredFiles(res.data);
-  //   });
-
-  //   const fetchFolders = axios
-  //     .get("http://127.0.0.1:3001/folders")
-  //     .then((res) => {
-  //       setFolders(res.data);
-  //       setFilteredFolders(res.data);
-  //     });
-
-  //   Promise.all([fetchFiles, fetchFolders]);
-  // }, []);
-
-  
   const handleFilter = (query) => {
     if (!query) {
       setFilteredFiles(files);
@@ -186,21 +169,6 @@ function Container({ toggleTheme }) {
             {currentFolderId ? folderName : "Welcome to Drive"}
           </h1>
         </div>
-        
-        {/* File/folder grid with empty state handling */}
-        {/* <div className="content">
-          {filteredFiles.length > 0 ? (
-            filteredFiles.map((item) => (
-              <FileCard 
-                key={item.id} 
-                file={item} 
-                onFolderClick={handleFolderClick}  // Pass folder click handler
-              />
-            ))
-          ) : (
-            <h2 style={{ color: "gray" }}>No files found</h2>
-          )}
-        </div> */}
 
         {viewType === "folders" && displayedFolders.length > 0 && (
           <>
@@ -241,4 +209,4 @@ function Container({ toggleTheme }) {
   );
 }
 
-export default Container;
+export default Drive;

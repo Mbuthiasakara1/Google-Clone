@@ -29,19 +29,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     return null;
   }
 
-  const getFileIcon = () => {
-    // if (file.type === "folder" || file.filetype === "folder") {
-    //   return (
-    //     <div
-    //       onClick={() => onFolderClick && onFolderClick(file.id)}
-    //       style={{ cursor: "pointer" }}
-    //     >
-    //       <Folder sx={{ fontSize: 60, color: "#5f6368" }} />
-    //     </div>
-    //   );
-    // }
-
-  
+  const getFileIcon = () => {  
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -213,36 +201,7 @@ function FileCard({ file, files, setFiles, onFolderClick, folders }) {
     }
   };
 
-  const handleDelete = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this file? This action cannot be undone."
-      )
-    ) {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:5555/api/files/${user.id}`,
-          {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to delete file");
-          throw new Error("Failed to delete file");
-        }
-      } catch (error) {
-        enqueueSnackbar(error.message || "An error occurred. Try again.", {
-          variant: "error",
-        });
-        enqueueSnackbar(error.message || "An error occurred. Try again.", {
-          variant: "error",
-        });
-      }
-    }
-  };
-
+ 
   return (
     <div className="file-card" >
       <div
