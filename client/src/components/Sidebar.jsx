@@ -53,6 +53,8 @@ function Sidebar({ currentFolderId }) {
 
     const parentId = currentFolderId || null; // If there's no folderId, send null
 
+
+
     fetch("http://127.0.0.1:5555/api/folders", {
       method: "POST",
       headers: {

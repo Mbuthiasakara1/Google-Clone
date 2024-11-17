@@ -45,7 +45,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`
+            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`
           );
           fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
           setFiles(fetchedFiles);
@@ -57,7 +57,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`
+            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`
           );
           fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
           setFolders(fetchedFolders);
@@ -364,7 +364,7 @@ function Home() {
       if (moveItem.type === "folder") {
         // Moving a folder
         response = await fetch(
-          `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
+          `http://localhost:5555/api/folders/${moveItem.id}/move`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -374,7 +374,7 @@ function Home() {
       } else {
         // Moving a file
         response = await fetch(
-          `http://127.0.0.1:5555/api/files/${moveItem.id}`,
+          `http://localhost:5555/api/files/${moveItem.id}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -526,11 +526,8 @@ function Home() {
                          </DialogActions>
                        </Dialog>
                         )}
-
-                        <button
-                          onClick={() => handleMoveFolderToTrash(folder.id)}
-                        >Move to Trash </button>
-                          
+                         <button onClick={() => handleMoveFolderToTrash(folder.id)}> Move to Trash</button>
+  
                       </div>
                     )}
                     {renameId === folder.id && (

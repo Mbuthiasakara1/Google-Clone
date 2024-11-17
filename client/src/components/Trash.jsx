@@ -77,7 +77,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+      .patch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
         bin: false,
       })
       .then(() => {
@@ -106,7 +106,7 @@ function Trash() {
     const { type, id } = deleteTarget;
     try {
       if (type === "file") {
-        const response = await fetch(`http://127.0.0.1:5555/api/files/${id}`, {
+        const response = await fetch(`http://localhost:5555/api/files/${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
         });
@@ -115,7 +115,7 @@ function Trash() {
         enqueueSnackbar("File deleted successfully", { variant: "success" });
       } else if (type === "folder") {
         const response = await fetch(
-          `http://127.0.0.1:5555/api/folders/${id}`,
+          `http://localhost:5555/api/folders/${id}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete folder");
