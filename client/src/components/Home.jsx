@@ -170,6 +170,7 @@ function Home() {
         variant: "error",
       });
     }
+    fetchData()
   };
 
   const handleRenameFolder = async (folderId) => {
@@ -213,6 +214,7 @@ function Home() {
         variant: "error",
       });
     }
+    fetchData()
   };
 
   // NEW: File download handler
@@ -309,11 +311,13 @@ function Home() {
         setFolders((prevFolders) =>
           prevFolders.filter((f) => f.id !== folderId)
         );
+        
       })
       .catch((error) => {
         console.error("Error moving folder to trash:", error);
         enqueueSnackbar("Error moving folder to trash", { variant: "error" });
       });
+      fetchData()
   };
   const handleMoveFileToTrash = (fileId) => {
     fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
@@ -338,6 +342,7 @@ function Home() {
         // console.error("Error moving folder to trash:", error);
         enqueueSnackbar("Error moving file to trash", { variant: "error" });
       });
+      fetchData()
   };
 
   const handleMove = (item) => {
