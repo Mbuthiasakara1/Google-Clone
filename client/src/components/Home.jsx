@@ -571,7 +571,7 @@ function Home() {
                     className="file-card "
                     key={file.id}
                     onMouseLeave={() => setDropdownId(null)}
-                    onDobleClick={()=>handleFileClick(file)}
+                    onDoubleClick={()=>handleFileClick(file)}
                     // onDoubleClick={}
                   >
                     <div className="file-icon">

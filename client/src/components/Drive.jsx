@@ -136,6 +136,7 @@ function Drive({ toggleTheme }) {
         className="Container"
         style={{ borderRadius: "10px", border: "1px solid grey" }}
       >
+        <div className="viewtype-btn">
         <button
           onClick={() => setViewType("folders")}
           style={{
@@ -153,6 +154,7 @@ function Drive({ toggleTheme }) {
           <FaFileAlt />
         </button>
 
+        </div>
         <div>
           {currentFolderId && (
             <button
