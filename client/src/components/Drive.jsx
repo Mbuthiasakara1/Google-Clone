@@ -12,13 +12,14 @@ function Drive({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
+  const [filteredFolders, setFilteredFolders] = useState([]);
+  const [viewType, setViewType] = useState("folders");
+  const { user, loading, setLoading } = useAuth();
 
   // New state variables for folder navigation
   const [items, setItems] = useState([]);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folderName, setFolderName] = useState("Drive");
-  const [imageId, setImageId] = useState(0)
-  const [showImage, setShowImage] = useState(null)
   const [folderHistory, setFolderHistory] = useState([]);
   const [imageId, setImageId] = useState(0);
   const [showImage, setShowImage] = useState(null);
@@ -26,8 +27,6 @@ function Drive({ toggleTheme }) {
   const [filePage, setFilePage] = useState(1);
   const [folderPage, setFolderPage] = useState(1);
   const itemsPerPage = 12;
-
-  const [folderHistory, setFolderHistory] = useState([]); // New state for folder history
 
   // Fetch data function
   const fetchData = async () => {
@@ -39,8 +38,8 @@ function Drive({ toggleTheme }) {
   
     try {
       const fileResponse = await axios.get(
-       `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
-      const folderResponse = await axios.get(`http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
+       `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
+      const folderResponse = await axios.get(`http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
   
       const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
       const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
@@ -49,27 +48,12 @@ function Drive({ toggleTheme }) {
       setFilteredFiles(fetchedFiles);
       setFolders(fetchedFolders);
       setFilteredFolders(fetchedFolders);
-    try {
-      if (user && user.id) {
-        const fileResponse = await axios.get(`http://127.0.0.1:5555/api/fileuser/${user.id}?bin=false`);
-        const folderResponse = await axios.get(`http://127.0.0.1:5555/api/folderuser/${user.id}?bin=false`);
-
-        const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
-        const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
-
-        setFiles(fetchedFiles);
-        setFilteredFiles(fetchedFiles);
-        setFolders(fetchedFolders);
-        setFilteredFolders(fetchedFolders);
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   useEffect(() => {
     fetchData();
@@ -85,48 +69,7 @@ function Drive({ toggleTheme }) {
     setFilteredFiles(files.filter(file => file.folder_id === folderId));
     setFilteredFolders(folders.filter(f => f.parent_folder_Id === folderId));
   };
-  }, [user]);
 
-  useEffect(() => {
-    if (currentFolderId) {
-      fetch(`http://127.0.0.1:5555/api/content/${currentFolderId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const allItems = [
-            ...(data.files || []),
-            ...(data.subfolders || []).map((folder) => ({
-              ...folder,
-              type: "folder", // Ensure folders are marked as such
-            })),
-          ];
-          setItems(allItems);
-          setFilteredFiles(allItems);
-          setFolderName(data.name || "Folder");
-        })
-        .catch((error) => console.error("Error fetching folder contents:", error));
-    } else {
-      // Fetch root-level items
-      Promise.all([]).then(([files, folders]) => {
-        const allItems = [...files, ...folders];
-        setItems(allItems);
-        setFilteredFiles(allItems);
-        setFolderName("Drive");
-      });
-    }
-  }, [currentFolderId]);
-
-  const handleOpenFolder = (folder) => {
-    // Save the current folder ID to history before opening a new one
-    setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
-
-    // Open the new folder
-    setCurrentFolderId(folder.id);
-    setFolderName(folder.name);
-
-    // Filter files and folders inside the clicked folder
-    setFilteredFiles(files.filter((file) => file.folder_id === folder.id));
-    setFilteredFolders(folders.filter((f) => f.parent_folder_Id === folder.id));
-  };
 
   const handleBack = () => {
     if (folderHistory.length > 0) {
@@ -237,7 +180,7 @@ function Drive({ toggleTheme }) {
                         folder={folder}
                         folders={folders}
                         setFolders={setFolders}
-                        onFolderClick={handleOpenFolder} // Updated to use handleOpenFolder
+                        onFolderClick={handleFolderClick} // Updated to use handleOpenFolder
                       />
                     ))
                   )}
@@ -268,6 +211,7 @@ function Drive({ toggleTheme }) {
                         onFileClick={handleFileClick}
                         setFilteredFiles={setFilteredFiles}
                         filteredFiles={filteredFiles}
+                        filteredFolders={filteredFolders}
                       />
                     ))
                   )}

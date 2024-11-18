@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
-import { Download as DownloadIcon } from "@mui/icons-material";
+import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
@@ -460,21 +460,20 @@ function Home() {
                     </button>
                     {dropdownId === folder.id && (
                       <div className="folder-dropdown-menu">
+                      <div className="menu-item">
+                        <MdDriveFileRenameOutline />
                         <button onClick={() => setRenameId(folder.id)}>Rename</button>
-                        <button
-                          className="download-button"
-                          onClick={() => handleFolderDownload(folder)}
-                          disabled={isDownloading}
-                        >
-                          {isDownloading ? (
-                            <span>Downloading...</span>
-                          ) : (
-                            <>
-                              <span>Download</span>
-                            </>
-                          )}
+                      </div>
+                      <div className="menu-item">
+                        <MdDownload />
+                        <button onClick={() => handleFolderDownload(folder)} disabled={isDownloading}>
+                          {isDownloading ? 'Downloading...' : 'Download'}
                         </button>
+                      </div>
+                      <div className="menu-item">
+                        <MdDriveFileMoveOutline />
                         <button onClick={() => handleMove(folder)}>Move</button>
+                      </div>
                         {showMoveCard && (
                          <Dialog open={true} onClose={() => setShowMoveCard(false)}>
                          <DialogTitle>Move to Folder</DialogTitle>
@@ -504,8 +503,10 @@ function Home() {
                          </DialogActions>
                        </Dialog>
                         )}
-                         <button onClick={() => handleMoveFolderToTrash(folder.id)}> Move to Trash</button>
-  
+                         <div className="menu-item">
+                        <MdDelete />
+                        <button onClick={() => handleMoveFolderToTrash(folder.id)}>Move to Trash</button>
+                        </div>
                       </div>
                     )}
                     {renameId === folder.id && (
@@ -550,8 +551,7 @@ function Home() {
                     key={file.id}
                     onMouseLeave={() => setDropdownId(null)}
                     onDoubleClick={()=>handleFileClick(file)}
-                    // onDoubleClick={}
-                  >
+                    >
                     <div className="file-icon">
                      {file ? (<FaFileAlt />):(<img />) } 
                     </div>
@@ -567,22 +567,21 @@ function Home() {
                       <FaEllipsisV />
                     </button>
                     {dropdownId === file.id && (
-                      <div className="dropdown-menu">
+                      <div className="file-dropdown-menu">
+                      <div className="menu-item">
+                        <MdDriveFileRenameOutline className="dropdown-icons" />
                         <button onClick={() => setRenameId(file.id)}>Rename</button>
-                        <button
-                          className="download-button"
-                          onClick={() => handleFileDownload(file)}
-                          disabled={isDownloading}
-                        >
-                          {isDownloading ? (
-                            <span>Downloading...</span>
-                          ) : (
-                            <>
-                              <span>Download</span>
-                            </>
-                          )}
+                      </div>
+                      <div className="menu-item">
+                        <MdDownload className="dropdown-icons" />
+                        <button onClick={() => handleFileDownload(file)} disabled={isDownloading}>
+                          {isDownloading ? 'Downloading...' : 'Download'}
                         </button>
+                      </div>
+                      <div className="menu-item">
+                        <MdDriveFileMoveOutline className="dropdown-icons" />
                         <button onClick={() => handleMove(file)}>Move</button>
+                      </div>
                         {showMoveCard && (
                            <Dialog open={true} onClose={() => setShowMoveCard(false)}>
                            <DialogTitle>Move to Folder</DialogTitle>
@@ -612,9 +611,10 @@ function Home() {
                            </DialogActions>
                          </Dialog>
                         )}
-                        <button onClick={() => handleMoveFileToTrash(file.id)}>
-                          Move to Trash
-                        </button>
+                         <div className="menu-item">
+          <MdDelete className="dropdown-icons" />
+          <button onClick={() => handleMoveFileToTrash(file.id)}>Move to Trash</button>
+        </div>
                       </div>
                     )}
                     {renameId === file.id && (

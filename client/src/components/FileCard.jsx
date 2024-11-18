@@ -3,7 +3,7 @@ import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
-
+import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import {
   Description,
   Image,
@@ -229,12 +229,6 @@ function FileCard({
       enqueueSnackbar("File moved successfully!", { variant: "success" });
       setShowMoveCard(false);
 
-      // Update the local state to reflect the changes
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === file.id ? { ...file, folderId: selectedFolderId } : file
-        )
-      );
     } catch (error) {
       console.error("Error moving file:", error);
       enqueueSnackbar("Failed to move file.", { variant: "error" });
@@ -342,26 +336,25 @@ function FileCard({
 
         {/* Dropdown Menu */}
         {showDropdown && (
-          <div className="dropdown-menu">
-            <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
-            <button
-              className="download-button"
-              onClick={handleDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <span>Downloading...</span>
-              ) : (
-                <>
-                  <FaFileAlt className="dropdown-icon" />
-                  <span>Download</span>
-                </>
-              )}
+          <div className="file-dropdown-menu">
+          <div className="menu-item">
+            <MdDriveFileRenameOutline className="dropdown-icons" />
+            <button onClick={() => setRenameId(file.id)}>Rename</button>
+          </div>
+          <div className="menu-item">
+            <MdDownload className="dropdown-icons" />
+            <button onClick={() => handleFileDownload(file)} disabled={isDownloading}>
+              {isDownloading ? 'Downloading...' : 'Download'}
             </button>
-            <button onClick={()=>handleMove(file)}>Move</button>
-            <button onClick={() => handleMoveToTrash(file.id)}>
-              Move To Trash
-            </button>
+          </div>
+          <div className="menu-item">
+            <MdDriveFileMoveOutline className="dropdown-icons" />
+            <button onClick={() => handleMove(file)}>Move</button>
+          </div>
+          <div className="menu-item">
+          <MdDelete className="dropdown-icons" />
+          <button onClick={() => handleMoveFileToTrash(file.id)}>Move to Trash</button>
+        </div>
           </div>
         )}
       </div>

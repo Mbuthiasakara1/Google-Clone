@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
-// NEW: Import Download icon
-import { Download as DownloadIcon } from '@mui/icons-material';
+import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import useStore from "./Store";
 
@@ -155,7 +154,7 @@ function FolderCard({ folder, onFolderClick}) {
   }; 
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onClick={() => onFolderClick(folder.id)}>
+    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onDoubleClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
         <FaFolder />
       </div>
@@ -169,27 +168,25 @@ function FolderCard({ folder, onFolderClick}) {
         <FaEllipsisV />
       </button>
       {showDropdown === folder.id && (
-        <div className="dropdown-menu">
-          <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>
-            Rename
+        <div className="folder-dropdown-menu">
+        <div className="menu-item">
+          <MdDriveFileRenameOutline />
+          <button onClick={() => setRenameId(folder.id)}>Rename</button>
+        </div>
+        <div className="menu-item">
+          <MdDownload />
+          <button onClick={() => handleFolderDownload(folder)} disabled={isDownloading}>
+            {isDownloading ? 'Downloading...' : 'Download'}
           </button>
-          {/* NEW: Add download button with icon and loading state */}
-          <button 
-            className="download-button"
-            onClick={handleFolderDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? (
-              <span>Downloading...</span>
-            ) : (
-              <>
-                <DownloadIcon className="dropdown-icon" />
-                <span>Download</span>
-              </>
-            )}
-          </button>
-          <button onClick={()=>handleMove(folder)}>Move</button>
-          <button onClick={handleMoveToTrash}>Move to Trash</button>
+        </div>
+        <div className="menu-item">
+          <MdDriveFileMoveOutline />
+          <button onClick={() => handleMove(folder)}>Move</button>
+        </div>
+        <div className="menu-item">
+          <MdDelete />
+          <button onClick={() => handleMoveFolderToTrash(folder.id)}>Move to Trash</button>
+        </div>
         </div>
       )}
       {displayRenameForm && (

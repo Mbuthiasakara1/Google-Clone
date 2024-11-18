@@ -539,36 +539,55 @@ border-bottom: 1px solid rgb(226, 225, 221);
   margin-right: .5em;
 }
 
-.folder-dropdown {
-  font-size: 18px;
-  color:black;
-  position: relative;
-  cursor: pointer;
-}
 .folder-dropdown-menu {
-  position: absolute;
-  top: 130px;
-  /* right: 10px; */ 
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 180px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  color:black;
-}
-/* folders dropdown */
-.dropdownbtn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #888;
-  
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  width: 180px;
+  position: absolute;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.menu-item:hover {
+  background-color: #e0e0e0;
+}
+
+.menu-item svg {
+  margin-right: 8px;
+  font-size: 18px;
+  color: #555;
+}
+
+.menu-item button {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.menu-item button:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.menu-item button:focus {
+  outline: none;
+}
 
 /* files dropdown */
 .dropdown-btn {
@@ -581,18 +600,18 @@ border-bottom: 1px solid rgb(226, 225, 221);
   right: 10px;
   cursor: pointer;
 }
-.dropdown-menu {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 140px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+.file-dropdown-menu {
   display: flex;
   flex-direction: column;
-  z-index: 10;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  width: 180px;
+  position: absolute;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Rename Form Styles */
@@ -706,7 +725,7 @@ border-bottom: 1px solid rgb(226, 225, 221);
 
 .dropdownmenu button:hover {
   background-color: #ddd;
-} */
+} 
 
 .btn.btn-primary{
     margin-top: 10px;
@@ -756,8 +775,6 @@ border-bottom: 1px solid rgb(226, 225, 221);
   background-color: #f5f5f5;
   border-radius: 4px;
 }
-
-
 .rename-form button:hover {
   background-color: #357ab8;
 }
@@ -793,10 +810,6 @@ border-bottom: 1px solid rgb(226, 225, 221);
 
 
 /* Download button specific styles */
-.download-button {
-  position: relative;
-}
-
 .download-button span {
   white-space: nowrap;
 }
@@ -824,47 +837,6 @@ border-bottom: 1px solid rgb(226, 225, 221);
 }
 
 /* Download button styles */
-.download-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 10%;
-  padding: 8px 16px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #3c4043;
-  position: relative;
-  font-size: 14px;
-}
-
-.download-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: #f1f3f4;
-}
-
-.download-button:hover:not(:disabled) {
-  background-color: #f1f3f4;
-}
-
-/* Loading animation for download button */
-.download-button:disabled span {
-  display: inline-flex;
-  align-items: center;
-}
-
-.download-button:disabled span::after {
-  content: '';
-  width: 12px;
-  height: 12px;
-  margin-left: 8px;
-  border: 2px solid #5f6368;
-  border-top: 2px solid transparent;
-  border-radius: 50%;
-  animation: downloadSpin 1s linear infinite;
-}
 
 @keyframes downloadSpin {
   0% { transform: rotate(0deg); }
