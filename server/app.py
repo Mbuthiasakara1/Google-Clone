@@ -22,12 +22,17 @@ import zipfile
 import io
 
 app = Flask(__name__)
+# Check if we are in testing environment
+if os.getenv('FLASK_ENV') == 'testing':
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_google_drive.db'  # Use a separate test database
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'  # Default production database
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
+# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
@@ -451,7 +456,7 @@ def move_folder_to_bin(id):
     
     return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
 
-@app.route('/api/folders/<int:id>/move', methods=['PATCH'])
+@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
 def move_folder(id):
     
     folder = Folder.query.filter_by(id=id).first()
