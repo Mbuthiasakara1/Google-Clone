@@ -67,8 +67,8 @@ function Drive({ toggleTheme }) {
   
     try {
       const fileResponse = await axios.get(
-       `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
-      const folderResponse = await axios.get(`http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
+       `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
+      const folderResponse = await axios.get(`http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
   
       const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
       const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
