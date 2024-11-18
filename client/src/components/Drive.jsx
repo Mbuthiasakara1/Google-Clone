@@ -64,15 +64,15 @@ function Drive({ toggleTheme }) {
       setFolders([]);
       return;
     }
-  
+
     try {
       const fileResponse = await axios.get(
-       `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
+        `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
       const folderResponse = await axios.get(`http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
-  
+
       const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
       const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
-  
+
       setFiles(fetchedFiles);
       setFilteredFiles(fetchedFiles);
       setFolders(fetchedFolders);
@@ -83,9 +83,9 @@ function Drive({ toggleTheme }) {
       setLoading(false);
     }
   };
-useEffect(()=>{
-  fetchData();
-},[user, currentFolderId])
+  useEffect(() => {
+    fetchData();
+  }, [user, currentFolderId])
 
   const handleFolderClick = (folderId) => {
     setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
@@ -117,7 +117,7 @@ useEffect(()=>{
 
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
-  
+
   // console.log(filteredFiles)
   const handleFileClick = (fileId) => {
     const selectedFile = files.find((file) => file.id === fileId);
@@ -213,6 +213,7 @@ useEffect(()=>{
                       />
                     ))
                   )}
+                  {displayedFiles.length === 0 ? (
                     <h3>No files Found</h3>
                   ) : (
                     displayedFiles.map((file) => (
@@ -220,13 +221,14 @@ useEffect(()=>{
                         key={file.id}
                         file={file}
                         files={files}
-                        filteredFolders={filteredFolders}
                         onFileClick={handleFileClick}
                         setFilteredFiles={setFilteredFiles}
                         filteredFiles={filteredFiles}
+                        filteredFolders={filteredFolders}
                       />
                     ))
                   )}
+
                   {filteredFiles.length > displayedFiles.length && (
                     <button
                       style={{
@@ -249,6 +251,7 @@ useEffect(()=>{
               )}
             </div>
           </>
+
         )}
       </div>
     </>
