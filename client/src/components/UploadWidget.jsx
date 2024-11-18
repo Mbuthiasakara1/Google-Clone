@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
+import { useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
 function UploadWidget({ currentFolderId, onUpload }) {
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
   const { user } = useAuth();
+  const { folderId } = useParams();
   const { enqueueSnackbar } = useSnackbar();
 
 
@@ -64,6 +66,7 @@ function UploadWidget({ currentFolderId, onUpload }) {
         }
       );
     }
+  
   }, [user, currentFolderId, enqueueSnackbar, onUpload]);
 
   const handleOpenWidget = () => {

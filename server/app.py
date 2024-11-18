@@ -19,7 +19,12 @@ import os
 import requests
 import tempfile
 import zipfile
+import mimetypes  # Add this for mimetype detection
+import time #New
+import cloudinary.utils
 import io
+import shutil
+from base64 import b64encode
 
 app = Flask(__name__)
 # Check if we are in testing environment
@@ -27,6 +32,17 @@ if os.getenv('FLASK_ENV') == 'testing':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_google_drive.db'  # Use a separate test database
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'  # Default production database
+
+# UPDATED: Enhanced CORS configuration
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://127.0.0.1:5173"],
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True,
+        "expose_headers": ["Content-Disposition"]  # Important for downloads
+    }
+})
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
@@ -514,44 +530,166 @@ class UploadAvatar(Resource):
 class FileDownload(Resource):
     def get(self, file_id):
         try:
-            # Get file information from database
-            file = File.query.get_or_404(file_id)
-            
-            # Get the Cloudinary URL
-            cloudinary_url = file.storage_path
-            
-            # Create a temporary file
-            temp_file = tempfile.NamedTemporaryFile(delete=False)
-            
-            # Download file from Cloudinary
-            response = requests.get(cloudinary_url, stream=True)
-            response.raise_for_status()
-            
-            # Write content to temporary file
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    temp_file.write(chunk)
-            
-            temp_file.close()
-            
-            # Send file to client
-            return send_file(
+            file = File.query.filter_by(id=file_id).first()
+            if not file:
+                return {'error': 'File not found'}, 404
+
+            if not file.storage_path:
+                return {'error': 'File has no storage path'}, 400
+
+            print(f"Attempting to download file: {file.name} from {file.storage_path}")
+
+            # Parse the Cloudinary URL
+            url_parts = file.storage_path.split('/upload/')
+            if len(url_parts) != 2:
+                return {'error': 'Invalid Cloudinary URL'}, 400
+
+            version_and_public_id = url_parts[1]
+            extension = version_and_public_id.split('.')[-1].lower()
+
+            # Different handling based on file type
+            if extension == 'pdf':
+                # For PDFs, use the Cloudinary API to fetch the file
+                try:
+                    public_id = version_and_public_id.split('/', 1)[1].rsplit('.', 1)[0]
+                    timestamp = str(int(time.time()))
+                    
+                    # Create the parameters for the download URL
+                    to_sign = {
+                        'public_id': public_id,
+                        'timestamp': timestamp,
+                        'type': 'upload'
+                    }
+                    
+                    # Generate signature
+                    signature = cloudinary.utils.api_sign_request(
+                        to_sign,
+                        cloudconfig.api_secret
+                    )
+
+                    # Construct the API URL
+                    api_url = (
+                        f"https://api.cloudinary.com/v1_1/{cloudconfig.cloud_name}"
+                        f"/resources/image/upload/{public_id}"
+                    )
+
+                    # Headers for authentication
+                    headers = {
+                        'Authorization': f'Basic {b64encode(f"{cloudconfig.api_key}:{cloudconfig.api_secret}".encode()).decode()}',
+                        'Content-Type': 'application/json'
+                    }
+
+                    # Get the secure URL through the API
+                    api_response = requests.get(api_url, headers=headers)
+                    api_response.raise_for_status()
+                    api_data = api_response.json()
+
+                    # Get the asset URL
+                    asset_url = api_data.get('secure_url')
+                    if not asset_url:
+                        return {'error': 'Could not get secure URL for PDF'}, 500
+
+                    # Download the PDF using the secure URL with authentication
+                    asset_headers = {
+                        'Authorization': headers['Authorization'],
+                        'Accept': 'application/pdf'
+                    }
+                    
+                    pdf_response = requests.get(
+                        f"{asset_url}?timestamp={timestamp}&signature={signature}",
+                        headers=asset_headers,
+                        stream=True
+                    )
+                    pdf_response.raise_for_status()
+
+                    # Create temporary file
+                    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+                    content_size = 0
+                    for chunk in pdf_response.iter_content(chunk_size=8192):
+                        if chunk:
+                            content_size += len(chunk)
+                            temp_file.write(chunk)
+                    temp_file.close()
+                    print(f"Successfully downloaded PDF: {content_size} bytes")
+
+                except Exception as e:
+                    print(f"PDF download error: {str(e)}")
+                    if hasattr(e, 'response'):
+                        print(f"Response content: {e.response.content.decode() if e.response.content else ''}")
+                        print(f"Response headers: {dict(e.response.headers)}")
+                    return {'error': 'Failed to download PDF'}, 500
+
+            else:
+                # For images, use the simple attachment URL
+                download_url = f"{url_parts[0]}/upload/fl_attachment/{version_and_public_id}"
+                response = requests.get(download_url, stream=True)
+                response.raise_for_status()
+
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f'.{extension}')
+                content_size = 0
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        content_size += len(chunk)
+                        temp_file.write(chunk)
+                temp_file.close()
+                print(f"Successfully downloaded: {content_size} bytes")
+
+            # MIME type mapping
+            mime_mapping = {
+                'pdf': 'application/pdf',
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'doc': 'application/msword',
+                'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'xls': 'application/vnd.ms-excel',
+                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'txt': 'text/plain',
+                'mp4': 'video/mp4',
+                'mov': 'video/quicktime',
+                'zip': 'application/zip',
+            }
+
+            mimetype = mime_mapping.get(extension) or mimetypes.guess_type(file.name)[0] or 'application/octet-stream'
+
+            response = send_file(
                 temp_file.name,
                 as_attachment=True,
                 download_name=file.name,
-                mimetype=file.filetype
+                mimetype=mimetype
             )
-            
+
+            response.headers.update({
+                'Access-Control-Allow-Origin': 'http://127.0.0.1:5173',
+                'Access-Control-Allow-Credentials': 'true',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            })
+
+            return response
+
+        except requests.RequestException as e:
+            print(f"Download error: {str(e)}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Error response content: {e.response.content.decode() if e.response.content else ''}")
+                print(f"Error response headers: {dict(e.response.headers)}")
+            return {'error': f'Failed to download file: {str(e)}'}, 500
+
         except Exception as e:
-            # Clean up temporary file in case of error
-            if 'temp_file' in locals():
-                os.unlink(temp_file.name)
+            print(f"General error: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {'error': str(e)}, 500
-        
+
         finally:
-            # Clean up temporary file after sending
             if 'temp_file' in locals():
-                os.unlink(temp_file.name)
+                try:
+                    os.unlink(temp_file.name)
+                    print("Cleaned up temporary file")
+                except Exception as e:
+                    print(f"Error cleaning up temp file: {str(e)}")
 
 # NEW CLASS: Handle folder downloads (creates zip file containing all files in folder)
 class FolderDownload(Resource):

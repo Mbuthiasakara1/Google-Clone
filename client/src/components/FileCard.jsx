@@ -120,39 +120,45 @@ function FileCard({
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      enqueueSnackbar("Starting download...", { variant: "info" });
-
-      const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/download`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-
+      enqueueSnackbar('Starting download...', { variant: 'info' });
+  
+      console.log('Attempting to download file:', file);
+  
+      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+  
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers));
+  
       if (!response.ok) {
-        throw new Error("Download failed");
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Download failed: ${response.status} - ${errorText}`);
       }
-
-      const contentDisposition = response.headers.get("Content-Disposition");
-      const filename = contentDisposition
-        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-        : file.name;
-
+  
       const blob = await response.blob();
+      console.log('Blob type:', blob.type);
+      console.log('Blob size:', blob.size);
+  
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = filename;
+      link.download = file.name;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      enqueueSnackbar("File downloaded successfully", { variant: "success" });
+  
+      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
     } catch (error) {
-      console.error("Download error:", error);
-      enqueueSnackbar("Failed to download file", { variant: "error" });
+      console.error('Download error details:', {
+        error: error,
+        message: error.message,
+        file: file
+      });
+      enqueueSnackbar(`Download failed: ${error.message}`, { variant: 'error' });
     } finally {
       setIsDownloading(false);
     }
@@ -195,6 +201,8 @@ function FileCard({
       });
       
   };
+
+  
 
   const handleMove = () => {
     setShowMoveCard(true);

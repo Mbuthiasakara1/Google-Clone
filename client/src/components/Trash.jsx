@@ -77,9 +77,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
-        bin: false,
-      })
+      .patch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
