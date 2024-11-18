@@ -227,9 +227,13 @@ function FolderCard({ folder, onFolderClick}) {
               label="Choose Folder"
             >
               {filteredFolders.map((folder) => (
+                <>
+                 console.log(folder)
                 <MenuItem key={folder.id} value={folder.id}>
+                 
                   {folder.name}
                 </MenuItem>
+                </>
               ))}
             </Select>
           </FormControl>

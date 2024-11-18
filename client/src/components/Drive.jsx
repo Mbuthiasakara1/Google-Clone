@@ -12,14 +12,14 @@ function Drive({ toggleTheme }) {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
-  const [filteredFolders, setFilteredFolders] = useState([]);
-  const [viewType, setViewType] = useState("folders");
-  const { user, loading, setLoading } = useAuth();
 
   // New state variables for folder navigation
   const [items, setItems] = useState([]);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folderName, setFolderName] = useState("Drive");
+  const [imageId, setImageId] = useState(0)
+  const [showImage, setShowImage] = useState(null)
+  const [folderHistory, setFolderHistory] = useState([]);
   const [imageId, setImageId] = useState(0);
   const [showImage, setShowImage] = useState(null);
 
@@ -31,6 +31,24 @@ function Drive({ toggleTheme }) {
 
   // Fetch data function
   const fetchData = async () => {
+    if (!user || !user.id) {
+      setFiles([]);
+      setFolders([]);
+      return;
+    }
+  
+    try {
+      const fileResponse = await axios.get(
+       `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
+      const folderResponse = await axios.get(`http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
+  
+      const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
+      const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
+  
+      setFiles(fetchedFiles);
+      setFilteredFiles(fetchedFiles);
+      setFolders(fetchedFolders);
+      setFilteredFolders(fetchedFolders);
     try {
       if (user && user.id) {
         const fileResponse = await axios.get(`http://127.0.0.1:5555/api/fileuser/${user.id}?bin=false`);
@@ -50,9 +68,23 @@ function Drive({ toggleTheme }) {
       setLoading(false);
     }
   };
+  
+  
 
   useEffect(() => {
     fetchData();
+  }, [user, currentFolderId]);
+
+
+  
+  const handleFolderClick = (folderId) => {
+    setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
+    setCurrentFolderId(folderId);
+    const selectedFolder = folders.find((f) => f.id === folderId);
+    setFolderName(selectedFolder ? selectedFolder.name : "Folder");
+    setFilteredFiles(files.filter(file => file.folder_id === folderId));
+    setFilteredFolders(folders.filter(f => f.parent_folder_Id === folderId));
+  };
   }, [user]);
 
   useEffect(() => {
@@ -136,9 +168,7 @@ function Drive({ toggleTheme }) {
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
 
-  const handleFolderClick = (folderId) => {
-    setCurrentFolderId(folderId);
-  };
+ 
 
   const handleFileClick = (fileId) => {
     const selectedFile = files.find((file) => file.id === fileId);
@@ -151,29 +181,12 @@ function Drive({ toggleTheme }) {
   return (
     <>
       <Header onFilter={handleFilter} toggleTheme={toggleTheme} />
-      <Sidebar />
+      <Sidebar currentFolderId={currentFolderId}/>
 
       <div
         className="Container"
-        style={{ borderRadius: "10px", border: "1px solid grey" }}
       >
-        <button
-          onClick={() => setViewType("folders")}
-          style={{
-            marginRight: "10px",
-            border: "none",
-            backgroundColor: "inherit",
-          }}
-        >
-          <FaFolder />
-        </button>
-        <button
-          onClick={() => setViewType("files")}
-          style={{ border: "none", backgroundColor: "inherit" }}
-        >
-          <FaFileAlt />
-        </button>
-
+       
         <div>
           {currentFolderId && (
             <button
@@ -193,6 +206,20 @@ function Drive({ toggleTheme }) {
           <h1 style={{ color: "black" }}>
             {currentFolderId ? folderName : "Welcome to Drive"}
           </h1>
+        </div>
+        <div className="viewtype-btn">
+        <button
+          onClick={() => setViewType("folders")}
+          
+        >
+          <FaFolder />
+        </button>
+        <button
+          onClick={() => setViewType("files")}
+        >
+          <FaFileAlt />
+        </button>
+
         </div>
 
         {viewType === "folders" && (

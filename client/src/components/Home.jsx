@@ -422,7 +422,7 @@ function Home() {
     <>
       <Header onFilter={handleFilter} />
       <Sidebar currentFolderId={currentFolderId} />
-      <div className="Container" style={{ borderRadius: "10px" }}>
+      <div className="Container" >
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
 
         {/* Display the current folder name and a back button if inside a folder */}
@@ -549,16 +549,16 @@ function Home() {
                     className="file-card "
                     key={file.id}
                     onMouseLeave={() => setDropdownId(null)}
-                    onDobleClick={()=>handleFileClick(file)}
+                    onDoubleClick={()=>handleFileClick(file)}
                     // onDoubleClick={}
                   >
                     <div className="file-icon">
-                      <FaFileAlt />
+                     {file ? (<FaFileAlt />):(<img />) } 
                     </div>
                     <div className="file-name">{file.name}</div>
                     <div className="file-footer">
-                      <p>{file.size} KB</p>
-                      <p>Last modified: {file.modifiedDate}</p>
+                      <p>{file.filesize} KB</p>
+                      <p>Last modified: {file.updated_at}</p>
                     </div>
                     <button
                       className="dropdown-btn"
@@ -578,7 +578,7 @@ function Home() {
                             <span>Downloading...</span>
                           ) : (
                             <>
-                              <span >Download</span>
+                              <span>Download</span>
                             </>
                           )}
                         </button>
