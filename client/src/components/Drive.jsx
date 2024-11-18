@@ -7,28 +7,54 @@ import FolderCard from "./FolderCard";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 import ImageView from "./ImageView";
+import useStore from "./Store";
 
-  
 function Drive({ toggleTheme }) {
-  const [files, setFiles] = useState([]);
-  const [folders, setFolders] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [filteredFolders, setFilteredFolders] = useState([]);
-  const [viewType, setViewType] = useState("folders");
+  // const [files, setFiles] = useState([]);
+  // const [folders, setFolders] = useState([]);
+  // const [filteredFiles, setFilteredFiles] = useState([]);
+  // const [filteredFolders, setFilteredFolders] = useState([]);
+  // const [viewType, setViewType] = useState("folders");
   const { user, loading, setLoading } = useAuth();
- 
+
+  const {
+    // filteredFiles,
+    // setFilteredFiles,
+    files,
+    setFiles,
+    folders,
+    filteredFolders,
+    setFilteredFolders,
+    currentFolderId,
+    setCurrentFolderId,
+    setFolders,
+    viewType,
+    setViewType,
+    setViewTypefolderName,
+    folderName,
+    setFolderName,
+    imageId,
+    showImage,
+    setShowImage,
+    folderHistory,
+    setFolderHistory,
+    filePage,
+    setFilePage,
+    folderPage,
+    setFolderPage,
+    itemsPerPage,
+  } = useStore();
   // New state variables for folder navigation
-  const [items, setItems] = useState([]);
-  const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [folderName, setFolderName] = useState("Drive");
-  const [imageId, setImageId] = useState(0)
-  const [showImage, setShowImage] = useState(null)
-  const [folderHistory, setFolderHistory] = useState([]);
-
-  const [filePage, setFilePage] = useState(1);
-  const [folderPage, setFolderPage] = useState(1);
-  const itemsPerPage = 12;
-
+  // const [items, setItems] = useState([]);
+  // const [currentFolderId, setCurrentFolderId] = useState(null);
+  // const [folderName, setFolderName] = useState("Drive");
+  // const [imageId, setImageId] = useState(0)
+  // const [showImage, setShowImage] = useState(null)
+  // const [folderHistory, setFolderHistory] = useState([]);
+  const [filteredFiles, setFilteredFiles] = useState([]);
+  // const [filePage, setFilePage] = useState(1);
+  // const [folderPage, setFolderPage] = useState(1);
+  // const itemsPerPage = 12;
 
   // Fetch data function
   const fetchData = async () => {
@@ -56,21 +82,17 @@ function Drive({ toggleTheme }) {
       setLoading(false);
     }
   };
-  
-  
-  useEffect(() => {
-    fetchData();
-  }, [user, currentFolderId]);
+useEffect(()=>{
+  fetchData();
+},[user, currentFolderId])
 
-
-  
   const handleFolderClick = (folderId) => {
     setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
     setCurrentFolderId(folderId);
     const selectedFolder = folders.find((f) => f.id === folderId);
     setFolderName(selectedFolder ? selectedFolder.name : "Folder");
-    setFilteredFiles(files.filter(file => file.folder_id === folderId));
-    setFilteredFolders(folders.filter(f => f.parent_folder_Id === folderId));
+    setFilteredFiles(files.filter((file) => file.folder_id === folderId));
+    setFilteredFolders(folders.filter((f) => f.parent_folder_Id === folderId));
   };
 
   const handleFilter = (query) => {
@@ -94,38 +116,33 @@ function Drive({ toggleTheme }) {
 
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
-
- 
-
+  
+  // console.log(filteredFiles)
   const handleFileClick = (fileId) => {
     const selectedFile = files.find((file) => file.id === fileId);
     if (selectedFile) {
-      setImageId(selectedFile);  
+      setImageId(selectedFile);
       setShowImage(true);
     }
   };
 
-
   return (
     <>
       <Header onFilter={handleFilter} toggleTheme={toggleTheme} />
-      <Sidebar currentFolderId={currentFolderId}/>
+      <Sidebar currentFolderId={currentFolderId} />
 
-      <div
-        className="Container"
-      >
-       
+      <div className="Container">
         <div>
           {currentFolderId && (
             <button
               onClick={() => setCurrentFolderId(null)}
               style={{
-                padding: '5px 10px',
-                background: 'none',
-                border: 'none',
-                color: '#4285f4',
-                cursor: 'pointer',
-                fontSize: '14px'
+                padding: "5px 10px",
+                background: "none",
+                border: "none",
+                color: "#4285f4",
+                cursor: "pointer",
+                fontSize: "14px",
               }}
             >
               ← Back to Drive
@@ -136,21 +153,15 @@ function Drive({ toggleTheme }) {
           </h1>
         </div>
         <div className="viewtype-btn">
-        <button
-          onClick={() => setViewType("folders")}
-          
-        >
-          <FaFolder />
-        </button>
-        <button
-          onClick={() => setViewType("files")}
-        >
-          <FaFileAlt />
-        </button>
-
+          <button onClick={() => setViewType("folders")}>
+            <FaFolder />
+          </button>
+          <button onClick={() => setViewType("files")}>
+            <FaFileAlt />
+          </button>
         </div>
 
-        {viewType === "folders" &&  (
+        {viewType === "folders" && (
           <>
             <div className="content">
               <div className="folder-container">
@@ -158,19 +169,19 @@ function Drive({ toggleTheme }) {
                 <div className="folder-list">
                   {displayedFolders.length === 0 ? (
                     <h3>No folders found</h3>
-                    ) : (
-                      displayedFolders.map((folder) => (
-                        <FolderCard
-                          key={folder.id}
-                          folder={folder}
-                          folders={folders}
-                          setFolders={setFolders}
-                          onFolderClick={handleFolderClick}
-                          filteredFolders = {filteredFolders}
-                        />
-                      ))
-                    )}
-                  
+                  ) : (
+                    displayedFolders.map((folder) => (
+                      <FolderCard
+                        key={folder.id}
+                        folder={folder}
+                        folders={folders}
+                        setFolders={setFolders}
+                        onFolderClick={handleFolderClick}
+                        filteredFolders={filteredFolders}
+                      />
+                    ))
+                  )}
+
                   {filteredFolders.length > displayedFolders.length && (
                     <button onClick={handleViewMoreFolders}>View More</button>
                   )}
@@ -187,25 +198,40 @@ function Drive({ toggleTheme }) {
                 <h3>Files</h3>
                 <div className="file-list">
                   {displayedFiles.length === 0 ? (
-                    <h3 >No files Found</h3>) : (
-                      displayedFiles.map((file) => (
-                        <FileCard
-                          key={file.id}
-                          file={file}
-                          files={files}
-                          filteredFolders = {filteredFolders}
-                          onFileClick={handleFileClick}
-                          setFilteredFiles={setFilteredFiles}
-                          filteredFiles={filteredFiles}
-                        />
-                      ))
-                    )}
+                    <h3>No files Found</h3>
+                  ) : (
+                    displayedFiles.map((file) => (
+                      <FileCard
+                        key={file.id}
+                        file={file}
+                        files={files}
+                        filteredFolders={filteredFolders}
+                        onFileClick={handleFileClick}
+                        setFilteredFiles={setFilteredFiles}
+                        filteredFiles={filteredFiles}
+                      />
+                    ))
+                  )}
                   {filteredFiles.length > displayedFiles.length && (
-                    <button style={{backgroundColor:'inherit', border:'none', color:'black'}} onClick={handleViewMoreFiles}>View More</button>
+                    <button
+                      style={{
+                        backgroundColor: "inherit",
+                        border: "none",
+                        color: "black",
+                      }}
+                      onClick={handleViewMoreFiles}
+                    >
+                      View More
+                    </button>
                   )}
                 </div>
               </div>
-              {showImage && <ImageView  imageId={imageId} onClose={() => setShowImage(false)} />}
+              {showImage && (
+                <ImageView
+                  imageId={imageId}
+                  onClose={() => setShowImage(false)}
+                />
+              )}
             </div>
           </>
         )}

@@ -12,6 +12,7 @@ function FolderCard({ folder, onFolderClick}) {
   const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
+  const [renameId, setRenameId]=useState(null)
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
   const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
@@ -135,7 +136,7 @@ function FolderCard({ folder, onFolderClick}) {
   }; 
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onClick={() => onFolderClick(folder.id)}>
+    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onDoubleClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
         <FaFolder />
       </div>
