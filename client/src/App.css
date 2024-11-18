@@ -559,6 +559,20 @@ border-bottom: 1px solid rgb(226, 225, 221);
   z-index: 1000;
   color:black;
 }
+.folder-dropdown-menu button{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #3c4043;
+  position: relative;
+  font-size: 14px;
+  border-radius: 0.25rem;
+}
 /* folders dropdown */
 .dropdownbtn {
   background: transparent;
@@ -1029,11 +1043,11 @@ border-bottom: 1px solid rgb(226, 225, 221);
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 50px;
+  font-size: 40px;
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: rgb(250, 183, 183);
   
 }
 

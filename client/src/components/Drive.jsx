@@ -33,6 +33,7 @@ function Drive({ toggleTheme }) {
     setViewTypefolderName,
     folderName,
     setFolderName,
+    setImageId,
     imageId,
     showImage,
     setShowImage,

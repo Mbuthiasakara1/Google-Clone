@@ -11,11 +11,12 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl,TextFiel
 import useStore from "./Store";
 
 function Home() {
-  const{files, setFiles,folders, setFolders,filteredFolders, setFilteredFolders,currentFolderId, setCurrentFolderId, folderHistory, setFolderHistory,imageId, setImageId, showImage, setShowImage, }=useStore()
+  const{files, setFiles,folders, setFolders,filteredFolders,isCreatingFolder, setIsCreatingFolder,filteredFiles,
+    setFilteredFiles,setFilteredFolders,currentFolderId, setCurrentFolderId,isUploading, folderHistory, setFolderHistory,imageId, setImageId, showImage, setShowImage, }=useStore()
   const [moveItem, setMoveItem] = useState(null, true)
   // const [files, setFiles] = useState([]);
   // const [folders, setFolders] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
+  // const [filteredFiles, setFilteredFiles] = useState([]);
   // const [filteredFolders, setFilteredFolders] = useState([]);
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
@@ -75,7 +76,7 @@ function Home() {
 
   
     fetchData();
-  }, [user, currentFolderId]);
+  }, [user, currentFolderId,rename,isCreatingFolder, isUploading]);
 
   // useEffect(() => {
   //   fetchData();
@@ -480,7 +481,7 @@ function Home() {
                       <div className="folder-dropdown-menu">
                         <button onClick={() => setRenameId(folder.id)}>Rename</button>
                         <button
-                          className="download-button"
+                           
                           onClick={() => handleFolderDownload(folder)}
                           disabled={isDownloading}
                         >
@@ -488,7 +489,7 @@ function Home() {
                             <span>Downloading...</span>
                           ) : (
                             <>
-                              <span>Download</span>
+                              <span style={{margin:'0px'}} >Download</span>
                             </>
                           )}
                         </button>

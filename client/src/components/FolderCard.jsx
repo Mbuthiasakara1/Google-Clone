@@ -156,7 +156,7 @@ function FolderCard({ folder, onFolderClick}) {
           </button>
           {/* NEW: Add download button with icon and loading state */}
           <button 
-            className="download-button"
+            
             onClick={handleFolderDownload}
             disabled={isDownloading}
           >
@@ -164,7 +164,6 @@ function FolderCard({ folder, onFolderClick}) {
               <span>Downloading...</span>
             ) : (
               <>
-                <DownloadIcon className="dropdown-icon" />
                 <span>Download</span>
               </>
             )}

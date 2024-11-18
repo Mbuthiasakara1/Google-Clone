@@ -9,8 +9,8 @@ const useStore = create((set) => ({
   setFiles: (files) => set({ files }),
   folders: [],
   setFolders: (folders) => set({ folders }),
-  // filteredFiles: [],
-  // setFilteredFiles: (filteredFiles) => set({ filteredFiles }),
+  filteredFiles: [],
+  setFilteredFiles: (filteredFiles) => set({ filteredFiles }),
   filteredFolders: [],
   setFilteredFolders: (filteredFolders) => set({ filteredFolders }),
   viewType: "folders",
@@ -32,8 +32,10 @@ const useStore = create((set) => ({
   setImageId: (id) => set({ imageId: id }),
   showImage: false,
   setShowImage: (show) => set({ showImage: show }),
-
- 
+  isCreatingFolder:false,
+  setIsCreatingFolder:(isCreatingFolder)=>set({isCreatingFolder}),
+  isUploading:false,
+  setIsUploading:(isUploading)=>set({isUploading})
   
  
 }));

@@ -327,7 +327,7 @@ function FileCard({
           <div className="dropdown-menu">
             <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
             <button
-              className="download-button"
+              
               onClick={handleDownload}
               disabled={isDownloading}
             >
@@ -335,7 +335,6 @@ function FileCard({
                 <span>Downloading...</span>
               ) : (
                 <>
-                  <FaFileAlt className="dropdown-icon" />
                   <span>Download</span>
                 </>
               )}

@@ -12,15 +12,16 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
+import useStore from "./Store";
 
 function Sidebar({ currentFolderId }) {
   const { user } = useAuth();
   const [dropDown, setDropDown] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const {isCreatingFolder, setIsCreatingFolder} = useStore();
   const dropdownRef = useRef(null);
-
+  const{isUploading, setIsUploading}= useStore()
   // Handle dropdown visibility
   function handleClick() {
     setDropDown((prev) => !prev);
@@ -79,10 +80,11 @@ function Sidebar({ currentFolderId }) {
   const handleFileUpload = (newFile) => {
     // Handle file upload here
     console.log("File uploaded:", newFile);
+    setIsUploading(true);
   };
   // Handle 'Enter' key for creating folder
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter") { 
       handleCreateFolder();
     }
   };
