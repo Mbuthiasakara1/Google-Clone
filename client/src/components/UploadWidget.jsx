@@ -1,22 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
-<<<<<<< HEAD
 import { useParams } from "react-router-dom";
-=======
 import { useSnackbar } from "notistack";
->>>>>>> e2045f7c56982e6f1d5dbc510b51dbdfbdbcbf9b
 
 function UploadWidget({ currentFolderId, onUpload }) {
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
   const { user } = useAuth();
-<<<<<<< HEAD
   const { folderId } = useParams();
-=======
   const { enqueueSnackbar } = useSnackbar();
 
->>>>>>> e2045f7c56982e6f1d5dbc510b51dbdfbdbcbf9b
 
   useEffect(() => {
     if (window.cloudinary) {
@@ -55,7 +49,7 @@ function UploadWidget({ currentFolderId, onUpload }) {
 
             try {
               // Post the uploaded file data to the Flask backend
-              const response = await axios.post('http://127.0.0.1:5555/api/files', fileData, {
+              const response = await axios.post('http://localhost:5555/api/files', fileData, {
                 withCredentials: true,
               });
 
@@ -72,11 +66,8 @@ function UploadWidget({ currentFolderId, onUpload }) {
         }
       );
     }
-<<<<<<< HEAD
-  }, [user, folderId, onUpload]);
-=======
+  
   }, [user, currentFolderId, enqueueSnackbar, onUpload]);
->>>>>>> e2045f7c56982e6f1d5dbc510b51dbdfbdbcbf9b
 
   const handleOpenWidget = () => {
     if (widgetRef.current) {
