@@ -491,7 +491,6 @@ function Home() {
                             <span>Downloading...</span>
                           ) : (
                             <>
-                              <DownloadIcon className="dropdown-icon" />
                               <span>Download</span>
                             </>
                           )}
@@ -600,7 +599,6 @@ function Home() {
                             <span>Downloading...</span>
                           ) : (
                             <>
-                              <DownloadIcon className="dropdown-icon" />
                               <span>Download</span>
                             </>
                           )}
