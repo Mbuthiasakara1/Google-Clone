@@ -8,23 +8,26 @@ import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import ImageView from "./ImageView";
 import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl,TextField, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import useStore from "./Store";
 
 function Home() {
+  const{files, setFiles,folders, setFolders,filteredFolders,isCreatingFolder, setIsCreatingFolder,filteredFiles,
+    setFilteredFiles,setFilteredFolders,currentFolderId, setCurrentFolderId,isUploading, folderHistory, setFolderHistory,imageId, setImageId, showImage, setShowImage, }=useStore()
   const [moveItem, setMoveItem] = useState(null, true)
-  const [files, setFiles] = useState([]);
-  const [folders, setFolders] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [filteredFolders, setFilteredFolders] = useState([]);
+  // const [files, setFiles] = useState([]);
+  // const [folders, setFolders] = useState([]);
+  // const [filteredFiles, setFilteredFiles] = useState([]);
+  // const [filteredFolders, setFilteredFolders] = useState([]);
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-  const [currentFolderId, setCurrentFolderId] = useState(null);
+  // const [currentFolderId, setCurrentFolderId] = useState(null);
   const [currentFolderName, setCurrentFolderName] = useState("");
-  const [folderHistory, setFolderHistory] = useState([]);
-  const [imageId, setImageId] = useState(0)
-  const [showImage, setShowImage] = useState(null)
+  // const [folderHistory, setFolderHistory] = useState([]);
+  // const [imageId, setImageId] = useState(0)
+  // const [showImage, setShowImage] = useState(null)
  
 
 
@@ -73,7 +76,12 @@ function Home() {
 
   
     fetchData();
-  }, [user, currentFolderId]);
+  }, [user, currentFolderId,rename,isCreatingFolder, isUploading]);
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [user, currentFolderId]);
+
 
   const handleFilter = (query) => {
     if (!query) {
@@ -159,7 +167,7 @@ function Home() {
         variant: "error",
       });
     }
-    fetchData()
+   
   };
 
   const handleRenameFolder = async (folderId) => {
@@ -203,7 +211,7 @@ function Home() {
         variant: "error",
       });
     }
-    fetchData()
+  
   };
 
   // NEW: File download handler
@@ -306,7 +314,7 @@ function Home() {
         console.error("Error moving folder to trash:", error);
         enqueueSnackbar("Error moving folder to trash", { variant: "error" });
       });
-      fetchData()
+     
   };
   const handleMoveFileToTrash = (fileId) => {
     fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
@@ -326,12 +334,13 @@ function Home() {
           variant: "success",
         });
         setFiles((prevFiles) => prevFiles.filter((f) => f.id !== fileId));
+     
       })
       .catch((error) => {
         // console.error("Error moving folder to trash:", error);
         enqueueSnackbar("Error moving file to trash", { variant: "error" });
       });
-      fetchData()
+      
   };
 
   const handleMove = (item) => {

@@ -15,6 +15,7 @@ import {
   TableChart,
   Article,
 } from "@mui/icons-material";
+import useStore from "./Store";
 
 function FileCard({
   file,
@@ -33,11 +34,12 @@ function FileCard({
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
+
   if (!file) {
     return null;
   }
 
-  const getFileIcon = () => {  
+  const getFileIcon = () => {
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -111,6 +113,7 @@ function FileCard({
         });
       })
       });
+
   };
 
   // UPDATED: Enhanced download handler with progress feedback
@@ -162,9 +165,6 @@ function FileCard({
       enqueueSnackbar("No file selected or file ID is missing", {
         variant: "error",
       });
-      enqueueSnackbar("No file selected or file ID is missing", {
-        variant: "error",
-      });
       return;
     }
 
@@ -184,9 +184,6 @@ function FileCard({
         enqueueSnackbar("file successfully moved to bin", {
           variant: "success",
         });
-        enqueueSnackbar("file successfully moved to bin", {
-          variant: "success",
-        });
         setFilteredFiles((prevFiles) =>
           prevFiles.filter((f) => f.id !== file.id)
         );
@@ -196,6 +193,7 @@ function FileCard({
         enqueueSnackbar("Error moving file to bin", { variant: "error" });
         enqueueSnackbar("Error moving file to bin", { variant: "error" });
       });
+      
   };
 
   const handleMove = () => {
@@ -361,26 +359,29 @@ function FileCard({
 
       {displayRenameForm && (
         <Dialog open={true} onClose={() => setRenameId(null)}>
-        <DialogTitle>Rename File</DialogTitle>
-        <DialogContent>
-          <TextField
-            id="renameInput"
-            label="New Name"
-            value={rename}
-            onChange={(e) => setRename(e.target.value)}
-            fullWidth
-            placeholder="Enter new name"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRename} color="primary">
-            Submit
-          </Button>
-          <Button onClick={() => setDisplayRenameForm(false)} color="secondary">
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>Rename File</DialogTitle>
+          <DialogContent>
+            <TextField
+              id="renameInput"
+              label="New Name"
+              value={rename}
+              onChange={(e) => setRename(e.target.value)}
+              fullWidth
+              placeholder="Enter new name"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={()=>handleRename(file.id)} color="primary">
+              Submit
+            </Button>
+            <Button
+              onClick={() => setDisplayRenameForm(false)}
+              color="secondary"
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
 
       {showMoveCard && (
