@@ -126,6 +126,16 @@ function Drive({ toggleTheme }) {
       setShowImage(true);
     }
   };
+  function handleBack(){
+    if(folderHistory.length > 0){
+      setCurrentFolderId(folderHistory[folderHistory.length - 1])
+      setFolderHistory(folderHistory.slice(0, -1))
+    }
+    else{
+      setCurrentFolderId(null)
+      setFolderName("Drive")
+    }
+  }
 
   return (
     <>

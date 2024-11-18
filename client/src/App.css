@@ -540,6 +540,8 @@ border-bottom: 1px solid rgb(226, 225, 221);
 }
 
 .folder-dropdown-menu {
+  /* top:70px; */
+  /* left:50px; */
   display: flex;
   flex-direction: column;
   background-color: #f9f9f9;
@@ -572,8 +574,6 @@ border-bottom: 1px solid rgb(226, 225, 221);
 .folder-dropdown-menu button{
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
   border: none;
   background: none;
   cursor: pointer;
