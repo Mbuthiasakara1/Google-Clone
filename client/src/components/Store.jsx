@@ -1,6 +1,10 @@
-import {create} from "zustand";
+import React from 'react';
+import { create } from "zustand";
+import axios from "axios";
 
-const useStore = create((set) => ({
+
+const useStore = create((set) => ({ 
+  // State variables
   files: [],
   setFiles: (files) => set({ files }),
   folders: [],
@@ -15,10 +19,25 @@ const useStore = create((set) => ({
   setCurrentFolderId: (id) => set({ currentFolderId: id }),
   folderName: "Drive",
   setFolderName: (name) => set({ folderName: name }),
+  folderHistory: [],
+  setFolderHistory: (history) => set({ folderHistory: history }),
+  loading: false,
+  setLoading: (loading) => set({ loading }),
   filePage: 1,
-  folderPage: 1,
   setFilePage: (page) => set({ filePage: page }),
+  folderPage: 1,
   setFolderPage: (page) => set({ folderPage: page }),
   itemsPerPage: 12,
+  imageId: null,
+  setImageId: (id) => set({ imageId: id }),
+  showImage: false,
+  setShowImage: (show) => set({ showImage: show }),
+  isCreatingFolder:false,
+  setIsCreatingFolder:(isCreatingFolder)=>set({isCreatingFolder}),
+  isUploading:false,
+  setIsUploading:(isUploading)=>set({isUploading})
+  
+ 
 }));
+
 export default useStore;

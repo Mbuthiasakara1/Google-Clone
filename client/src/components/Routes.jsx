@@ -1,5 +1,4 @@
 import React from "react";
-import App from "../App";
 import Signup from "./Signup";
 import Login from "./Login";
 import UserProfile from "./Profile";
@@ -11,7 +10,7 @@ import Trash from "./Trash";
 const routes = [
     {
         path: "/",
-        element: <App />
+        element: <Home />
     
     },
     {
@@ -25,10 +24,6 @@ const routes = [
     {
         path: "/profile",
         element: <UserProfile />
-    },
-    {
-        path:'/home',
-        element:<Home />
     },
     {
         path:'/my-drive',

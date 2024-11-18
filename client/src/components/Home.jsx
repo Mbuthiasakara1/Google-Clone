@@ -6,19 +6,30 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
-import FileCard from "./FileCard";
-import FolderCard from "./FolderCard";
+import ImageView from "./ImageView";
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl,TextField, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import useStore from "./Store";
 
 function Home() {
-  const [files, setFiles] = useState([]);
-  const [folders, setFolders] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [filteredFolders, setFilteredFolders] = useState([]);
+  const{files, setFiles,folders, setFolders,filteredFolders,isCreatingFolder, setIsCreatingFolder,filteredFiles,
+    setFilteredFiles,setFilteredFolders,currentFolderId, setCurrentFolderId,isUploading, folderHistory, setFolderHistory,imageId, setImageId, showImage, setShowImage, }=useStore()
+  const [moveItem, setMoveItem] = useState(null, true)
+  // const [files, setFiles] = useState([]);
+  // const [folders, setFolders] = useState([]);
+  // const [filteredFiles, setFilteredFiles] = useState([]);
+  // const [filteredFolders, setFilteredFolders] = useState([]);
   const [dropdownId, setDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
+  // const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [currentFolderName, setCurrentFolderName] = useState("");
+  // const [folderHistory, setFolderHistory] = useState([]);
+  // const [imageId, setImageId] = useState(0)
+  // const [showImage, setShowImage] = useState(null)
+ 
+
 
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
@@ -27,35 +38,50 @@ function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (user && user.id) {
-          const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}?bin=false`
-          );
-          setFiles(Array.isArray(fileResponse.data) ? fileResponse.data : []);
-          setFilteredFiles(
-            Array.isArray(fileResponse.data) ? fileResponse.data : []
-          );
+      setLoading(true);
 
-          const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}?bin=false`
+      // Ensure that files and folders render independently
+      let fetchedFiles = [];
+      let fetchedFolders = [];
+
+      if (user && user.id) {
+        // Fetch files associated with the current folder
+        try {
+          const fileResponse = await axios.get(
+            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`
           );
-          setFolders(
-            Array.isArray(folderResponse.data) ? folderResponse.data : []
-          );
-          setFilteredFolders(
-            Array.isArray(folderResponse.data) ? folderResponse.data : []
-          );
+          fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
+          setFiles(fetchedFiles);
+          setFilteredFiles(fetchedFiles);
+        } catch (error) {
+          console.error("Error fetching files:", error);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+
+        // Fetch folders associated with the current folder
+        try {
+          const folderResponse = await axios.get(
+            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`
+          );
+          fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
+          setFolders(fetchedFolders);
+          setFilteredFolders(fetchedFolders);
+        } catch (error) {
+          console.error("Error fetching folders:", error);
+
+        }
       }
+
+      setLoading(false);
     };
 
+  
     fetchData();
-  }, [user]);
+  }, [user, currentFolderId,rename,isCreatingFolder, isUploading]);
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [user, currentFolderId]);
+
 
   const handleFilter = (query) => {
     if (!query) {
@@ -72,6 +98,38 @@ function Home() {
       setFilteredFolders(filteredFolders);
     }
   };
+
+  const handleOpenFolder = (folder) => {
+    // Save the current folder ID to history before opening a new one
+    setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
+
+    // Open the new folder
+    setCurrentFolderId(folder.id);
+    setCurrentFolderName(folder.name);
+
+    // Filter files and folders inside the clicked folder
+    setFilteredFiles(files.filter(file => file.folder_id === folder.id));
+    setFilteredFolders(folders.filter(f => f.parent_folder_Id === folder.id));
+  };
+
+  const handleBack = () => {
+    if (folderHistory.length > 0) {
+      // Get the last folder ID from the history
+      const previousFolderId = folderHistory[folderHistory.length - 1];
+
+      // Remove the last folder ID from the history
+      setFolderHistory((prevHistory) => prevHistory.slice(0, -1));
+
+      // Navigate to the previous folder
+      setCurrentFolderId(previousFolderId);
+      setCurrentFolderName("");
+    } else {
+      // If no history, go back to the root
+      setCurrentFolderId(null);
+      setCurrentFolderName("");
+    }
+  };
+
 
   const handleRenameFile = async (fileId) => {
     try {
@@ -109,6 +167,7 @@ function Home() {
         variant: "error",
       });
     }
+   
   };
 
   const handleRenameFolder = async (folderId) => {
@@ -152,6 +211,7 @@ function Home() {
         variant: "error",
       });
     }
+  
   };
 
   // NEW: File download handler
@@ -236,23 +296,25 @@ function Home() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to move folder to bin");
+          throw new Error("Failed to move folder to trash");
         }
         return response.json();
       })
       .then((data) => {
-        console.log("Folder moved to bin:", data);
-        enqueueSnackbar("Folder successfully moved to bin", {
+        console.log("Folder moved to trash:", data);
+        enqueueSnackbar("Folder successfully moved to trash", {
           variant: "success",
         });
         setFolders((prevFolders) =>
           prevFolders.filter((f) => f.id !== folderId)
         );
+        
       })
       .catch((error) => {
-        console.error("Error moving folder to bin:", error);
-        enqueueSnackbar("Error moving folder to bin", { variant: "error" });
+        console.error("Error moving folder to trash:", error);
+        enqueueSnackbar("Error moving folder to trash", { variant: "error" });
       });
+     
   };
   const handleMoveFileToTrash = (fileId) => {
     fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
@@ -262,25 +324,29 @@ function Home() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to move folder to bin");
+          throw new Error("Failed to move folder to trash");
         }
         return response.json();
       })
       .then((data) => {
-        console.log("File moved to bin:", data);
-        enqueueSnackbar("File successfully moved to bin", {
+        console.log("File moved to trash:", data);
+        enqueueSnackbar("File successfully moved to trash", {
           variant: "success",
         });
         setFiles((prevFiles) => prevFiles.filter((f) => f.id !== fileId));
+     
       })
       .catch((error) => {
-        // console.error("Error moving folder to bin:", error);
-        enqueueSnackbar("Error moving file to bin", { variant: "error" });
+        // console.error("Error moving folder to trash:", error);
+        enqueueSnackbar("Error moving file to trash", { variant: "error" });
       });
+      
   };
 
-  const handleMove = () => {
+  const handleMove = (item) => {
     setShowMoveCard(true);
+    setSelectedFolderId(null);  // Reset folder selection
+    setMoveItem(item);  // Set the item to move (file or folder)
   };
 
   const confirmMove = async () => {
@@ -290,206 +356,317 @@ function Home() {
       });
       return;
     }
-    console.log(selectedFolderId);
+
     try {
-      const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${selectedFolderId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ parent_folder_id: selectedFolderId }),
-        }
-      );
+      let response;
+      if (moveItem.type === "folder") {
+        // Moving a folder
+        response = await fetch(
+          `http://localhost:5555/api/folders/${moveItem.id}/move`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ parent_folder_id: selectedFolderId }),
+          }
+        );
+      } else {
+        // Moving a file
+        response = await fetch(
+          `http://localhost:5555/api/files/${moveItem.id}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ folderId: selectedFolderId }),
+          }
+        );
+      }
 
       if (!response.ok) {
         throw new Error(`Failed to move item. Status: ${response.status}`);
       }
 
-      const updatedFolder = await response.json();
-      console.log("Item moved successfully:", updatedFolder);
+      const updatedItem = await response.json();
+      console.log("Item moved successfully:", updatedItem);
       setShowMoveCard(false);
       enqueueSnackbar("Item moved successfully!", { variant: "success" });
+
+      // Update the local state to reflect the changes
+      if (moveItem.type === "folder") {
+        setFolders((prevFolders) =>
+          prevFolders.map((folder) =>
+            folder.id === moveItem.id
+              ? { ...folder, parent_folder_id: selectedFolderId }
+              : folder
+          )
+        );
+      } else {
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file.id === moveItem.id ? { ...file, folderId: selectedFolderId } : file
+          )
+        );
+      }
+
     } catch (error) {
       console.error("Error moving item:", error);
       enqueueSnackbar("Failed to move item.", { variant: "error" });
     }
   };
+  const checkForImage = (file) => {
+    const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
+    const extension = file.name?.split(".").pop()?.toLowerCase();
+    const fileType = (file.filetype || file.type || "").toLowerCase();
+  
+    return imageTypes.some(
+      (type) =>
+        fileType.includes(type) || 
+        extension === type || 
+        (file.mimeType && file.mimeType.includes(type))
+    );
+  };
+
+  function handleFileClick(file){
+    const isImage = checkForImage(file);
+    if (isImage) {
+      setImageId(file); 
+      console.log(file)
+      setShowImage(true); 
+      
+    }
+  }
+
+
 
   return (
     <>
       <Header onFilter={handleFilter} />
-      <Sidebar />
-      <div className="Container" style={{ borderRadius: "10px" }}>
+      <Sidebar currentFolderId={currentFolderId} />
+      <div className="Container" >
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
-      
-          <div className="content">
-            <div className="folder-container">
+
+        {/* Display the current folder name and a back button if inside a folder */}
+        <div className="current-folder-header">
+          {currentFolderId && (
+            <>
+              <button onClick={handleBack}>&larr; Back</button>
+              <h2>{currentFolderName}</h2>
+            </>
+          )}
+        </div>
+
+        <div className="content">
+          {/* Folder Container */}
+          <div className="folder-container">
             <h3>Folders</h3>
             <div className="folder-list">
-            {filteredFolders.map((folder) => (
-              <div key={folder.id} className="folder-item">
-                <p>
-                 <span><FaFolder style={{ color: "burlywood" }} /></span> <span>{folder.name}</span>
-                </p>
+              {filteredFolders.length > 0 ? (
+                filteredFolders.map((folder) => (
+                  <div key={folder.id} className="folder-item">
+                    <p onClick={() => handleOpenFolder(folder)}>
+                      <span>
+                        <FaFolder style={{ color: "burlywood" }} />
+                      </span>{" "}
+                      <span>{folder.name}</span>
+                    </p>
 
-                <button
-                  className="folder-dropdown"
-                  onClick={() =>
-                    setDropdownId(dropdownId === folder.id ? null : folder.id)
-                  }
-                >
-                  <FaEllipsisV />
-                </button>
-                {dropdownId === folder.id && (
-                  <div className="folder-dropdown-menu">
-                    <button onClick={() => setRenameId(folder.id)}>
-                      Rename
-                    </button>
                     <button
-                      className="download-button"
-                      onClick={() => handleFolderDownload(folder)}
-                      disabled={isDownloading}
+                      className="folder-dropdown"
+                      onClick={() =>
+                        setDropdownId(dropdownId === folder.id ? null : folder.id)
+                      }
                     >
-                      {isDownloading ? (
-                        <span>Downloading...</span>
-                      ) : (
-                        <>
-                          <DownloadIcon className="dropdown-icon" />
-                          <span>Download</span>
-                        </>
-                      )}
+                      <FaEllipsisV />
                     </button>
-                    <button onClick={handleMove}>Move</button>
-                    {showMoveCard && (
-                      <div className="move-card">
-                        <select
-                          value={selectedFolderId}
-                          onChange={(e) => setSelectedFolderId(e.target.value)}
+                    {dropdownId === folder.id && (
+                      <div className="folder-dropdown-menu">
+                        <button onClick={() => setRenameId(folder.id)}>Rename</button>
+                        <button
+                           
+                          onClick={() => handleFolderDownload(folder)}
+                          disabled={isDownloading}
                         >
-                          <option value="">Select Folder</option>
-                          {folders.map((folder) => (
-                            <option key={folder.id} value={folder.id}>
-                              {folder.name}
-                            </option>
-                          ))}
-                        </select>
-
-                        <button onClick={confirmMove}>Move</button>
+                          {isDownloading ? (
+                            <span>Downloading...</span>
+                          ) : (
+                            <>
+                              <span style={{margin:'0px'}} >Download</span>
+                            </>
+                          )}
+                        </button>
+                        <button onClick={() => handleMove(folder)}>Move</button>
+                        {showMoveCard && (
+                         <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+                         <DialogTitle>Move to Folder</DialogTitle>
+                         <DialogContent>
+                           <FormControl fullWidth>
+                             <InputLabel>Choose Folder</InputLabel>
+                             <Select
+                               value={selectedFolderId}
+                               onChange={(e) => setSelectedFolderId(e.target.value)}
+                               label="Choose Folder"
+                             >
+                               {filteredFolders.map((folder) => (
+                                 <MenuItem key={folder.id} value={folder.id}>
+                                   {folder.name}
+                                 </MenuItem>
+                               ))}
+                             </Select>
+                           </FormControl>
+                         </DialogContent>
+                         <DialogActions>
+                           <Button onClick={confirmMove} color="primary">
+                             Confirm Move
+                           </Button>
+                           <Button onClick={() => setShowMoveCard(false)} color="secondary">
+                             Cancel
+                           </Button>
+                         </DialogActions>
+                       </Dialog>
+                        )}
+                         <button onClick={() => handleMoveFolderToTrash(folder.id)}> Move to Trash</button>
+  
                       </div>
                     )}
-
-                    <button onClick={() => handleMoveFolderToTrash(folder.id)}>
-                      Move to Trash
-                    </button>
-                  </div>
-                )}
-                {renameId === folder.id && (
-                  <div className="rename-form">
-                    <label htmlFor="renameInput">New Name:</label>
-                    <input
-                      type="text"
-                      id="renameInput"
-                      value={rename}
-                      onChange={(e) => setRename(e.target.value)}
-                      placeholder="Enter new name"
-                    />
-                    <button onClick={() => handleRenameFolder(folder.id)}>
-                      Submit
-                    </button>
-                    <button onClick={() => setRenameId(null)}>Cancel</button>
-                  </div>
-                )}
-              </div>
-            ))}
-            </div>   
-            </div>
-            
-            <div className="file-container">
-            <h3>Files</h3>
-            <div className="file-list">
-            {filteredFiles.map((file) => (
-              <div
-                className="file-card "
-                key={file.id}
-                onMouseLeave={() => setDropdownId(null)}
-              >
-                <div className="file-icon">
-                  <FaFileAlt />
-                </div>
-                <div className="file-name">{file.name}</div>
-                <div className="file-footer">
-                  <p>{file.size} KB</p>
-                  <p>Last modified: {file.modifiedDate}</p>
-                </div>
-                <button
-                  className="dropdown-btn"
-                  onClick={() =>
-                    setDropdownId(dropdownId === file.id ? null : file.id)
-                  }
-                >
-                  <FaEllipsisV />
-                </button>
-                {dropdownId === file.id && (
-                  <div className="dropdown-menu">
-                    <button onClick={() => setRenameId(file.id)}>Rename</button>
-                    <button
-                      className="download-button"
-                      onClick={() => handleFileDownload(file)}
-                      disabled={isDownloading}
-                    >
-                      {isDownloading ? (
-                        <span>Downloading...</span>
-                      ) : (
-                        <>
-                          <DownloadIcon className="dropdown-icon" />
-                          <span>Download</span>
-                        </>
-                      )}
-                    </button>
-                    <button onClick={handleMove}>Move</button>
-                    {showMoveCard && (
-                      <div className="move-card">
-                        <select
-                          value={selectedFolderId}
-                          onChange={(e) => setSelectedFolderId(e.target.value)}
-                        >
-                          <option value="">Select Folder</option>
-                          {folders.map((folder) => (
-                            <option key={folder.id} value={folder.id}>
-                              {folder.name}
-                            </option>
-                          ))}
-                        </select>
-                        <button onClick={confirmMove}>Move</button>
-                      </div>
+                    {renameId === folder.id && (
+                      <Dialog open={true} onClose={() => setRenameId(null)}>
+                      <DialogTitle>Rename Folder</DialogTitle>
+                      <DialogContent>
+                        <TextField
+                          id="renameInput"
+                          label="New Name"
+                          value={rename}
+                          onChange={(e) => setRename(e.target.value)}
+                          fullWidth
+                          placeholder="Enter new name"
+                        />
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => handleRenameFolder(folder.id)} color="primary">
+                          Submit
+                        </Button>
+                        <Button onClick={() => setRenameId(null)} color="secondary">
+                          Cancel
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
                     )}
-                    <button onClick={() => handleMoveFileToTrash(file.id)}>
-                      Move to Trash
-                    </button>
                   </div>
-                )}
-                {renameId === file.id && (
-                  <div className="rename-form">
-                    <label htmlFor="renameInput">New Name:</label>
-                    <input
-                      type="text"
-                      id="renameInput"
-                      value={rename}
-                      onChange={(e) => setRename(e.target.value)}
-                      placeholder="Enter new name"
-                    />
-                    <button onClick={() => handleRenameFile(file.id)}>
-                      Submit
-                    </button>
-                    <button onClick={() => setRenameId(null)}>Cancel</button>
-                  </div>
-                )}
-              </div>
-            ))}
-            </div>
+                ))
+              ): (
+                <p>No folders found</p>)}
             </div>
           </div>
-        
+
+          <div className="file-container">
+            <h3>Files</h3>
+            <div className="file-list">
+              {filteredFiles.length === 0 ? (
+                <h3>No files found</h3>
+              ) : (
+                filteredFiles.map((file) => (
+                  <div
+                    className="file-card "
+                    key={file.id}
+                    onMouseLeave={() => setDropdownId(null)}
+                    onDoubleClick={()=>handleFileClick(file)}
+                    // onDoubleClick={}
+                  >
+                    <div className="file-icon">
+                     {file ? (<FaFileAlt />):(<img />) } 
+                    </div>
+                    <div className="file-name">{file.name}</div>
+                    <div className="file-footer">
+                      <p>{file.filesize} KB</p>
+                      <p>Last modified: {file.updated_at}</p>
+                    </div>
+                    <button
+                      className="dropdown-btn"
+                      onClick={() => setDropdownId(dropdownId === file.id ? null : file.id)}
+                    >
+                      <FaEllipsisV />
+                    </button>
+                    {dropdownId === file.id && (
+                      <div className="dropdown-menu">
+                        <button onClick={() => setRenameId(file.id)}>Rename</button>
+                        <button
+                          className="download-button"
+                          onClick={() => handleFileDownload(file)}
+                          disabled={isDownloading}
+                        >
+                          {isDownloading ? (
+                            <span>Downloading...</span>
+                          ) : (
+                            <>
+                              <span>Download</span>
+                            </>
+                          )}
+                        </button>
+                        <button onClick={handleMove}>Move</button>
+                        {showMoveCard && (
+                           <Dialog open={true} onClose={() => setShowMoveCard(false)}>
+                           <DialogTitle>Move to Folder</DialogTitle>
+                           <DialogContent>
+                             <FormControl fullWidth>
+                               <InputLabel>Choose Folder</InputLabel>
+                               <Select
+                                 value={selectedFolderId}
+                                 onChange={(e) => setSelectedFolderId(e.target.value)}
+                                 label="Choose Folder"
+                               >
+                                 {filteredFolders.map((folder) => (
+                                   <MenuItem key={folder.id} value={folder.id}>
+                                     {folder.name}
+                                   </MenuItem>
+                                 ))}
+                               </Select>
+                             </FormControl>
+                           </DialogContent>
+                           <DialogActions>
+                             <Button onClick={confirmMove} color="primary">
+                               Confirm Move
+                             </Button>
+                             <Button onClick={() => setShowMoveCard(false)} color="secondary">
+                               Cancel
+                             </Button>
+                           </DialogActions>
+                         </Dialog>
+                        )}
+                        <button onClick={() => handleMoveFileToTrash(file.id)}>
+                          Move to Trash
+                        </button>
+                      </div>
+                    )}
+                    {renameId === file.id && (
+                     <Dialog open={true} onClose={() => setRenameId(null)}>
+                     <DialogTitle>Rename File</DialogTitle>
+                     <DialogContent>
+                       <TextField
+                         id="renameInput"
+                         label="New Name"
+                         value={rename}
+                         onChange={(e) => setRename(e.target.value)}
+                         fullWidth
+                         placeholder="Enter new name"
+                       />
+                     </DialogContent>
+                     <DialogActions>
+                       <Button onClick={() => handleRenameFile(file.id)} color="primary">
+                         Submit
+                       </Button>
+                       <Button onClick={() => setRenameId(null)} color="secondary">
+                         Cancel
+                       </Button>
+                     </DialogActions>
+                   </Dialog>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          {showImage && <ImageView  imageId={imageId} onClose={() => setShowImage(false)} />}
+        </div>
+
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import Sidebar from './components/Sidebar'
 import { useMediaQuery } from "@mui/material";

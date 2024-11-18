@@ -50,7 +50,7 @@ const HeaderSearch = styled.div.attrs(() => ({
   position: relative;
   width: 90%;
   background-color: ${({ theme }) =>
-    theme.background === "#333" ? "#555" : "#fff"};
+    theme.background === "#333" ? "#555" : "#F0F0F3"};
   padding: 10px;
   border-radius: 20px;
 
@@ -174,8 +174,6 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
 
   const navigate = useNavigate();
-
-  if (loading) return <div>Loading...</div>;
 
   const handleLogout = () => {
     fetch("http://127.0.0.1:5555/api/logout", {

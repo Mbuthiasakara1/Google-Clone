@@ -27,6 +27,11 @@ import shutil
 from base64 import b64encode
 
 app = Flask(__name__)
+# Check if we are in testing environment
+if os.getenv('FLASK_ENV') == 'testing':
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_google_drive.db'  # Use a separate test database
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'  # Default production database
 
 # UPDATED: Enhanced CORS configuration
 CORS(app, resources={
@@ -43,7 +48,7 @@ CORS(app, resources={
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
+# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///google_drive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
@@ -237,16 +242,45 @@ def move_file_to_bin(id):
     
     return {'message': 'File moved to bin', 'file': {'id': file.id, 'bin': file.bin}}, 200
 
+
+@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
+def move_file(id):
+    
+    file = File.query.filter_by(id=id).first()
+    if not file:
+        return {'error': 'File not found'}, 404
+    
+    data = request.get_json()
+    folder_id = data.get('folder_id')
+    
+    if folder_id is None:
+        return {'error': 'No new parent folder provided'}, 400
+    
+    file.folder_id = folder_id
+    db.session.commit()
+
+    
+    return {'message': 'Folder moved', 'folder': {'id': file.id, 'file_id': file.folder_id}}, 200
+
+
           
 class FileByUserId(Resource):
     def get(self, id):
-        files = File.query.filter_by(user_id=id, bin=False).all()
+        folder_id = request.args.get('folder_id')
+        
+        if folder_id:
+            # Get files specific to a folder for the given user
+            files = File.query.filter_by(user_id=id, folder_id=folder_id, bin=False).all()
+        else:
+            # Get all files for the user if no folder is specified
+            files = File.query.filter_by(user_id=id, bin=False).all()
+        
         if files:
             files_dict = [file.to_dict() for file in files]
             return make_response(files_dict, 200)
-        return {
-            "message": "No files found for this user"
-            }, 404
+        
+        return {"message": "No files found"}, 404
+
     
 class TrashFileByUserId(Resource):
     def get(self, id):
@@ -348,13 +382,21 @@ class FolderContents(Resource):
         
 class FolderByUserId(Resource):
     def get(self, id):
-        folders = Folder.query.filter_by(user_id=id, bin=False).all()
+        parent_folder_id = request.args.get('parent_folder_id')
+       
+        if parent_folder_id:
+            # Get subfolders for the specified parent folder
+            folders = Folder.query.filter_by(user_id=id, parent_folder_id=parent_folder_id, bin=False).all()
+        else:
+            # Get top-level folders if no parent folder is specified
+            folders = Folder.query.filter_by(user_id=id, parent_folder_id=None, bin=False).all()
+        
         if folders:
             folders_dict = [folder.to_dict() for folder in folders]
             return make_response(folders_dict, 200)
-        return {
-            "message": "No folders found for this user"
-            }, 404
+        
+        return {"message": "No folders found"}, 404
+
 
 class TrashFolderByUserID(Resource):
      def get(self, id):
@@ -425,7 +467,25 @@ def move_folder_to_bin(id):
     
     return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
 
-       
+@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
+def move_folder(id):
+    
+    folder = Folder.query.filter_by(id=id).first()
+    if not folder:
+        return {'error': 'Folder not found'}, 404
+    
+    data = request.get_json()
+    new_parent_folder_id = data.get('parent_folder_id')
+    
+    if new_parent_folder_id is None:
+        return {'error': 'No new parent folder provided'}, 400
+    
+    folder.parent_folder_id = new_parent_folder_id
+    db.session.commit()
+
+    
+    return {'message': 'Folder moved', 'folder': {'id': folder.id, 'parent_folder_id': folder.parent_folder_id}}, 200
+
 #avatar cloudinary api
 class UploadAvatar(Resource):
     def post(self, user_id):
@@ -704,8 +764,8 @@ def download_folder(folder_id):
     except Exception as e:
         return {'error': str(e)}, 500
 # Existing resource registrations
-api.add_resource(FileByUserId,"/api/fileuser/<int:id>")  
-api.add_resource(FolderByUserId,"/api/folderuser/<int:id>")    
+api.add_resource(FileByUserId,"/api/fileuser/<int:id>")
+api.add_resource(FolderByUserId, '/api/folderuser/<int:id>', strict_slashes=False)
 api.add_resource(FileById,"/api/files/<int:id>") 
 api.add_resource(FileInfo, "/api/files",endpoint='files')
 api.add_resource(FolderById,"/api/folders/<int:id>") 
