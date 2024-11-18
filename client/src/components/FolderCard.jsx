@@ -22,7 +22,7 @@ function FolderCard({ folder, onFolderClick}) {
   const handleRenameFolder = async (folderId) => {
     console.log("Renaming folder with ID:", folderId); 
     try {
-      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -54,7 +54,7 @@ function FolderCard({ folder, onFolderClick}) {
     enqueueSnackbar("Preparing folder for download...", { variant: "info" });
   
     try {
-      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
+      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
         method: "GET",
         credentials: "include",
       });
@@ -81,26 +81,46 @@ function FolderCard({ folder, onFolderClick}) {
   };
   
 
-  // Function to handle showing the move card
-  const handleMove = () => {
+  const handleMove = (item) => {
     setShowMoveCard(true);
+    setSelectedFolderId(null);  // Reset folder selection
   };
 
-  // Function to confirm moving a folder
-  const confirmMove = () => {
-    if (selectedFolderId) {
-      fetch(`/folders/${folder.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folderId: selectedFolderId }),
-      })
-        .then((response) => response.json())
-        .then((updatedFolder) => {
-          console.log("Folder moved to:", updatedFolder.folderId);
-          setShowMoveCard(false);
-          setShowDropdown(false);
-        })
-        .catch((error) => console.error("Move error:", error));
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://127.0.0.1:5555/api/folders/${file.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
+      }
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+
+      // Update the local state to reflect the changes
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === file.id ? { ...file, folderId: selectedFolderId } : file
+        )
+      );
+    } catch (error) {
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
 
@@ -112,7 +132,7 @@ function FolderCard({ folder, onFolderClick}) {
       return;
     }
 
-    fetch(`http://localhost:5555/api/folders/${folder.id}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/move-to-trash`, {
       method: 'PATCH',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -168,7 +188,7 @@ function FolderCard({ folder, onFolderClick}) {
               </>
             )}
           </button>
-          <button onClick={handleMove}>Move</button>
+          <button onClick={()=>handleMove(folder)}>Move</button>
           <button onClick={handleMoveToTrash}>Move to Trash</button>
         </div>
       )}

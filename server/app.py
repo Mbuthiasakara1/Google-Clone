@@ -34,8 +34,8 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 
-# CORS(app, supports_credentials=True ,origins="http://localhost:5173/")
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+# CORS(app, supports_credentials=True ,origins="http://127.0.0.1:5173/")
+CORS(app, origins=["http://127.0.0.1:5173"], supports_credentials=True)
 
 
 bcrypt = Bcrypt(app)
@@ -227,7 +227,7 @@ def move_file_to_bin(id):
     return {'message': 'File moved to bin', 'file': {'id': file.id, 'bin': file.bin}}, 200
 
 
-@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
+@app.route('/api/files/<int:id>/move', methods=['PATCH'])
 def move_file(id):
     
     file = File.query.filter_by(id=id).first()
@@ -367,20 +367,19 @@ class FolderContents(Resource):
 class FolderByUserId(Resource):
     def get(self, id):
         parent_folder_id = request.args.get('parent_folder_id')
-       
+        
         if parent_folder_id:
-            # Get subfolders for the specified parent folder
+            # Get files specific to a folder for the given user
             folders = Folder.query.filter_by(user_id=id, parent_folder_id=parent_folder_id, bin=False).all()
         else:
-            # Get top-level folders if no parent folder is specified
-            folders = Folder.query.filter_by(user_id=id, parent_folder_id=None, bin=False).all()
+            # Get all files for the user if no folder is specified
+            folders = Folder.query.filter_by(user_id=id, bin=False).all()
         
         if folders:
             folders_dict = [folder.to_dict() for folder in folders]
             return make_response(folders_dict, 200)
         
         return {"message": "No folders found"}, 404
-
 
 class TrashFolderByUserID(Resource):
      def get(self, id):
@@ -451,7 +450,7 @@ def move_folder_to_bin(id):
     
     return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
 
-@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
+@app.route('/api/folders/<int:id>/move', methods=['PATCH'])
 def move_folder(id):
     
     folder = Folder.query.filter_by(id=id).first()

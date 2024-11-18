@@ -21,9 +21,7 @@ function FileCard({
   setFiles,
   setFilteredFiles,
   filteredFolders,
-  filteredFiles,
-  folders,
-  onFileClick,
+  onFileClick
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
@@ -97,7 +95,7 @@ function FileCard({
   };
 
   const handleRename = () => {
-    fetch(`http://localhost:5555/api/files/${file.id}`, {
+    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -106,6 +104,12 @@ function FileCard({
       .then((data) => {
         setRename(data.name);
         setDisplayRenameForm(false);
+        enqueueSnackbar("File renamed successfully!", { variant: "success" })
+      .catch((err) => {
+        enqueueSnackbar(err.message || "An error occurred while renaming.", {
+          variant: "error",
+        });
+      })
       });
   };
 
@@ -116,7 +120,7 @@ function FileCard({
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://localhost:5555/api/files/${file.id}/download`,
+        `http://127.0.0.1:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -164,7 +168,7 @@ function FileCard({
       return;
     }
 
-    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -196,21 +200,44 @@ function FileCard({
 
   const handleMove = () => {
     setShowMoveCard(true);
+    setSelectedFolderId(null);  // Reset folder selection
   };
 
-  const confirmMove = () => {
-    if (selectedFolderId) {
-      fetch(`/files/${file.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folderId: selectedFolderId }),
-      })
-        .then((response) => response.json())
-        .then((updatedFile) => {
-          console.log("File moved to folder:", updatedFile.folderId);
-          setShowMoveCard(false);
-          setShowDropdown(false);
-        });
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://127.0.0.1:5555/api/files/${file.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
+      }
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+
+      // Update the local state to reflect the changes
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === file.id ? { ...file, folderId: selectedFolderId } : file
+        )
+      );
+    } catch (error) {
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
 
@@ -331,7 +358,7 @@ function FileCard({
                 </>
               )}
             </button>
-            <button onClick={handleMove}>Move</button>
+            <button onClick={()=>handleMove(file)}>Move</button>
             <button onClick={() => handleMoveToTrash(file.id)}>
               Move To Trash
             </button>
