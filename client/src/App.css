@@ -384,6 +384,8 @@ button:disabled {
   margin-left: 15em;
   position: fixed;
   background-color: #F0F0F3;
+  border-radius: 10px;
+  
 }
 .Container h1{
 margin-left: .8em;
@@ -408,6 +410,18 @@ border-bottom: 1px solid rgb(226, 225, 221);
   margin-left:3em;
   margin-bottom: 4em;
 }
+.viewtype-btn{
+  margin-left: 3em;
+  border: none;
+}
+.viewtype-btn button{
+  padding: 0px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 25px;
+}
+
 .folder-container{
   display: flex;
   flex-direction: column; 
@@ -463,6 +477,8 @@ border-bottom: 1px solid rgb(226, 225, 221);
   transition: transform 0.2s;
   width: 230px; 
   height: 230px; 
+  margin-bottom: 0.5em;
+  
 }
 
 .file-card:hover {
@@ -475,13 +491,14 @@ border-bottom: 1px solid rgb(226, 225, 221);
   color: #4a90e2;
 }
 
+
 .file-name {
   font-size: 16px;
   color: #333;
   margin-top: 10px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  /* text-overflow: ellipsis; */
 }
 
 .file-footer {

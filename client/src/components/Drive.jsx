@@ -23,6 +23,7 @@ function Drive({ toggleTheme }) {
   const [folderName, setFolderName] = useState("Drive");
   const [imageId, setImageId] = useState(0)
   const [showImage, setShowImage] = useState(null)
+  const [folderHistory, setFolderHistory] = useState([]);
 
   const [filePage, setFilePage] = useState(1);
   const [folderPage, setFolderPage] = useState(1);
@@ -31,19 +32,24 @@ function Drive({ toggleTheme }) {
 
   // Fetch data function
   const fetchData = async () => {
+    if (!user || !user.id) {
+      setFiles([]);
+      setFolders([]);
+      return;
+    }
+  
     try {
-      if (user && user.id) {
-        const fileResponse = await axios.get(`http://localhost:5555/api/fileuser/${user.id}?bin=false`);
-        const folderResponse = await axios.get(`http://localhost:5555/api/folderuser/${user.id}?bin=false`);
+      const fileResponse = await axios.get(
+       `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
+      const folderResponse = await axios.get(`http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
   
-        const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
-        const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
+      const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
+      const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
   
-        setFiles(fetchedFiles);
-        setFilteredFiles(fetchedFiles);
-        setFolders(fetchedFolders);
-        setFilteredFolders(fetchedFolders);
-      }
+      setFiles(fetchedFiles);
+      setFilteredFiles(fetchedFiles);
+      setFolders(fetchedFolders);
+      setFilteredFolders(fetchedFolders);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -51,46 +57,21 @@ function Drive({ toggleTheme }) {
     }
   };
   
-
   
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [user, currentFolderId]);
 
-  useEffect(() => {
-    if (currentFolderId) {
-      // Fetch contents of the current folder
-      fetch(`http://localhost:5555/api/content/${currentFolderId}`)
-        .then(res => res.json())
-        .then(data => {
-          // Combine files and subfolders into a single array
-          const allItems = [
-            ...(data.files || []),
-            ...(data.subfolders || []).map(folder => ({ 
-              ...folder, 
-              type: 'folder' // Ensure folders are properly marked
-            }))
-          ];
-          setItems(allItems);
-          setFilteredFiles(allItems);
-          setFolderName(data.name || "Folder");
-        })
-        .catch(error => console.error("Error fetching folder contents:", error));
-    } else {
-      // Fetch root level items (original functionality)
-      Promise.all([
-      ])
-        .then(([files, folders]) => {
-          const allItems = [...files, ...folders];
-          setItems(allItems);
-          setFilteredFiles(allItems);
-          setFolderName("Drive"); // Reset folder name when at root
-        })
-        .catch((error) =>
-          console.error("Error fetching files and folders:", error)
-        );
-    }
-  }, [currentFolderId]); // Re-run when folder ID changes
+
+  
+  const handleFolderClick = (folderId) => {
+    setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
+    setCurrentFolderId(folderId);
+    const selectedFolder = folders.find((f) => f.id === folderId);
+    setFolderName(selectedFolder ? selectedFolder.name : "Folder");
+    setFilteredFiles(files.filter(file => file.folder_id === folderId));
+    setFilteredFolders(folders.filter(f => f.parent_folder_Id === folderId));
+  };
 
   const handleFilter = (query) => {
     if (!query) {
@@ -114,9 +95,7 @@ function Drive({ toggleTheme }) {
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
 
-  const handleFolderClick = (folderId) => {
-    setCurrentFolderId(folderId);
-  };
+ 
 
   const handleFileClick = (fileId) => {
     const selectedFile = files.find((file) => file.id === fileId);
@@ -130,31 +109,12 @@ function Drive({ toggleTheme }) {
   return (
     <>
       <Header onFilter={handleFilter} toggleTheme={toggleTheme} />
-      <Sidebar />
+      <Sidebar currentFolderId={currentFolderId}/>
 
       <div
         className="Container"
-        style={{ borderRadius: "10px", border: "1px solid grey" }}
       >
-        <div className="viewtype-btn">
-        <button
-          onClick={() => setViewType("folders")}
-          style={{
-            marginRight: "10px",
-            border: "none",
-            backgroundColor: "inherit",
-          }}
-        >
-          <FaFolder />
-        </button>
-        <button
-          onClick={() => setViewType("files")}
-          style={{ border: "none", backgroundColor: "inherit" }}
-        >
-          <FaFileAlt />
-        </button>
-
-        </div>
+       
         <div>
           {currentFolderId && (
             <button
@@ -174,6 +134,20 @@ function Drive({ toggleTheme }) {
           <h1 style={{ color: "black" }}>
             {currentFolderId ? folderName : "Welcome to Drive"}
           </h1>
+        </div>
+        <div className="viewtype-btn">
+        <button
+          onClick={() => setViewType("folders")}
+          
+        >
+          <FaFolder />
+        </button>
+        <button
+          onClick={() => setViewType("files")}
+        >
+          <FaFileAlt />
+        </button>
+
         </div>
 
         {viewType === "folders" &&  (
