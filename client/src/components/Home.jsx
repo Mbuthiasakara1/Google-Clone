@@ -254,6 +254,8 @@ function Home() {
     }
   };
 
+
+
   // NEW: Folder download handler
   const handleFolderDownload = async (folder) => {
     try {
