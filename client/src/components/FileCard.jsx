@@ -22,11 +22,15 @@ function FileCard({
   setFiles,
   setFilteredFiles,
   filteredFolders,
-  onFileClick
+  filteredFiles,
+  folders,
+  onFileClick,
+  rename,
+  setRename,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState("");
+  // const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   // NEW: Add state for download status
@@ -96,8 +100,8 @@ function FileCard({
     });
   };
 
-  const handleRename = () => {
-    fetch(`http://127.0.0.1:5555/api/files/${file.id}`, {
+  const handleRename = (fileId) => {
+    fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -132,12 +136,20 @@ function FileCard({
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers));
   
+      enqueueSnackbar("Starting download...", { variant: "info" });
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server error response:', errorText);
-        throw new Error(`Download failed: ${response.status} - ${errorText}`);
+        throw new Error(`Download failed: ${response.status} - ${errorText}`)
       }
   
+
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filename = contentDisposition
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+        : file.name;
+
       const blob = await response.blob();
       console.log('Blob type:', blob.type);
       console.log('Blob size:', blob.size);
