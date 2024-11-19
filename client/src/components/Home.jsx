@@ -125,6 +125,23 @@ function Home() {
   // useEffect(() => {
   //   fetchData();
   // }, [user, currentFolderId]);
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "N/A";
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes === 0) return "0 Byte";
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
   const getFileIcon = (file) => {
     
       const extension = file.name?.split(".").pop()?.toLowerCase() || "";
@@ -660,8 +677,8 @@ function Home() {
                     </div>
                     <div className="file-name">{file.name}</div>
                     <div className="file-footer">
-                      <p>{file.filesize} KB</p>
-                      <p>Last modified: {file.updated_at}</p>
+                    <div>{formatFileSize(file.filesize)}</div>
+                    <div>{formatDate(file.updated_at || file.created_at)}</div>
                     </div>
                     <button
                       className="dropdown-btn"
