@@ -82,9 +82,10 @@ function FolderCard({ folder, onFolderClick}) {
   };
   
 
-  const handleMove = (item) => {
+  const handleMove = (folderId) => {
     setShowMoveCard(true);
     setSelectedFolderId(null);  // Reset folder selection
+   
   };
 
   const confirmMove = async () => {
@@ -183,11 +184,11 @@ function FolderCard({ folder, onFolderClick}) {
         </div>
         <div className="menu-item">
           <MdDriveFileMoveOutline />
-          <button onClick={() => handleMove(folder)}>Move</button>
+          <button onClick={() => handleMove(folder.id)}>Move</button>
         </div>
         <div className="menu-item">
           <MdDelete />
-          <button onClick={() => handleMoveFolderToTrash(folder.id)}>Move to Trash</button>
+          <button onClick={() => handleMoveToTrash(folder.id)}>Move to Trash</button>
         </div>
         </div>
       )}
