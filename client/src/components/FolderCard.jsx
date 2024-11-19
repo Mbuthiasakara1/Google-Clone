@@ -22,7 +22,7 @@ function FolderCard({ folder, onFolderClick}) {
   const handleRenameFolder = async (folderId) => {
     console.log("Renaming folder with ID:", folderId); 
     try {
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folderId}`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -55,7 +55,7 @@ function FolderCard({ folder, onFolderClick}) {
     enqueueSnackbar("Preparing folder for download...", { variant: "info" });
   
     try {
-      const response = await fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
         method: "GET",
         credentials: "include",
       });
@@ -98,7 +98,7 @@ function FolderCard({ folder, onFolderClick}) {
     try {
       // Moving the file
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${file.id}/move`,
+        `http://localhost:5555/api/folders/${file.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -133,7 +133,7 @@ function FolderCard({ folder, onFolderClick}) {
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/folders/${folder.id}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folder.id}/move-to-trash`, {
       method: 'PATCH',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),

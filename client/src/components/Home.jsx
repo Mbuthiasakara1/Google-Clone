@@ -33,10 +33,10 @@ import {
 } from "@mui/icons-material";
 function Home() {
   const {
-    files,
-    setFiles,
-    folders,
-    setFolders,
+    // files,
+    // setFiles,
+    // folders,
+    // setFolders,
     filteredFolders,
     isCreatingFolder,
     setIsCreatingFolder,
@@ -54,8 +54,8 @@ function Home() {
     setShowImage,
   } = useStore();
   const [moveItem, setMoveItem] = useState(null, true);
-  // const [files, setFiles] = useState([]);
-  // const [folders, setFolders] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [folders, setFolders] = useState([]);
   // const [filteredFiles, setFilteredFiles] = useState([]);
   // const [filteredFolders, setFilteredFolders] = useState([]);
   const [dropdownId, setDropdownId] = useState(null);
@@ -86,7 +86,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
+            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -102,7 +102,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -217,7 +217,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${fileId}`,
+        `http://localhost:5555/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -260,7 +260,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folderId}`,
+        `http://localhost:5555/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -302,7 +302,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/download`,
+        `http://localhost:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -339,7 +339,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folder.id}/download`,
+        `http://localhost:5555/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -370,7 +370,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://127.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -396,7 +396,7 @@ function Home() {
       });
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -420,67 +420,66 @@ function Home() {
       });
   };
 
-  const handleMove = (item) => {
-    setShowMoveCard(true);
-    setSelectedFolderId(null); // Reset folder selection
-    setMoveItem(item); // Set the item to move (file or folder)
-  };
-
-  const confirmMove = async () => {
-    if (!selectedFolderId) {
-      enqueueSnackbar("Please select a folder to move into.", {
-        variant: "warning",
-      });
+  const handleMove = (fileId) => {
+    const itemToMove = files.find((file) => file.id === fileId)
+                      //  folders.find((folder) => folder.id === file.id);
+  
+    if (!itemToMove) {
+      console.error("Item to move not found!");
       return;
     }
   
+    setShowMoveCard(true);
+    setSelectedFolderId(null); // Reset folder selection
+    setMoveItem(itemToMove); // Set the full item object (file or folder)
+  };
+  
+  // console.log("selected folder id",selectedFolderId)
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+        enqueueSnackbar("Please select a folder to move into.", { variant: "warning" });
+        return;
+    }
+
+    console.log("move item", moveItem);
+    console.log("selectedfolder id", selectedFolderId);
+
     try {
       let response;
+      
       if (moveItem?.type === "folder") {
-        // Moving a folder
-        response = await axios.patch(
-          `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`, // Ensure trailing slash
-          { parent_folder_id: selectedFolderId }
-        );
+          response = await axios.patch(
+              `http://localhost:5555/api/folders/${moveItem.id}/move`,
+              { parent_folder_id: selectedFolderId }
+          );
       } else if (moveItem?.type === "file") {
-        // Moving a file
-        response = await axios.patch(
-          `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
-          { folder_id: selectedFolderId }
-        );
+          response = await axios.patch(
+              `http://localhost:5555/api/files/${moveItem.id}/move`,
+              { folder_id: selectedFolderId }
+          );
       }
   
-      if (response.status !== 200) {
-        throw new Error(`Failed to move item. Status: ${response.status}`);
-      }
+      console.log("Response:", response);  // Log the entire response object
   
-      const updatedItem = response.data.folder || response.data.file;
-      enqueueSnackbar("Item moved successfully!", { variant: "success" });
-      setShowMoveCard(false);
+      if (response && response.data && response.data.file) {
+          console.log("File Data:", response.data.file);  // Log the file data
   
-      // Update the local state to reflect the changes
-      if (moveItem?.type === "folder") {
-        setFolders((prevFolders) =>
-          prevFolders.map((folder) =>
-            folder.id === moveItem.id
-              ? { ...folder, parent_folder_id: selectedFolderId }
-              : folder
-          )
-        );
+          const updatedItem = response.data.file;  // Access file data from the response
+          enqueueSnackbar("Item moved successfully!", { variant: "success" });
+          setShowMoveCard(false);
+  
+          // Update local state with the moved item
+          updateLocalState(updatedItem);
       } else {
-        setFiles((prevFiles) =>
-          prevFiles.map((file) =>
-            file.id === moveItem.id
-              ? { ...file, folder_id: selectedFolderId }
-              : file
-          )
-        );
+          console.error('Unexpected response structure:', response);
+          enqueueSnackbar("Failed to move item.", { variant: "error" });
       }
-    } catch (error) {
-      console.error("Error moving item:", error);
+  } catch (error) {
+      console.error("Error in move operation:", error);
       enqueueSnackbar("Failed to move item.", { variant: "error" });
-    }
-  };
+  }
+}
+
   
   
   const checkForImage = (file) => {
@@ -657,7 +656,7 @@ function Home() {
                     onDoubleClick={()=>handleFileClick(file)}
                     >
                     <div className="file-icon">
-                     {file ? (<FaFileAlt />):(<img />) } 
+                     {getFileIcon(file)} 
                     </div>
                     <div className="file-name">{file.name}</div>
                     <div className="file-footer">
@@ -686,7 +685,7 @@ function Home() {
                       </div>
                       <div className="menu-item">
                         <MdDriveFileMoveOutline className="dropdown-icons" />
-                        <button onClick={() => handleMove(file)}>Move</button>
+                        <button onClick={() => handleMove(file.id)}>Move</button>
                       </div>
                         {showMoveCard && (
                           <Dialog

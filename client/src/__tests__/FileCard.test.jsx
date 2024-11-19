@@ -55,7 +55,7 @@ describe('FileCard Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        `http://127.0.0.1:5555/api/files/${mockFile.id}`,
+        `http://localhost:5555/api/files/${mockFile.id}`,
         expect.objectContaining({
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -79,7 +79,7 @@ describe('FileCard Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        `http://127.0.0.1:5555/api/files/${mockFile.id}/move-to-trash`,
+        `http://localhost:5555/api/files/${mockFile.id}/move-to-trash`,
         expect.objectContaining({
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },

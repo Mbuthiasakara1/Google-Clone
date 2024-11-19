@@ -101,7 +101,7 @@ function FileCard({
   };
 
   const handleRename = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+    fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -128,7 +128,7 @@ function FileCard({
   
       console.log('Attempting to download file:', file);
   
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -179,14 +179,13 @@ function FileCard({
   const handleMoveToTrash = (fileId) => {
     console.log(fileId);
     if (!fileId) {
-      console.error("No file selected or file id is missing");
       enqueueSnackbar("No file selected or file ID is missing", {
         variant: "error",
       });
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -232,7 +231,7 @@ function FileCard({
     try {
       // Moving the file
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/move`,
+        `http://localhost:5555/api/files/${file.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -361,7 +360,7 @@ function FileCard({
           </div>
           <div className="menu-item">
             <MdDownload className="dropdown-icons" />
-            <button onClick={() => handleFileDownload(file)} disabled={isDownloading}>
+            <button onClick={() => handleDownload (file)} disabled={isDownloading}>
               {isDownloading ? 'Downloading...' : 'Download'}
             </button>
           </div>
@@ -371,7 +370,7 @@ function FileCard({
           </div>
           <div className="menu-item">
           <MdDelete className="dropdown-icons" />
-          <button onClick={() => handleMoveFileToTrash(file.id)}>Move to Trash</button>
+          <button onClick={() => handleMoveToTrash(file.id)}>Move to Trash</button>
         </div>
           </div>
         )}

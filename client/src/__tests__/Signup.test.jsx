@@ -163,7 +163,7 @@ describe('Signup Component', () => {
 
         // Ensure fetch was called with correct data
         expect(global.fetch).toHaveBeenCalledWith(
-            'http://127.0.0.1:3001/users',
+            'http://localhost:3001/users',
             expect.objectContaining({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
