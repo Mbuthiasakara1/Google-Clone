@@ -35,7 +35,9 @@ const useStore = create((set) => ({
   isCreatingFolder:false,
   setIsCreatingFolder:(isCreatingFolder)=>set({isCreatingFolder}),
   isUploading:false,
-  setIsUploading:(isUploading)=>set({isUploading})
+  setIsUploading:(isUploading)=>set({isUploading}),
+  rename:"",
+  setRename:(rename)=>set({rename}),
   
  
 }));

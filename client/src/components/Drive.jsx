@@ -20,6 +20,8 @@ function Drive({ toggleTheme }) {
   const {
     // filteredFiles,
     // setFilteredFiles,
+    rename,
+    setRename,
     files,
     setFiles,
     folders,
@@ -44,6 +46,8 @@ function Drive({ toggleTheme }) {
     folderPage,
     setFolderPage,
     itemsPerPage,
+    isCreatingFolder,
+    isUploading
   } = useStore();
   // New state variables for folder navigation
   // const [items, setItems] = useState([]);
@@ -58,34 +62,53 @@ function Drive({ toggleTheme }) {
   // const itemsPerPage = 12;
 
   // Fetch data function
-  const fetchData = async () => {
-    if (!user || !user.id) {
-      setFiles([]);
-      setFolders([]);
-      return;
-    }
-  
-    try {
-      const fileResponse = await axios.get(
-       `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""}&bin=false`)
-      const folderResponse = await axios.get(`http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""}&bin=false`);
-  
-      const fetchedFiles = Array.isArray(fileResponse.data) ? fileResponse.data : [];
-      const fetchedFolders = Array.isArray(folderResponse.data) ? folderResponse.data : [];
-  
-      setFiles(fetchedFiles);
-      setFilteredFiles(fetchedFiles);
-      setFolders(fetchedFolders);
-      setFilteredFolders(fetchedFolders);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      // Ensure that files and folders render independently
+      let fetchedFiles = [];
+      let fetchedFolders = [];
+
+      if (user && user.id) {
+        // Fetch files associated with the current folder
+        try {
+          const fileResponse = await axios.get(
+            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+              currentFolderId || ""
+            }&bin=false`
+          );
+          fetchedFiles = Array.isArray(fileResponse.data)
+            ? fileResponse.data
+            : [];
+          setFiles(fetchedFiles);
+          setFilteredFiles(fetchedFiles);
+        } catch (error) {
+          console.error("Error fetching files:", error);
+        }
+
+        // Fetch folders associated with the current folder
+        try {
+          const folderResponse = await axios.get(
+            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+              currentFolderId || ""
+            }&bin=false`
+          );
+          fetchedFolders = Array.isArray(folderResponse.data)
+            ? folderResponse.data
+            : [];
+          setFolders(fetchedFolders);
+          setFilteredFolders(fetchedFolders);
+        } catch (error) {
+          console.error("Error fetching folders:", error);
+        }
+      }
+
       setLoading(false);
-    }
-  };
-useEffect(()=>{
-  fetchData();
-},[user, currentFolderId])
+    };
+
+    fetchData();
+  }, [user, currentFolderId, rename, isCreatingFolder, isUploading]);
 
   const handleFolderClick = (folderId) => {
     setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
@@ -179,6 +202,8 @@ useEffect(()=>{
                         setFolders={setFolders}
                         onFolderClick={handleFolderClick}
                         filteredFolders={filteredFolders}
+                        rename={rename}
+                        setRename={setRename}
                       />
                     ))
                   )}
@@ -210,6 +235,8 @@ useEffect(()=>{
                         onFileClick={handleFileClick}
                         setFilteredFiles={setFilteredFiles}
                         filteredFiles={filteredFiles}
+                        rename={rename}
+                        setRename={setRename}
                       />
                     ))
                   )}

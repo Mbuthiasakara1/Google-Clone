@@ -36,10 +36,12 @@ function FileCard({
   filteredFiles,
   folders,
   onFileClick,
+  rename,
+  setRename,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState("");
+  // const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   // NEW: Add state for download status

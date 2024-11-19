@@ -9,13 +9,13 @@ import useStore from "./Store";
 function FolderCard({ folder, onFolderClick}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState(folder.name);
+  // const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [renameId, setRenameId]=useState(null)
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
-  const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
+  const{folders, setFolders, filteredFolders, setFilteredFolders, rename, setRename} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
   
@@ -40,6 +40,7 @@ function FolderCard({ folder, onFolderClick}) {
       );
   
       setRename("");
+      setDisplayRenameForm(false)
       enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
     } catch (error) {
       console.error("Rename error:", error);
@@ -90,7 +91,7 @@ function FolderCard({ folder, onFolderClick}) {
   // Function to confirm moving a folder
   const confirmMove = () => {
     if (selectedFolderId) {
-      fetch(`http://127.0.0.1:5555/folders/${folder.id}`, {
+      fetch(`http://localhost:5555/api/folders/${folder.id}/move`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId: selectedFolderId }),
@@ -138,19 +139,19 @@ function FolderCard({ folder, onFolderClick}) {
   return (
     <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onDoubleClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
-        <FaFolder />
+        <FaFolder   />
       </div>
       <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-      <p>{folder.size != null ? `${folder.size} KB` : "N/A"}</p>
-        <p>Last modified: {folder.modifiedDate || "N/A"}</p>
+        <p>created at: {folder.created_at}</p>
+        <p>Last modified: {folder.updated_at || "N/A"}</p>
       </div>
       <button className="dropdown-btn" onClick={() => setShowDropdown((prev) => (prev === folder.id ? null : folder.id))}
       >
         <FaEllipsisV />
       </button>
       {showDropdown === folder.id && (
-        <div className="dropdown-menu">
+        <div className="dropdown-menu" onMouseLeave={() => setShowDropdown(false)}>
           <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>
             Rename
           </button>
@@ -207,13 +208,10 @@ function FolderCard({ folder, onFolderClick}) {
               label="Choose Folder"
             >
               {filteredFolders.map((folder) => (
-                <>
-                 console.log(folder)
                 <MenuItem key={folder.id} value={folder.id}>
                  
                   {folder.name}
                 </MenuItem>
-                </>
               ))}
             </Select>
           </FormControl>
