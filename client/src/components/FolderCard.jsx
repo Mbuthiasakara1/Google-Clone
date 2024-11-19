@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaFolder } from "react-icons/fa";
 import { useSnackbar } from "notistack";
-// NEW: Import Download icon
-import { Download as DownloadIcon } from '@mui/icons-material';
+import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import useStore from "./Store";
 
 function FolderCard({ folder, onFolderClick}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState(folder.name);
+  // const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
+  const [renameId, setRenameId]=useState(null)
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
-  const{folders, setFolders, filteredFolders, setFilteredFolders} = useStore()
+  const{folders, setFolders, filteredFolders, setFilteredFolders, rename, setRename} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
   
@@ -39,6 +39,7 @@ function FolderCard({ folder, onFolderClick}) {
       );
   
       setRename("");
+      setDisplayRenameForm(false)
       enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
     } catch (error) {
       console.error("Rename error:", error);
@@ -81,26 +82,47 @@ function FolderCard({ folder, onFolderClick}) {
   };
   
 
-  // Function to handle showing the move card
-  const handleMove = () => {
+  const handleMove = (folderId) => {
     setShowMoveCard(true);
+    setSelectedFolderId(null);  // Reset folder selection
+   
   };
 
-  // Function to confirm moving a folder
-  const confirmMove = () => {
-    if (selectedFolderId) {
-      fetch(`/folders/${folder.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folderId: selectedFolderId }),
-      })
-        .then((response) => response.json())
-        .then((updatedFolder) => {
-          console.log("Folder moved to:", updatedFolder.folderId);
-          setShowMoveCard(false);
-          setShowDropdown(false);
-        })
-        .catch((error) => console.error("Move error:", error));
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://localhost:5555/api/folders/${file.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
+      }
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+
+      // Update the local state to reflect the changes
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === file.id ? { ...file, folderId: selectedFolderId } : file
+        )
+      );
+    } catch (error) {
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
 
@@ -135,41 +157,39 @@ function FolderCard({ folder, onFolderClick}) {
   }; 
 
   return (
-    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onClick={() => onFolderClick(folder.id)}>
+    <div className="file-card" onMouseLeave={() => setShowDropdown(false)} onDoubleClick={() => onFolderClick(folder.id)}>
       <div className="file-icon">
-        <FaFolder />
+        <FaFolder   />
       </div>
       <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-      <p>{folder.size != null ? `${folder.size} KB` : "N/A"}</p>
-        <p>Last modified: {folder.modifiedDate || "N/A"}</p>
+        <p>created at: {folder.created_at}</p>
+        <p>Last modified: {folder.updated_at || "N/A"}</p>
       </div>
       <button className="dropdown-btn" onClick={() => setShowDropdown((prev) => (prev === folder.id ? null : folder.id))}
       >
         <FaEllipsisV />
       </button>
       {showDropdown === folder.id && (
-        <div className="dropdown-menu">
-          <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>
-            Rename
+        <div className="folder-dropdown-menu">
+        <div className="menu-item">
+          <MdDriveFileRenameOutline />
+          <button onClick={() => setRenameId(folder.id)}>Rename</button>
+        </div>
+        <div className="menu-item">
+          <MdDownload />
+          <button onClick={() => handleFolderDownload(folder)} disabled={isDownloading}>
+            {isDownloading ? 'Downloading...' : 'Download'}
           </button>
-          {/* NEW: Add download button with icon and loading state */}
-          <button 
-            className="download-button"
-            onClick={handleFolderDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? (
-              <span>Downloading...</span>
-            ) : (
-              <>
-                <DownloadIcon className="dropdown-icon" />
-                <span>Download</span>
-              </>
-            )}
-          </button>
-          <button onClick={handleMove}>Move</button>
-          <button onClick={handleMoveToTrash}>Move to Trash</button>
+        </div>
+        <div className="menu-item">
+          <MdDriveFileMoveOutline />
+          <button onClick={() => handleMove(folder.id)}>Move</button>
+        </div>
+        <div className="menu-item">
+          <MdDelete />
+          <button onClick={() => handleMoveToTrash(folder.id)}>Move to Trash</button>
+        </div>
         </div>
       )}
       {displayRenameForm && (
@@ -207,13 +227,10 @@ function FolderCard({ folder, onFolderClick}) {
               label="Choose Folder"
             >
               {filteredFolders.map((folder) => (
-                <>
-                 console.log(folder)
                 <MenuItem key={folder.id} value={folder.id}>
                  
                   {folder.name}
                 </MenuItem>
-                </>
               ))}
             </Select>
           </FormControl>

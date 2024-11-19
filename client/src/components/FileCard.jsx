@@ -3,7 +3,7 @@ import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
-
+import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import {
   Description,
   Image,
@@ -15,6 +15,7 @@ import {
   TableChart,
   Article,
 } from "@mui/icons-material";
+import useStore from "./Store";
 
 function FileCard({
   file,
@@ -24,10 +25,12 @@ function FileCard({
   filteredFiles,
   folders,
   onFileClick,
+  rename,
+  setRename,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState("");
+  // const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   // NEW: Add state for download status
@@ -35,11 +38,12 @@ function FileCard({
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
+
   if (!file) {
     return null;
   }
 
-  const getFileIcon = () => {  
+  const getFileIcon = () => {
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -96,8 +100,8 @@ function FileCard({
     });
   };
 
-  const handleRename = () => {
-    fetch(`http://localhost:5555/api/files/${file.id}`, {
+  const handleRename = (fileId) => {
+    fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -106,26 +110,40 @@ function FileCard({
       .then((data) => {
         setRename(data.name);
         setDisplayRenameForm(false);
+        enqueueSnackbar("File renamed successfully!", { variant: "success" })
+      .catch((err) => {
+        enqueueSnackbar(err.message || "An error occurred while renaming.", {
+          variant: "error",
+        });
+      })
       });
+
   };
 
   // UPDATED: Enhanced download handler with progress feedback
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
+      enqueueSnackbar('Starting download...', { variant: 'info' });
+  
+      console.log('Attempting to download file:', file);
+  
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+  
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers));
+  
       enqueueSnackbar("Starting download...", { variant: "info" });
 
-      const response = await fetch(
-        `http://localhost:5555/api/files/${file.id}/download`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-
       if (!response.ok) {
-        throw new Error("Download failed");
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Download failed: ${response.status} - ${errorText}`)
       }
+  
 
       const contentDisposition = response.headers.get("Content-Disposition");
       const filename = contentDisposition
@@ -133,19 +151,26 @@ function FileCard({
         : file.name;
 
       const blob = await response.blob();
+      console.log('Blob type:', blob.type);
+      console.log('Blob size:', blob.size);
+  
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = filename;
+      link.download = file.name;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      enqueueSnackbar("File downloaded successfully", { variant: "success" });
+  
+      enqueueSnackbar('File downloaded successfully', { variant: 'success' });
     } catch (error) {
-      console.error("Download error:", error);
-      enqueueSnackbar("Failed to download file", { variant: "error" });
+      console.error('Download error details:', {
+        error: error,
+        message: error.message,
+        file: file
+      });
+      enqueueSnackbar(`Download failed: ${error.message}`, { variant: 'error' });
     } finally {
       setIsDownloading(false);
     }
@@ -154,10 +179,6 @@ function FileCard({
   const handleMoveToTrash = (fileId) => {
     console.log(fileId);
     if (!fileId) {
-      console.error("No file selected or file id is missing");
-      enqueueSnackbar("No file selected or file ID is missing", {
-        variant: "error",
-      });
       enqueueSnackbar("No file selected or file ID is missing", {
         variant: "error",
       });
@@ -180,9 +201,6 @@ function FileCard({
         enqueueSnackbar("file successfully moved to bin", {
           variant: "success",
         });
-        enqueueSnackbar("file successfully moved to bin", {
-          variant: "success",
-        });
         setFilteredFiles((prevFiles) =>
           prevFiles.filter((f) => f.id !== file.id)
         );
@@ -192,25 +210,45 @@ function FileCard({
         enqueueSnackbar("Error moving file to bin", { variant: "error" });
         enqueueSnackbar("Error moving file to bin", { variant: "error" });
       });
+      
   };
+
+  
 
   const handleMove = () => {
     setShowMoveCard(true);
+    setSelectedFolderId(null);  // Reset folder selection
   };
 
-  const confirmMove = () => {
-    if (selectedFolderId) {
-      fetch(`/files/${file.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folderId: selectedFolderId }),
-      })
-        .then((response) => response.json())
-        .then((updatedFile) => {
-          console.log("File moved to folder:", updatedFile.folderId);
-          setShowMoveCard(false);
-          setShowDropdown(false);
-        });
+  const confirmMove = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://localhost:5555/api/files/${file.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
+      }
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+
+    } catch (error) {
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
 
@@ -315,52 +353,54 @@ function FileCard({
 
         {/* Dropdown Menu */}
         {showDropdown && (
-          <div className="dropdown-menu">
-            <button onClick={() => setDisplayRenameForm(true)}>Rename</button>
-            <button
-              className="download-button"
-              onClick={handleDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <span>Downloading...</span>
-              ) : (
-                <>
-                  <FaFileAlt className="dropdown-icon" />
-                  <span>Download</span>
-                </>
-              )}
+          <div className="file-dropdown-menu">
+          <div className="menu-item">
+            <MdDriveFileRenameOutline className="dropdown-icons" />
+            <button onClick={() => setRenameId(file.id)}>Rename</button>
+          </div>
+          <div className="menu-item">
+            <MdDownload className="dropdown-icons" />
+            <button onClick={() => handleDownload (file)} disabled={isDownloading}>
+              {isDownloading ? 'Downloading...' : 'Download'}
             </button>
-            <button onClick={handleMove}>Move</button>
-            <button onClick={() => handleMoveToTrash(file.id)}>
-              Move To Trash
-            </button>
+          </div>
+          <div className="menu-item">
+            <MdDriveFileMoveOutline className="dropdown-icons" />
+            <button onClick={() => handleMove(file)}>Move</button>
+          </div>
+          <div className="menu-item">
+          <MdDelete className="dropdown-icons" />
+          <button onClick={() => handleMoveToTrash(file.id)}>Move to Trash</button>
+        </div>
           </div>
         )}
       </div>
 
       {displayRenameForm && (
         <Dialog open={true} onClose={() => setRenameId(null)}>
-        <DialogTitle>Rename File</DialogTitle>
-        <DialogContent>
-          <TextField
-            id="renameInput"
-            label="New Name"
-            value={rename}
-            onChange={(e) => setRename(e.target.value)}
-            fullWidth
-            placeholder="Enter new name"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRename} color="primary">
-            Submit
-          </Button>
-          <Button onClick={() => setDisplayRenameForm(false)} color="secondary">
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>Rename File</DialogTitle>
+          <DialogContent>
+            <TextField
+              id="renameInput"
+              label="New Name"
+              value={rename}
+              onChange={(e) => setRename(e.target.value)}
+              fullWidth
+              placeholder="Enter new name"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={()=>handleRename(file.id)} color="primary">
+              Submit
+            </Button>
+            <Button
+              onClick={() => setDisplayRenameForm(false)}
+              color="secondary"
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
 
       {showMoveCard && (
