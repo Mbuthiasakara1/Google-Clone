@@ -74,7 +74,7 @@ function Drive({ toggleTheme }) {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -90,7 +90,7 @@ function Drive({ toggleTheme }) {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );

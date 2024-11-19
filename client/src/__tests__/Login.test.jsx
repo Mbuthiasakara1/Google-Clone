@@ -76,7 +76,7 @@ describe('Login Component', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        ' http://localhost:5555/api/login',
+        ' http://127.0.0.1:5555/api/login',
         expect.objectContaining({
           method: 'POST',
           credentials: 'include',

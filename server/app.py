@@ -36,7 +36,7 @@ else:
 # UPDATED: Enhanced CORS configuration
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:5173"],
+        "origins": ["http://127.0.0.1:5173"],
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type"],
         "supports_credentials": True,
@@ -55,8 +55,8 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 
-# CORS(app, supports_credentials=True ,origins="http://localhost:5173/")
-# CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+# CORS(app, supports_credentials=True ,origins="http://127.0.0.1:5173/")
+# CORS(app, origins=["http://127.0.0.1:5173"], supports_credentials=True)
 
 
 bcrypt = Bcrypt(app)
@@ -662,7 +662,7 @@ class FileDownload(Resource):
             )
 
             response.headers.update({
-                'Access-Control-Allow-Origin': 'http://localhost:5173',
+                'Access-Control-Allow-Origin': 'http://127.0.0.1:5173',
                 'Access-Control-Allow-Credentials': 'true',
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',

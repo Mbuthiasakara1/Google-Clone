@@ -86,7 +86,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -102,7 +102,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -234,7 +234,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://localhost:5555/api/files/${fileId}`,
+        `http://127.0.0.1:5555/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -277,7 +277,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://localhost:5555/api/folders/${folderId}`,
+        `http://127.0.0.1:5555/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -319,7 +319,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://localhost:5555/api/files/${file.id}/download`,
+        `http://127.0.0.1:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -358,7 +358,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://localhost:5555/api/folders/${folder.id}/download`,
+        `http://127.0.0.1:5555/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -389,7 +389,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -415,7 +415,7 @@ function Home() {
       });
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -468,12 +468,12 @@ function Home() {
       
       if (moveItem?.type === "folder") {
           response = await axios.patch(
-              `http://localhost:5555/api/folders/${moveItem.id}/move`,
+              `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
               { parent_folder_id: selectedFolderId }
           );
       } else if (moveItem?.type === "file") {
           response = await axios.patch(
-              `http://localhost:5555/api/files/${moveItem.id}/move`,
+              `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
               { folder_id: selectedFolderId }
           );
       }
