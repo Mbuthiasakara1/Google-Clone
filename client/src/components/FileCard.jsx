@@ -141,12 +141,20 @@ function FileCard({
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers));
   
+      enqueueSnackbar("Starting download...", { variant: "info" });
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server error response:', errorText);
-        throw new Error(`Download failed: ${response.status} - ${errorText}`);
+        throw new Error(`Download failed: ${response.status} - ${errorText}`)
       }
   
+
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filename = contentDisposition
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+        : file.name;
+
       const blob = await response.blob();
       console.log('Blob type:', blob.type);
       console.log('Blob size:', blob.size);
