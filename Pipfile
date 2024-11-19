@@ -10,6 +10,14 @@ flask-migrate = "*"
 psycopg2 = "*"
 gunicorn = "*"
 honcho = "*"
+sqlalchemy-serializer = "*"
+flask-bcrypt = "*"
+flask-restful = "*"
+flask-cors = "*"
+faker = "*"
+requests = "*"
+cloudinary = "*"
+
 
 [dev-packages]
 

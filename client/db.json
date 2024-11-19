@@ -1,0 +1,147 @@
+{
+  "files": [
+    {
+      "id": "1",
+      "name": "Ryne Pic",
+      "type": "image",
+      "mimeType": "image/png",
+      "size": "2.4 MB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://example.com/example.png"
+    },
+    {
+      "id": "2",
+      "name": "Alex.doc",
+      "type": "pdf",
+      "mimeType": "application/pdf",
+      "size": "1.2 MB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://example.com/document.pdf"
+    },
+    {
+      "id": "3",
+      "name": "my-pdf",
+      "type": "pdf",
+      "size": "854 KB",
+      "url": "https://www.lifewire.com/thmb/kW6qmOK-xA4wXMtPShm-RV9cJRI=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/chrome-save-as-pdf-7b631e4c76bb4eb5a7afd9b67e729f8d.png",
+      "bin": true
+    },
+    {
+      "id": "4",
+      "name": "Spreadsheet.xlsx",
+      "type": "spreadsheet",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": "854 KB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/LibreOffice_7.2.4.1_Calc_with_csv_screenshot.png",
+      "folderId": null,
+      "bin": false
+    },
+    {
+      "id": "5",
+      "name": "Test.xlsx",
+      "type": "spreadsheet",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": "854 KB",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/LibreOffice_7.2.4.1_Calc_with_csv_screenshot.png",
+      "bin": false
+    }
+  ],
+  "folders": [
+    {
+      "id": "6",
+      "name": "renamed",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "1",
+      "bin": false
+    },
+    {
+      "id": "4ec9",
+      "name": "folder1",
+      "bin": true
+    },
+    {
+      "id": "c655",
+      "name": "folderName",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "4"
+    },
+    {
+      "id": "23a2",
+      "name": "Kalvine Ndei"
+    },
+    {
+      "id": "a171",
+<<<<<<< HEAD
+      "name": "Sam",
+      "bin": false
+=======
+      "name": "Sam"
+    },
+    {
+      "id": "cdf3",
+      "name": "Folders",
+      "type": "folder",
+      "lastOpened": "Aug 16, 2024",
+      "path": "/",
+      "folderId": "3"
+>>>>>>> ca5b77b (Min Updates)
+    }
+  ],
+  "users": [
+    {
+      "id": "a726",
+      "firstName": "ghjk",
+      "lastName": "fghjk",
+      "birthday": "2024-11-06",
+      "gender": "Prefer Not To Say",
+      "email": "ujnjb@vui.cx",
+      "password": "1234Abcd"
+    },
+    {
+      "id": "6db5",
+      "firstName": "arfds",
+      "lastName": "svsdvsv",
+      "birthday": "2024-11-20",
+      "gender": "Female",
+      "email": "zds@sdsd.vf",
+      "password": "1234Abcd"
+    },
+    {
+      "id": "a535",
+      "firstName": "fghjkl",
+      "lastName": "sfsfs",
+      "birthday": "2024-11-11",
+      "gender": "Prefer Not To Say",
+      "email": "sdssf@sds.sds",
+      "password": "1234Abcd"
+    },
+    {
+      "id": "f48e",
+      "firstName": "ertfgh",
+      "lastName": "rtfghj",
+      "birthday": "2024-11-12",
+      "gender": "Female",
+      "email": "sdfgh@ghjk.x",
+      "password": "123Abc"
+    },
+    {
+      "id": "478d",
+      "firstName": "ertyu",
+      "lastName": "sdfs",
+      "birthday": "2024-11-13",
+      "gender": "Other",
+      "email": "rctg@sd.sx",
+      "password": "1234Abcd"
+    }
+  ]
+}

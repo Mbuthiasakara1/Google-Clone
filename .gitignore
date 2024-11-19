@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Databases
+*.db
+*.pyc
+
+# Files
+client/src/components/folderopen.jsx
+# client/src/components/Store.jsx
