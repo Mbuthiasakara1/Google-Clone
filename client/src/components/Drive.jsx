@@ -74,7 +74,7 @@ function Drive({ toggleTheme }) {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -90,7 +90,7 @@ function Drive({ toggleTheme }) {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -140,7 +140,7 @@ function Drive({ toggleTheme }) {
 
   const displayedFiles = filteredFiles.slice(0, filePage * itemsPerPage);
   const displayedFolders = filteredFolders.slice(0, folderPage * itemsPerPage);
-
+  
   // console.log(filteredFiles)
   const handleFileClick = (fileId) => {
     const selectedFile = files.find((file) => file.id === fileId);
@@ -149,16 +149,6 @@ function Drive({ toggleTheme }) {
       setShowImage(true);
     }
   };
-  function handleBack(){
-    if(folderHistory.length > 0){
-      setCurrentFolderId(folderHistory[folderHistory.length - 1])
-      setFolderHistory(folderHistory.slice(0, -1))
-    }
-    else{
-      setCurrentFolderId(null)
-      setFolderName("Drive")
-    }
-  }
 
   return (
     <>
@@ -169,7 +159,7 @@ function Drive({ toggleTheme }) {
         <div>
           {currentFolderId && (
             <button
-              onClick={handleBack}
+              onClick={() => setCurrentFolderId(null)}
               style={{
                 padding: "5px 10px",
                 background: "none",
@@ -179,7 +169,7 @@ function Drive({ toggleTheme }) {
                 fontSize: "14px",
               }}
             >
-              ← Back to {folderHistory.length > 0 ? "Previous Folder" : "Drive"}
+              ← Back to Drive
             </button>
           )}
           <h1 style={{ color: "black" }}>
@@ -241,16 +231,15 @@ function Drive({ toggleTheme }) {
                         key={file.id}
                         file={file}
                         files={files}
+                        filteredFolders={filteredFolders}
                         onFileClick={handleFileClick}
                         setFilteredFiles={setFilteredFiles}
                         filteredFiles={filteredFiles}
                         rename={rename}
                         setRename={setRename}
-                        filteredFolders={filteredFolders}
                       />
                     ))
                   )}
-
                   {filteredFiles.length > displayedFiles.length && (
                     <button
                       style={{
@@ -273,7 +262,6 @@ function Drive({ toggleTheme }) {
               )}
             </div>
           </>
-
         )}
       </div>
     </>

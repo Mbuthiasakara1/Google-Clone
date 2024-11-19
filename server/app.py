@@ -471,7 +471,7 @@ def move_folder_to_bin(id):
     
     return {'message': 'Folder moved to bin', 'folder': {'id': folder.id, 'bin': folder.bin}}, 200
 
-@app.route('/api/folders/<int:id>/move/', methods=['PATCH'])
+@app.route('/api/folders/<int:id>/move', methods=['PATCH'])
 def move_folder(id):
     
     folder = Folder.query.filter_by(id=id).first()

@@ -86,7 +86,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -102,7 +102,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -433,31 +433,31 @@ function Home() {
       });
       return;
     }
-
+  
     try {
       let response;
       if (moveItem?.type === "folder") {
         // Moving a folder
         response = await axios.patch(
-          `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
+          `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`, // Ensure trailing slash
           { parent_folder_id: selectedFolderId }
-        )
-      } else {
+        );
+      } else if (moveItem?.type === "file") {
         // Moving a file
         response = await axios.patch(
           `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
           { folder_id: selectedFolderId }
         );
       }
-
+  
       if (response.status !== 200) {
         throw new Error(`Failed to move item. Status: ${response.status}`);
       }
   
-      const updatedItem = response.data;
+      const updatedItem = response.data.folder || response.data.file;
       enqueueSnackbar("Item moved successfully!", { variant: "success" });
       setShowMoveCard(false);
-
+  
       // Update the local state to reflect the changes
       if (moveItem?.type === "folder") {
         setFolders((prevFolders) =>
@@ -471,7 +471,7 @@ function Home() {
         setFiles((prevFiles) =>
           prevFiles.map((file) =>
             file.id === moveItem.id
-              ? { ...file, folderId: selectedFolderId }
+              ? { ...file, folder_id: selectedFolderId }
               : file
           )
         );
@@ -481,6 +481,7 @@ function Home() {
       enqueueSnackbar("Failed to move item.", { variant: "error" });
     }
   };
+  
   
   const checkForImage = (file) => {
     const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
@@ -547,7 +548,7 @@ function Home() {
                       <FaEllipsisV />
                     </button>
                     {dropdownId === folder.id && (
-                      <div className="folder-dropdown-menu">
+                      <div className="folder-dropdown-menu" onMouseLeave={()=>setDropdownId(null)}>
                       <div className="menu-item">
                         <MdDriveFileRenameOutline />
                         <button onClick={() => setRenameId(folder.id)}>Rename</button>
