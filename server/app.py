@@ -1,4 +1,4 @@
-from flask import Flask, make_response, request, jsonify, session
+from flask import Flask, make_response, request, jsonify, session,send_file
 # New imports for download functionality
 from flask import send_file
 from config import db
@@ -526,6 +526,7 @@ class UploadAvatar(Resource):
                 'message':f'the error is {str(e)}'
                 }),500
 
+
 # NEW CLASS: Handle individual file downloads from Cloudinary
 class FileDownload(Resource):
     def get(self, file_id):
@@ -691,7 +692,6 @@ class FileDownload(Resource):
                 except Exception as e:
                     print(f"Error cleaning up temp file: {str(e)}")
 
-# NEW CLASS: Handle folder downloads (creates zip file containing all files in folder)
 class FolderDownload(Resource):
     def get(self, folder_id):
         try:
