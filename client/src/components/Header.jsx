@@ -92,15 +92,24 @@ const HeaderIcons = styled.div.attrs(() => ({
 const AvatarForm = styled.div`
   position: absolute;
   top: 60px;
-  right: 0;
-
+  right: 10px; /* Add a small margin from the right */
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
   z-index: 200;
-  width: 250px;
+  // width: 250px;
   font-family: Arial, sans-serif;
+  background-color: white;
+
+  /* Ensure visibility */
+  max-height: 90vh; /* Prevent the form from exceeding viewport height */
+  max-width: 90vw; /* Prevent the form from exceeding viewport width */
+  overflow-y: auto; /* Enable scrolling within the form if content exceeds size */
+
+  /* Adjust for viewport boundaries */
+  transform: translateY(${({ top }) => (top + 300 > window.innerHeight ? '-100%' : '0')}); /* Flip form if it would overflow bottom */
+  transform-origin: top right;
 
   h1 {
     font-size: 18px;
@@ -108,12 +117,26 @@ const AvatarForm = styled.div`
     margin-bottom: 15px;
     font-weight: 500;
   }
-
+  .img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%; /* Adjust this as needed */
+    border-radius: 50%;
+    position: relative;
+    
   form {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
+
+  img.card-img-top {
+      width: 60%; /* Ensure the image fits within the container */
+      height: auto; /* Maintain aspect ratio */
+      border-radius: 50%;
+      object-fit: cover; /* Ensure the image is nicely cropped */
+    }
 
   input[type="file"] {
     font-size: 14px;
@@ -121,22 +144,9 @@ const AvatarForm = styled.div`
     border: 1px solid #ddd;
     border-radius: 5px;
   }
-
-  input[type="submit"] {
-    background-color: #4285f4;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: #357ae8;
-    }
-  }
+}
 `;
+
 
 const BurgerMenu = styled.div`
   display: none;
@@ -291,7 +301,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
               <div
                 className="card"
                 style={{
-                  width: "18rem",
+                  width: "15rem",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -308,7 +318,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                 >
                   <img
                     className="card-img-top"
-                    style={{ width: "60%", borderRadius: "50%" }}
+                    style={{ position:"", width: "60%", borderRadius: "50%" }}
                     src={user?.profile_pic || "https://via.placeholder.com/150"}
                     alt={user?.first_name || "Placeholder"}
                   />
@@ -318,9 +328,9 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
                     name="file" //matches the key expected in backend
                     accept="image/*"
                     style={{
+                      display:"flex",
+                      justifyContent: "center",
                       position: "absolute",
-                      top: 0,
-                      left: 0,
                       width: "100%",
                       height: "100%",
                       opacity: 0,
