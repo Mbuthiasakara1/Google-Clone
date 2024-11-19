@@ -1,85 +1,112 @@
-import React from "react"
-import Sidebar from "../components/Sidebar"
-import {render, screen, fireEvent} from '@testing-library/react'
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../components/AuthContext';
+import { SnackbarProvider } from 'notistack';
+import Sidebar from '../components/Sidebar';
 
-jest.spyOn(console, "log")
-describe("Sidebar",()=>{
-    it("checks if there's a function Sidebar",()=>{
-        expect(typeof Sidebar).toBe("function")
-    })
-    it("renders 'New' button", () => {
-        render(<Sidebar />)
-        const newbtn = screen.getByRole("button",{
-            name: /new/i
-        })
-        expect(newbtn).toBeInTheDocument();
-      });
-      
-    it("renders sidebar options when 'New' button is clicked", ()=>{
-        render(<Sidebar />)
-        const newbtn = screen.getByRole("button",{
-            name: /new/i
-        })
-        fireEvent.click(newbtn)
-        const createfolder = screen.getByText(/create folder/i)
-        const uploadfile = screen.getByText(/upload file/i)
-        const uploadfolder = screen.getByText(/upload folder/i)
+// Mock the useStore hook
+jest.mock('../components/Store', () => ({
+  __esModule: true,
+  default: () => ({
+    isCreatingFolder: false,
+    setIsCreatingFolder: jest.fn(),
+    isUploading: false,
+    setIsUploading: jest.fn()
+  })
+}));
 
-        expect(createfolder).toBeInTheDocument();
-        expect(uploadfolder).toBeInTheDocument();
-        expect(uploadfile).toBeInTheDocument();
-      });
+// Mock user authentication context
+jest.mock('../components/AuthContext', () => ({
+  AuthProvider: ({ children }) => children,
+  useAuth: () => ({
+    user: { id: 1 }
+  })
+}));
 
-      test("shows and hides the 'Create Folder' form", () => {
-        render(<Sidebar />)
-       // Click 'New' button to open the dropdown
-       const newbtn = screen.getByRole("button",{
-        name: /new/i
-        })
-        fireEvent.click(newbtn)
-        
-        // Click 'Create Folder' to open the form
-        fireEvent.click(screen.getByText(/Create Folder/i));
+// Mock fetch API
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({ id: 1, name: 'New Test Folder' })
+  })
+);
 
-        // Verify the form is visible
-        expect(screen.getByLabelText(/New Folder/i)).toBeInTheDocument();
+describe('Sidebar Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-        // Click 'Cancel' to close the form
-        fireEvent.click(screen.getByText(/Cancel/i));
-        expect(screen.queryByLabelText(/New Folder/i)).not.toBeInTheDocument();
-        });
+  const renderSidebar = () => {
+    render(
+      <BrowserRouter>
+        <SnackbarProvider>
+          <AuthProvider>
+            <Sidebar />
+          </AuthProvider>
+        </SnackbarProvider>
+      </BrowserRouter>
+    );
+  };
 
-        test("submits 'Create Folder' form", () => {
-        render(<Sidebar />)    
-        fireEvent.click(screen.getByRole("button", { name: /new/i }));
+  test('renders sidebar navigation elements', () => {
+    renderSidebar();
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
+    expect(screen.getByText(/My Drive/i)).toBeInTheDocument();
+    expect(screen.getByText(/Trash/i)).toBeInTheDocument();
+  });
 
-        fireEvent.click(screen.getByText(/Create Folder/i));
-
-        const folderInput = screen.getByLabelText(/New Folder/i);
-        // expect(folderInput).toBeInTheDocument()
-        fireEvent.change(folderInput, { target: { value: "folderName" } });
-        // fireEvent.change(input, { target: { value: "folderName" } });
-        // fireEvent.click(screen.getByRole("button", { name: /Create/i }));
-
-        expect(console.log).toHaveBeenCalledWith("Folder Name:", "folderName");
-        // expect(screen.getByLabelText(/New Folder/i).value).toBe("");
-    });
-
-
-        test("checks if Home is in document", ()=>{
-            render(<Sidebar />)
-            const home = screen.getByText(/Home/i)
-            expect(home).toBeInTheDocument();
-            // fireEvent.click(screen.getByText(/Home/i))
-            // expect(screen.getByText(/Home/i)).toBeInTheDocument();
-        })
-        test("checks if 'My Drive is in document",()=>{
-            render(<Sidebar />)
-            const myDrive = screen.getByText(/My Drive/i)
-            expect(myDrive).toBeInTheDocument();
-            // fireEvent.click(screen.getByText(/My Drive/i))
-            // expect(screen.getByText(/My Drive/i)).toBeInTheDocument();
-        })
-        
+  test('shows create folder dialog when Create Folder is clicked', async () => {
+    renderSidebar();
     
-})
+    // Click the New button to open dropdown
+    fireEvent.click(screen.getByRole('button', { name: /new/i }));
+    
+    // Click Create Folder in the dropdown
+    fireEvent.click(screen.getByText(/Create Folder/i));
+    
+    // Check if dialog is shown
+    expect(screen.getByText(/Create New Folder/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Folder Name/i)).toBeInTheDocument();
+  });
+
+  test('handles folder creation submission', async () => {
+    renderSidebar();
+    
+    // Open the create folder dialog
+    fireEvent.click(screen.getByRole('button', { name: /new/i }));
+    fireEvent.click(screen.getByText(/Create Folder/i));
+    
+    // Fill and submit the form
+    const input = screen.getByLabelText(/Folder Name/i);
+    fireEvent.change(input, { target: { value: 'New Test Folder' } });
+    
+    const createButton = screen.getByRole('button', { name: /^Create$/i });
+    fireEvent.click(createButton);
+    
+    // Wait for the dialog to close
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:5555/api/folders',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: expect.any(String)
+        })
+      );
+    });
+  });
+
+  test('navigation links have correct hrefs', () => {
+    renderSidebar();
+    
+    // Check navigation link hrefs
+    const homeLink = screen.getByText(/Home/i).closest('a');
+    const myDriveLink = screen.getByText(/My Drive/i).closest('a');
+    const trashLink = screen.getByText(/Trash/i).closest('a');
+    
+    expect(homeLink).toHaveAttribute('href', '/');
+    expect(myDriveLink).toHaveAttribute('href', '/my-drive');
+    expect(trashLink).toHaveAttribute('href', '/trash');
+  });
+});
