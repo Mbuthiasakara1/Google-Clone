@@ -191,7 +191,7 @@ This backend API provides functionality to:
   
    flask run
    ```
-   Access the API at `http://localhost:5555`/`http://127.0.0.1:5555`.
+   Access the API at `http://localhost:5555`/`http://localhost:5555`.
 
 ---
 
