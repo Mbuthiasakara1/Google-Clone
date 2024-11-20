@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(null);
               }
             } catch (error) {
-              console.error('Error checking session:', error);
+              // console.error('Error checking session:', error);
               setUser(null);
             } finally {
               setLoading(false);

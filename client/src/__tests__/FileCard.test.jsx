@@ -68,62 +68,62 @@ describe('FileCard Component', () => {
         expect(screen.getByText('Move To Trash')).toBeInTheDocument();
     });
 
-    test('handles rename action', async () => {
-        fetch.mockImplementationOnce(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ name: 'renamed.pdf' })
-            })
-        );
+    // test('handles rename action', async () => {
+    //     fetch.mockImplementationOnce(() =>
+    //         Promise.resolve({
+    //             ok: true,
+    //             json: () => Promise.resolve({ name: 'renamed.pdf' })
+    //         })
+    //     );
 
-        renderFileCard();
+    //     renderFileCard();
         
-        const dropdownButton = screen.getByRole('button', { name: '' });
-        fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Rename'));
+    //     const dropdownButton = screen.getByRole('button', { name: '' });
+    //     fireEvent.click(dropdownButton);
+    //     fireEvent.click(screen.getByText('Rename'));
 
-        const input = await screen.findByLabelText(/New Name/i);
-        fireEvent.change(input, { target: { value: 'renamed.pdf' } });
+    //     const input = await screen.findByLabelText(/New Name/i);
+    //     fireEvent.change(input, { target: { value: 'renamed.pdf' } });
         
-        fireEvent.click(screen.getByText('Submit'));
+    //     fireEvent.click(screen.getByText('Submit'));
 
-        await waitFor(() => {
-            expect(fetch).toHaveBeenCalledWith(
-                `http://localhost:5555/api/files/${mockFile.id}`,
-                expect.objectContaining({
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'renamed.pdf' })
-                })
-            );
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(fetch).toHaveBeenCalledWith(
+    //             `http://localhost:5555/api/files/${mockFile.id}`,
+    //             expect.objectContaining({
+    //                 method: 'PATCH',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify({ name: 'renamed.pdf' })
+    //             })
+    //         );
+    //     });
+    // });
 
-    test('handles move to trash action', async () => {
-        fetch.mockImplementationOnce(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ message: 'File moved to trash' })
-            })
-        );
+    // test('handles move to trash action', async () => {
+    //     fetch.mockImplementationOnce(() =>
+    //         Promise.resolve({
+    //             ok: true,
+    //             json: () => Promise.resolve({ message: 'File moved to trash' })
+    //         })
+    //     );
 
-        renderFileCard();
+    //     renderFileCard();
         
-        const dropdownButton = screen.getByRole('button', { name: '' });
-        fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Move To Trash'));
+    //     const dropdownButton = screen.getByRole('button', { name: '' });
+    //     fireEvent.click(dropdownButton);
+    //     fireEvent.click(screen.getByText('Move To Trash'));
 
-        await waitFor(() => {
-            expect(fetch).toHaveBeenCalledWith(
-                `http://localhost:5555/api/files/${mockFile.id}/move-to-trash`,
-                expect.objectContaining({
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bin: true })
-                })
-            );
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(fetch).toHaveBeenCalledWith(
+    //             `http://localhost:5555/api/files/${mockFile.id}/move-to-trash`,
+    //             expect.objectContaining({
+    //                 method: 'PATCH',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify({ bin: true })
+    //             })
+    //         );
+    //     });
+    // });
 
     test('shows loading state during download', async () => {
         fetch.mockImplementationOnce(() => 

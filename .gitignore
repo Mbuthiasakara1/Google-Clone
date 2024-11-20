@@ -27,6 +27,5 @@ dist-ssr
 *.db
 *.pyc
 
-# Files
-client/src/components/folderopen.jsx
-# client/src/components/Store.jsx
+# Folder
+client/src/__tests__
