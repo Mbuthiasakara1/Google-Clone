@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
-import { useAuth } from "./AuthContext";
+import { FaEllipsisV } from "react-icons/fa";
 import { useSnackbar } from "notistack";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
@@ -21,23 +20,17 @@ import useStore from "./Store";
 
 function FileCard({
   file,
-  setFiles,
-  setFilteredFiles,
   filteredFolders,
-  filteredFiles,
-  folders,
   onFileClick,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-  const[renameId, setRenameId]=useState(null)
-  // NEW: Add state for download status
   const [isDownloading, setIsDownloading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
- 
+  const { setMoveItem, setRenameId, renameId } = useStore();
+
 
   if (!file) {
     return null;
@@ -116,7 +109,7 @@ function FileCard({
     });
   };
 
-  const handleRename = (fileId) => {
+  const handleRenameFile = (fileId) => {
     fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -126,13 +119,14 @@ function FileCard({
       .then((data) => {
         setRename(data.name);
         setDisplayRenameForm(false);
-        enqueueSnackbar("File renamed successfully!", { variant: "success" })
+        enqueueSnackbar("File renamed successfully!", { variant: "success" });
+      })
       .catch((err) => {
         enqueueSnackbar(err.message || "An error occurred while renaming.", {
           variant: "error",
         });
-      })
       });
+    
 
   };
 
@@ -217,9 +211,7 @@ function FileCard({
         enqueueSnackbar("file successfully moved to bin", {
           variant: "success",
         });
-        setFilteredFiles((prevFiles) =>
-          prevFiles.filter((f) => f.id !== file.id)
-        );
+        setMoveItem(fileId)
       })
       .catch((error) => {
         console.error("Error moving file to bin:", error);
@@ -236,7 +228,7 @@ function FileCard({
     setSelectedFolderId(null);  // Reset folder selection
   };
 
-  const confirmMove = async () => {
+  const confirmMove = async (item) => {
     if (!selectedFolderId) {
       enqueueSnackbar("Please select a folder to move into.", {
         variant: "warning",
@@ -261,9 +253,9 @@ function FileCard({
 
       enqueueSnackbar("File moved successfully!", { variant: "success" });
       setShowMoveCard(false);
+      setMoveItem(item)
 
     } catch (error) {
-      console.error("Error moving file:", error);
       enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
@@ -372,11 +364,18 @@ function FileCard({
           <div className="file-dropdown-menu">
           <div className="menu-item">
             <MdDriveFileRenameOutline className="dropdown-icons" />
-            <button onClick={() => setDisplayRenameForm(true)} >Rename</button>
+            <button onClick={() => {
+              console.log("File Id for :", file.id);
+              setRenameId(file.id);
+              setDisplayRenameForm(true);
+              }}
+              >
+                Rename
+              </button>
           </div>
           <div className="menu-item">
             <MdDownload className="dropdown-icons" />
-            <button onClick={() => handleDownload (file)} disabled={isDownloading}>
+            <button onClick={handleDownload} disabled={isDownloading}>
               {isDownloading ? 'Downloading...' : 'Download'}
             </button>
           </div>
@@ -393,7 +392,7 @@ function FileCard({
       </div>
 
       {displayRenameForm && (
-        <Dialog open={true} onClose={() => setRenameId(null)}>
+        <Dialog open={displayRenameForm} onClose={() => setDisplayRenameForm(false)}>
           <DialogTitle>Rename File</DialogTitle>
           <DialogContent>
             <TextField
@@ -407,7 +406,7 @@ function FileCard({
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={()=>handleRename(file.id)} color="primary">
+            <Button onClick={()=>handleRenameFile(renameId)} color="primary">
               Submit
             </Button>
             <Button

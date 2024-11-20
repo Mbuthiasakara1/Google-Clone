@@ -12,6 +12,7 @@ export const useAuth = () => {
 // AuthProvider component
 export const AuthProvider = ({ children }) => { 
     const {user,setUser, loading, setLoading}=useStore()
+    
 
     useEffect(() => {
         const fetchSession = async () => {

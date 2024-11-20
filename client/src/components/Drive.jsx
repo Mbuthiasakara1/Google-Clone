@@ -14,6 +14,7 @@ function Drive({ toggleTheme }) {
     user,
     setUser,
     setLoading,
+    loading,
     rename,
     setRename,
     files,
@@ -26,14 +27,12 @@ function Drive({ toggleTheme }) {
     setFolders,
     viewType,
     setViewType,
-    setViewTypefolderName,
     folderName,
     setFolderName,
     setImageId,
     imageId,
     showImage,
     setShowImage,
-    folderHistory,
     setFolderHistory,
     filePage,
     setFilePage,
@@ -42,11 +41,11 @@ function Drive({ toggleTheme }) {
     itemsPerPage,
     isCreatingFolder,
     isUploading,
-    loading, // Assuming loading state is part of your store
+    moveItem
   } = useStore();
-
+  
   const [filteredFiles, setFilteredFiles] = useState([]);
-
+  
   // Fetch data function
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +90,7 @@ function Drive({ toggleTheme }) {
     };
 
     fetchData();
-  }, [user, currentFolderId, rename, isCreatingFolder, isUploading]);
+  }, [user, currentFolderId, rename, isCreatingFolder, isUploading, moveItem]);
 
   const handleFolderClick = (folderId) => {
     setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);

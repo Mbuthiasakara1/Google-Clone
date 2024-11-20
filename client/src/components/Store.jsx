@@ -43,6 +43,11 @@ const useStore = create((set) => ({
   showDropdown:false,
   setShowDropdown:(showDropdown)=>set({showDropdown}),
   
+  moveItem:null,
+  setMoveItem:(item)=>set({moveItem:item}),
+  renameId:null,
+  setRenameId:(id)=>set({renameId:id}),
+  // Actions
  
 }));
 
