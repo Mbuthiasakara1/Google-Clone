@@ -8,13 +8,10 @@ import useStore from "./Store";
 function FolderCard({ folder, onFolderClick}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  // const [rename, setRename] = useState(folder.name);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [showMoveCard, setShowMoveCard] = useState(false);
-  const [renameId, setRenameId]=useState(null)
-  // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
-  const{folders, setFolders, filteredFolders, setFilteredFolders, rename, setRename} = useStore()
+  const{filteredFolders, rename, setRename, setMoveItem, renameId, setRenameId} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
   
@@ -32,17 +29,11 @@ function FolderCard({ folder, onFolderClick}) {
         throw new Error(`Failed to rename folder. Status: ${response.status}`);
       }
       const data = await response.json();
-      setFolders((prevFolders) =>
-        prevFolders.map((folder) =>
-          folder.id === folderId ? { ...folder, name: data.name } : folder
-        )  
-      );
-  
+      
       setRename("");
       setDisplayRenameForm(false)
       enqueueSnackbar("Folder renamed successfully!", { variant: "success" });
     } catch (error) {
-      console.error("Rename error:", error);
       enqueueSnackbar(error.message || "An error occurred while renaming.", {
         variant: "error",
       });
@@ -82,7 +73,7 @@ function FolderCard({ folder, onFolderClick}) {
   };
   
 
-  const handleMove = (folderId) => {
+  const handleMove = () => {
     setShowMoveCard(true);
     setSelectedFolderId(null);  // Reset folder selection
    
@@ -99,11 +90,11 @@ function FolderCard({ folder, onFolderClick}) {
     try {
       // Moving the file
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${file.id}/move`,
+        `http://127.0.0.1:5555/api/folders/${folder.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ folder_id: selectedFolderId }),
+          body: JSON.stringify({ parent_folder_id: selectedFolderId }),
         }
       );
 
@@ -111,15 +102,9 @@ function FolderCard({ folder, onFolderClick}) {
         throw new Error("Failed to move file");
       }
 
-      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      enqueueSnackbar("Folder moved successfully!", { variant: "success" });
       setShowMoveCard(false);
 
-      // Update the local state to reflect the changes
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === file.id ? { ...file, folderId: selectedFolderId } : file
-        )
-      );
     } catch (error) {
       console.error("Error moving file:", error);
       enqueueSnackbar("Failed to move file.", { variant: "error" });
@@ -127,7 +112,7 @@ function FolderCard({ folder, onFolderClick}) {
   };
 
   // Function to handle moving a folder to trash
-  const handleMoveToTrash = () => {
+  const handleMoveToTrash = (item) => {
     if (!folder || !folder.id) {
       console.error("No folder selected or folder id is missing");
       enqueueSnackbar("No folder selected or folder ID is missing", { variant: 'error' });
@@ -148,7 +133,7 @@ function FolderCard({ folder, onFolderClick}) {
       .then((data) => {
         console.log("Folder moved to bin:", data);
         enqueueSnackbar("Folder successfully moved to bin", { variant: 'success' });
-        setFolders((prevFolders) => prevFolders.filter((f) => f.id !== folder.id));
+        setMoveItem(item)
       })
       .catch((error) => {
         console.error("Error moving folder to bin:", error);
@@ -174,7 +159,13 @@ function FolderCard({ folder, onFolderClick}) {
         <div className="folder-dropdown-menu">
         <div className="menu-item">
           <MdDriveFileRenameOutline />
-          <button onClick={() => setRenameId(folder.id)}>Rename</button>
+          <button onClick={() => {
+            setRenameId(folder.id);
+            setDisplayRenameForm(true);
+            }}
+            >
+              Rename
+            </button>
         </div>
         <div className="menu-item">
           <MdDownload />
@@ -184,7 +175,7 @@ function FolderCard({ folder, onFolderClick}) {
         </div>
         <div className="menu-item">
           <MdDriveFileMoveOutline />
-          <button onClick={() => handleMove(folder.id)}>Move</button>
+          <button onClick={() => handleMove(folder)}>Move</button>
         </div>
         <div className="menu-item">
           <MdDelete />
@@ -193,7 +184,7 @@ function FolderCard({ folder, onFolderClick}) {
         </div>
       )}
       {displayRenameForm && (
-        <Dialog open={true} onClose={() => setRenameId(null)}>
+        <Dialog open={displayRenameForm} onClose={() => setDisplayRenameForm(false)}>
         <DialogTitle>Rename File</DialogTitle>
         <DialogContent>
           <TextField
@@ -206,7 +197,7 @@ function FolderCard({ folder, onFolderClick}) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleRenameFolder(folder.id)} color="primary">
+          <Button onClick={() => handleRenameFolder(renameId)} color="primary">
             Submit
           </Button>
           <Button onClick={() => setDisplayRenameForm(false)} color="secondary">

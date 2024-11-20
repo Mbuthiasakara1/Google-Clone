@@ -1,6 +1,4 @@
 from flask import Flask, make_response, request, jsonify, session,send_file
-# New imports for download functionality
-from flask import send_file
 from config import db
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -29,7 +27,7 @@ from base64 import b64encode
 app = Flask(__name__)
 # Check if we are in testing environment
 if os.getenv('FLASK_ENV') == 'testing':
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_google_drive.db'  # Use a separate test database
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use a separate test database
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'  # Default production database
 
@@ -37,7 +35,7 @@ else:
 CORS(app, resources={
     r"/api/*": {
         "origins": ["http://127.0.0.1:5173"],
-        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
         "allow_headers": ["Content-Type"],
         "supports_credentials": True,
         "expose_headers": ["Content-Disposition"]  # Important for downloads
@@ -265,7 +263,6 @@ def move_file(id):
     db.session.commit()
      
     return jsonify({"file": {"id": file.id, "folder_id": folder_id}}), 200
-    # return {'message': 'Folder moved', 'folder': {'id': file.id, 'file_id': file.folder_id}}, 200
 
 
           

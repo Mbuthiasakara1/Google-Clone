@@ -38,7 +38,11 @@ const useStore = create((set) => ({
   setIsUploading:(isUploading)=>set({isUploading}),
   rename:"",
   setRename:(rename)=>set({rename}),
-  
+  moveItem:null,
+  setMoveItem:(item)=>set({moveItem:item}),
+  renameId:null,
+  setRenameId:(id)=>set({renameId:id}),
+  // Actions
  
 }));
 

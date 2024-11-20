@@ -10,16 +10,9 @@ import ImageView from "./ImageView";
 import useStore from "./Store";
 
 function Drive({ toggleTheme }) {
-  // const [files, setFiles] = useState([]);
-  // const [folders, setFolders] = useState([]);
-  // const [filteredFiles, setFilteredFiles] = useState([]);
-  // const [filteredFolders, setFilteredFolders] = useState([]);
-  // const [viewType, setViewType] = useState("folders");
-  const { user, loading, setLoading } = useAuth();
+  const { user, setLoading } = useAuth();
 
   const {
-    // filteredFiles,
-    // setFilteredFiles,
     rename,
     setRename,
     files,
@@ -32,14 +25,12 @@ function Drive({ toggleTheme }) {
     setFolders,
     viewType,
     setViewType,
-    setViewTypefolderName,
     folderName,
     setFolderName,
     setImageId,
     imageId,
     showImage,
     setShowImage,
-    folderHistory,
     setFolderHistory,
     filePage,
     setFilePage,
@@ -47,20 +38,12 @@ function Drive({ toggleTheme }) {
     setFolderPage,
     itemsPerPage,
     isCreatingFolder,
-    isUploading
+    isUploading,
+    moveItem
   } = useStore();
-  // New state variables for folder navigation
-  // const [items, setItems] = useState([]);
-  // const [currentFolderId, setCurrentFolderId] = useState(null);
-  // const [folderName, setFolderName] = useState("Drive");
-  // const [imageId, setImageId] = useState(0)
-  // const [showImage, setShowImage] = useState(null)
-  // const [folderHistory, setFolderHistory] = useState([]);
+  
   const [filteredFiles, setFilteredFiles] = useState([]);
-  // const [filePage, setFilePage] = useState(1);
-  // const [folderPage, setFolderPage] = useState(1);
-  // const itemsPerPage = 12;
-
+  
   // Fetch data function
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +91,7 @@ function Drive({ toggleTheme }) {
     };
 
     fetchData();
-  }, [user, currentFolderId, rename, isCreatingFolder, isUploading]);
+  }, [user, currentFolderId, rename, isCreatingFolder, isUploading, moveItem]);
 
   const handleFolderClick = (folderId) => {
     setFolderHistory((prevHistory) => [...prevHistory, currentFolderId]);
