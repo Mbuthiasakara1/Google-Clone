@@ -435,44 +435,68 @@ function Home() {
     setMoveItem(folderToMove); // Set the full item object (file or folder)
   };
 
-  const confirmMove = async () => {
+  const confirmMoveFile = async () => {
     if (!selectedFolderId) {
-      enqueueSnackbar("Please select a folder to move into.", { variant: "warning" });
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
       return;
     }
-  
+
     try {
-      const apiUrl = `http://127.0.0.1:5555/api/${moveItem.type === "folder" ? "folders" : "files"}/${moveItem.id}/move`;
-  
-      const body = JSON.stringify({
-        [moveItem.type === "folder" ? "parent_folder_id" : "folder_id"]: selectedFolderId,
-      });
-  
-      const response = await fetch(apiUrl, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
-  
-      // Handle non-OK responses early
+      // Moving the file
+      const response = await fetch(
+        `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
       if (!response.ok) {
-        const errorResponse = await response.json();
-        enqueueSnackbar(errorResponse.message || "Failed to move item.", { variant: "error" });
-        return;
+        throw new Error("Failed to move file");
       }
-  
-      // Parse JSON only after confirming success
-      const updatedItem = await response.json();
-  
-      // Notify success and update state
-      enqueueSnackbar("Item moved successfully!", { variant: "success" });
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
       setShowMoveCard(false);
-      setMoveItem(null);
-      updateLocalState(updatedItem);
+      setMoveItem(null)
+
     } catch (error) {
-      // Log the error and notify the user
-      console.error("Error during move:", error);
-      enqueueSnackbar("Failed to move item. Please try again.", { variant: "error" });
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
+    }
+  };
+
+  const confirmMoveFolder = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ parent_folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
+      }
+
+      enqueueSnackbar("Folder moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+      setMoveItem(null)
+
+    } catch (error) {
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
   
@@ -497,6 +521,16 @@ function Home() {
       setShowImage(true);
     }
   }
+
+  function handleMouseLeave() {
+    // Set a short timeout to prevent immediate dropdown closure
+    setTimeout(() => {
+      if (!document.activeElement.classList.contains("dropdown-item")) {
+        setDropdownId(null);
+      }
+    }, 150);
+  }
+  
 
   return (
     <>
@@ -532,16 +566,19 @@ function Home() {
 
                     <button
                       className="folder-dropdown"
-                      onClick={() =>
+                      onClick={(e) =>{
+                        e.stopPropagation();
                         setDropdownId(
                           dropdownId === folder.id ? null : folder.id
                         )
-                      }
+                      }}
                     >
                       <FaEllipsisV />
                     </button>
                     {dropdownId === folder.id && (
-                      <div className="folder-dropdown-menu" onMouseLeave={() => setDropdownId(null)}>
+                      <div className="folder-dropdown-menu" onMouseLeave={() => {
+                        handleMouseLeave()
+                        }}>
                         <div className="menu-item">
                           <MdDriveFileRenameOutline />
                           <button onClick={() => setRenameId(folder.id)}>Rename</button>
@@ -559,7 +596,10 @@ function Home() {
                         {showMoveCard && (
                           <Dialog
                             open={true}
-                            onClose={() => setShowMoveCard(false)}
+                            onClose={() => {
+                              setShowMoveCard(false)
+                              setSelectedFolderId("")
+                            }}
                           >
                             <DialogTitle>Move to Folder</DialogTitle>
                             <DialogContent>
@@ -581,7 +621,7 @@ function Home() {
                               </FormControl>
                             </DialogContent>
                             <DialogActions>
-                              <Button onClick={confirmMove} color="primary">
+                              <Button onClick={confirmMoveFolder} color="primary">
                                 Confirm Move
                               </Button>
                               <Button
@@ -646,7 +686,9 @@ function Home() {
                   <div
                     className="file-card "
                     key={file.id}
-                    onMouseLeave={() => setDropdownId(null)}
+                    onMouseLeave={() => {
+                      handleMouseLeave()
+                    }}
                     onDoubleClick={() => handleFileClick(file)}
                   >
                     <div className="file-icon">
@@ -659,9 +701,10 @@ function Home() {
                     </div>
                     <button
                       className="dropdown-btn"
-                      onClick={() =>
+                      onClick={(e) =>{
+                        e.stopPropagation();
                         setDropdownId(dropdownId === file.id ? null : file.id)
-                      }
+                      }}
                     >
                       <FaEllipsisV />
                     </button>
@@ -684,7 +727,10 @@ function Home() {
                         {showMoveCard && (
                           <Dialog
                             open={true}
-                            onClose={() => setShowMoveCard(false)}
+                            onClose={() => {
+                              setShowMoveCard(false)
+                              setSelectedFolderId("")
+                            }}
                           >
                             <DialogTitle>Move to Folder</DialogTitle>
                             <DialogContent>
@@ -706,7 +752,7 @@ function Home() {
                               </FormControl>
                             </DialogContent>
                             <DialogActions>
-                              <Button onClick={confirmMove} color="primary">
+                              <Button onClick={confirmMoveFile} color="primary">
                                 Confirm Move
                               </Button>
                               <Button
