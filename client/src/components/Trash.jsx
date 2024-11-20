@@ -12,17 +12,33 @@ import {
   DialogTitle,
   Button,
 } from "@mui/material";
+import {
+  Description,
+  Image,
+  PictureAsPdf,
+  VideoFile,
+  AudioFile,
+  InsertDriveFile,
+  TableChart,
+  Article,
+  Code,
+  InsertDriveFile as FileIcon,
+  CloudDownload,
+} from "@mui/icons-material";
 import { useSnackbar } from "notistack";
+import useStore from "./Store";
 
 function Trash() {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [filteredFolders, setFilteredFolders] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(null);
+  const [showFolderDropdown, setShowFolderDropdown] = useState(null);
+  const[showFileDropdown, setShowFileDropdown]=useState(null)
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ type: "", id: null });
-  const { user, loading, setLoading } = useAuth();
+  // const { user, loading, setLoading } = useAuth();
+  const{user,setLoading}=useStore()
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -73,6 +89,76 @@ function Trash() {
         )
       );
     }
+  };
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "N/A";
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes === 0) return "0 Byte";
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+  const getFileIcon = (file) => {
+    
+      const extension = file.name?.split(".").pop()?.toLowerCase() || "";
+      const fileType = (file.filetype || file.type || "").toLowerCase();
+      const documentTypes = [
+        "doc",
+        "docx",
+        "txt",
+        "rtf",
+        "odt",
+        "text",
+        "document",
+      ];
+      const spreadsheetTypes = ["xlsx", "xls", "csv", "ods", "spreadsheet"];
+      const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
+      const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
+      const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
+      const articleTypes = ["md", "markdown", "article", "blog", "news"];
+      const presentationTypes = ["ppt", "pptx", "presentation"];
+      const webTypes = ["html", "htm", "css"];
+      const jsonTypes = ["json"];
+
+
+      const isType = (types) =>
+        types.some(
+          (type) =>
+            fileType.includes(type) ||
+            extension === type ||
+            (file.mimeType && file.mimeType.includes(type))
+        );
+
+      if (isType(imageTypes))
+        return <Image sx={{ fontSize: 60, color: "#4285f4" }} />;
+      if (isType(["pdf"]))
+        return <PictureAsPdf sx={{ fontSize: 60, color: "#FF4B4B" }} />;
+      if (isType(videoTypes))
+        return <VideoFile sx={{ fontSize: 60, color: "#673ab7" }} />;
+      if (isType(audioTypes))
+        return <AudioFile sx={{ fontSize: 60, color: "#00c853" }} />;
+      if (isType(spreadsheetTypes))
+        return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
+      if (isType(documentTypes))
+        return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
+      if (isType(presentationTypes))
+        return <InsertDriveFile sx={{ fontSize: 60, color: "#FF6D00" }} />;
+      if (isType(webTypes))
+        return <Code sx={{ fontSize: 60, color: "#4285f4" }} />;
+      if (isType(jsonTypes))
+        return <FileIcon sx={{ fontSize: 60, color: "#7B7B7B" }} />;
+      if (isType(articleTypes))
+        return <Article sx={{ fontSize: 60, color: "#FF9100" }} />;
+      return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
+  
   };
 
   const handleFileRestore = (fileId) => {
@@ -145,23 +231,23 @@ function Trash() {
                 <div
                   key={file.id}
                   className="file-card"
-                  onMouseLeave={() => setShowDropdown(null)}
+                  onMouseLeave={() => setShowFileDropdown(null)}
                 >
                   <div className="file-icon">
-                    <FaFileAlt />
+                    {getFileIcon(file)}
                   </div>
                   <div className="file-name">{file.name}</div>
                   <div className="file-footer">
-                    <p>{file.size} KB</p>
-                    <p>Last modified: {file.modifiedDate}</p>
+                  <div>{formatFileSize(file.filesize)}</div>
+                  <div>{formatDate(file.updated_at || file.created_at)}</div>
                   </div>
                   <button
                     className="dropdown-btn"
-                    onClick={() => setShowDropdown(file.id)}
+                    onClick={() => setShowFileDropdown(file.id)}
                   >
                     <FaEllipsisV />
                   </button>
-                  {showDropdown === file.id && (
+                  {showFileDropdown === file.id && (
                     <div className="dropdown-menu">
                       <button onClick={() => handleFileRestore(file.id)}>
                         Restore
@@ -183,7 +269,7 @@ function Trash() {
                 <div
                   key={folder.id}
                   className="file-card"
-                  onMouseLeave={() => setShowDropdown(null)}
+                  onMouseLeave={() => setShowFolderDropdown(null)}
                 >
                   <div className="file-icon">
                     <FaFolder style={{ color: "blurywood" }} />
@@ -195,11 +281,11 @@ function Trash() {
                   </div>
                   <button
                     className="dropdown-btn"
-                    onClick={() => setShowDropdown(folder.id)}
+                    onClick={() => setShowFolderDropdown(folder.id)}
                   >
                     <FaEllipsisV />
                   </button>
-                  {showDropdown === folder.id && (
+                  {showFolderDropdown === folder.id && (
                     <div className="dropdown-menu">
                       <button onClick={() => handleFolderRestore(folder.id)}>
                         Restore

@@ -17,7 +17,14 @@ function FolderCard({ folder, onFolderClick}) {
   const{folders, setFolders, filteredFolders, setFilteredFolders, rename, setRename} = useStore()
   const { enqueueSnackbar } = useSnackbar();
 
-  
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };  
   // Function to handle renaming a folder
   const handleRenameFolder = async (folderId) => {
     console.log("Renaming folder with ID:", folderId); 
@@ -163,8 +170,8 @@ function FolderCard({ folder, onFolderClick}) {
       </div>
       <div className="file-name">{folder.name}</div>
       <div className="file-footer">
-        <p>created at: {folder.created_at}</p>
-        <p>Last modified: {folder.updated_at || "N/A"}</p>
+      <div>{formatDate(folder.created_at)}</div>
+      <div>{formatDate(folder.updated_at)}</div>
       </div>
       <button className="dropdown-btn" onClick={() => setShowDropdown((prev) => (prev === folder.id ? null : folder.id))}
       >
@@ -174,7 +181,7 @@ function FolderCard({ folder, onFolderClick}) {
         <div className="folder-dropdown-menu">
         <div className="menu-item">
           <MdDriveFileRenameOutline />
-          <button onClick={() => setRenameId(folder.id)}>Rename</button>
+          <button onClick={() => setDisplayRenameForm(!displayRenameForm)}>Rename</button>
         </div>
         <div className="menu-item">
           <MdDownload />

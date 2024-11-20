@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import useStore from './Store';
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -9,9 +10,8 @@ export const useAuth = () => {
 };
 
 // AuthProvider component
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); 
+export const AuthProvider = ({ children }) => { 
+    const {user,setUser, loading, setLoading}=useStore()
 
     useEffect(() => {
         const fetchSession = async () => {

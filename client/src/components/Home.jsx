@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
+import { FaFolder,  FaEllipsisV } from "react-icons/fa";
 import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import ImageView from "./ImageView";
@@ -52,6 +53,9 @@ function Home() {
     setImageId,
     showImage,
     setShowImage,
+    user,
+    loading,
+    setLoading
   } = useStore();
   const [moveItem, setMoveItem] = useState(null, true);
   const [files, setFiles] = useState([]);
@@ -71,7 +75,7 @@ function Home() {
 
   // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
-  const { user, loading, setLoading } = useAuth();
+  // const { user, loading, setLoading } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -118,6 +122,7 @@ function Home() {
 
       setLoading(false);
     };
+    
 
     fetchData();
   }, [user, currentFolderId, rename, isCreatingFolder, isUploading]);
@@ -528,9 +533,15 @@ function Home() {
       <Header onFilter={handleFilter} />
       <Sidebar currentFolderId={currentFolderId} />
       <div className="Container">
+      {loading ? (
+          <div className="loader">
+            <div className="spinner"></div>
+            
+          </div>
+        ) : (
+          <>
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
 
-        {/* Display the current folder name and a back button if inside a folder */}
         <div className="current-folder-header">
           {currentFolderId && (
             <>
@@ -660,9 +671,11 @@ function Home() {
               )}
             </div>
           </div>
+          
 
-          <div className="file-container">
+           <div className="file-container">
             <h3>Files</h3>
+           
             <div className="file-list">
               {filteredFiles.length === 0 ? (
                 <h3>No files found</h3>
@@ -782,11 +795,14 @@ function Home() {
                 ))
               )}
             </div>
-          </div>
+          </div> 
           {showImage && (
             <ImageView imageId={imageId} onClose={() => setShowImage(false)} />
           )}
+          
         </div>
+        </>
+        )}
       </div>
     </>
   );

@@ -37,7 +37,7 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <AppContainer>
-        <Drive />
+        {/* <Drive /> */}
         {!isMobile && <Sidebar />}
         {isMobile && isSidebarOpen && <Sidebar />}
       </AppContainer>

@@ -11,9 +11,11 @@ import {
   VideoFile,
   AudioFile,
   InsertDriveFile,
-  Folder,
   TableChart,
   Article,
+  Code,
+  InsertDriveFile as FileIcon,
+  CloudDownload,
 } from "@mui/icons-material";
 import useStore from "./Store";
 
@@ -25,25 +27,24 @@ function FileCard({
   filteredFiles,
   folders,
   onFileClick,
-  rename,
-  setRename,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  // const [rename, setRename] = useState("");
+  const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
+  const[renameId, setRenameId]=useState(null)
   // NEW: Add state for download status
   const [isDownloading, setIsDownloading] = useState(false);
-  const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
-
+ 
 
   if (!file) {
     return null;
   }
 
-  const getFileIcon = () => {
+  const getFileIcon = (file) => {
+    
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -59,6 +60,11 @@ function FileCard({
     const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
     const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
     const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
+    const articleTypes = ["md", "markdown", "article", "blog", "news"];
+    const presentationTypes = ["ppt", "pptx", "presentation"];
+    const webTypes = ["html", "htm", "css"];
+    const jsonTypes = ["json"];
+
 
     const isType = (types) =>
       types.some(
@@ -80,8 +86,18 @@ function FileCard({
       return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
     if (isType(documentTypes))
       return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
+    if (isType(presentationTypes))
+      return <InsertDriveFile sx={{ fontSize: 60, color: "#FF6D00" }} />;
+    if (isType(webTypes))
+      return <Code sx={{ fontSize: 60, color: "#4285f4" }} />;
+    if (isType(jsonTypes))
+      return <FileIcon sx={{ fontSize: 60, color: "#7B7B7B" }} />;
+    if (isType(articleTypes))
+      return <Article sx={{ fontSize: 60, color: "#FF9100" }} />;
     return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
-  };
+
+};
+
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "N/A";
@@ -298,7 +314,7 @@ function FileCard({
             backgroundColor: "#f8f9fa",
           }}
         >
-          {getFileIcon()}
+          {getFileIcon(file)}
         </div>
 
         <div
@@ -356,7 +372,7 @@ function FileCard({
           <div className="file-dropdown-menu">
           <div className="menu-item">
             <MdDriveFileRenameOutline className="dropdown-icons" />
-            <button onClick={() => setRenameId(file.id)}>Rename</button>
+            <button onClick={() => setDisplayRenameForm(true)} >Rename</button>
           </div>
           <div className="menu-item">
             <MdDownload className="dropdown-icons" />
@@ -387,6 +403,7 @@ function FileCard({
               onChange={(e) => setRename(e.target.value)}
               fullWidth
               placeholder="Enter new name"
+              required
             />
           </DialogContent>
           <DialogActions>

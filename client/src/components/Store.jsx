@@ -5,6 +5,10 @@ import axios from "axios";
 
 const useStore = create((set) => ({ 
   // State variables
+  user:null,
+  setUser:(user)=>set({user}),
+  loading:false,
+  setLoading:(loading)=>set({loading}),
   files: [],
   setFiles: (files) => set({ files }),
   folders: [],
@@ -21,8 +25,6 @@ const useStore = create((set) => ({
   setFolderName: (name) => set({ folderName: name }),
   folderHistory: [],
   setFolderHistory: (history) => set({ folderHistory: history }),
-  loading: false,
-  setLoading: (loading) => set({ loading }),
   filePage: 1,
   setFilePage: (page) => set({ filePage: page }),
   folderPage: 1,
@@ -38,6 +40,8 @@ const useStore = create((set) => ({
   setIsUploading:(isUploading)=>set({isUploading}),
   rename:"",
   setRename:(rename)=>set({rename}),
+  showDropdown:false,
+  setShowDropdown:(showDropdown)=>set({showDropdown}),
   
  
 }));
