@@ -18,6 +18,7 @@ faker = "*"
 requests = "*"
 cloudinary = "*"
 pytest = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

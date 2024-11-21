@@ -4,10 +4,10 @@ import { FaFolder,  FaEllipsisV } from "react-icons/fa";
 import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import FileCard from "./FileCard";
-import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import ImageView from "./ImageView";
+import { useNavigate } from "react-router-dom";
+
 import {
   Dialog,
   DialogActions,
@@ -66,6 +66,13 @@ function Home() {
   const[moveFile, setMoveFile]=useState(null)
   const { enqueueSnackbar } = useSnackbar();
   
+  
+  const navigate=useNavigate()
+  
+  if(!user){
+    navigate("/login");
+    
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +86,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""
+            `/api/fileuser/${user.id}?folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFiles = Array.isArray(fileResponse.data)
@@ -94,7 +101,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""
+            `/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFolders = Array.isArray(folderResponse.data)
@@ -222,7 +229,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://localhost:5555/api/files/${fileId}`,
+        `/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -258,7 +265,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://localhost:5555/api/folders/${folderId}`,
+        `/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -300,7 +307,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://localhost:5555/api/files/${file.id}/download`,
+        `/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -337,7 +344,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://localhost:5555/api/folders/${folder.id}/download`,
+        `/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -368,7 +375,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -392,7 +399,7 @@ function Home() {
       });
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -454,7 +461,7 @@ function Home() {
     try {
       // Moving the file
       const response = await fetch(
-        `http://localhost:5555/api/files/${moveItem.id}/move`,
+        `/api/files/${moveItem.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -486,7 +493,7 @@ function Home() {
     try {
       // Moving the file
       const response = await fetch(
-        `http://localhost:5555/api/folders/${moveItem.id}/move`,
+        `/api/folders/${moveItem.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

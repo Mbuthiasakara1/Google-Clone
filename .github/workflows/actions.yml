@@ -31,65 +31,65 @@ jobs:
          cd client
          npm run lint
 
-      # - name: Run tests
-      #   run: |
-      #    cd client
-      #    npm test
+      - name: Run tests
+        run: |
+         cd client
+         npm test
 
-# deploy:
-#   name: Deploy to Render
-#   # needs: build
-#   runs-on: ubuntu-latest
-#   if: github.ref == 'refs/heads/main'
-#   steps:
-#     - name: 
+deploy:
+  name: Deploy to Render
+  # needs: build
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/main'
+  steps:
+    - name: 
 
-#Backend workflow
-# name: Backend CI/CD
-# on:
-#   push:
-#     branches: 
-#      - main
-#     pull_request:
-#      branches: development 
+Backend workflow
+name: Backend CI/CD
+on:
+  push:
+    branches: 
+     - main
+    pull_request:
+     branches: development 
     
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     defaults:
-#       run:
-#         working-directory: ./server
-#     services:deploy:
-#       postgres:
-#       image: postgres:13
-#       env:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#       POSTGRES_DB: testdb
-#       ports:
-#       - 5432:5432
-#       options: >-
-#       --health-cmd pg_isready
-#       --health-interval 10s
-#       --health-timeout 5s
-#       --health-retries 5
-# steps:
-#   - name: Checkout code
-#   - uses: actions/checkout@v3
-#   - name: Set up Python
-#     uses: actions/setup-python@v4
-#     with:
-#     python-version: '3.10'
-#   - name: Install Dependencies
-#     run: |
-#       cd server
-#       python -m pip install --upgrade pip
-#       pip install -r requirements.txt
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    services:deploy:
+      postgres:
+      image: postgres:13
+      env:
+      POSTGRES_USER: my_database_7z4p_user
+      POSTGRES_PASSWORD: irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32
+      POSTGRES_DB: postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db
+      ports:
+      - 5432:5432
+      options: >-
+      --health-cmd pg_isready
+      --health-interval 10s
+      --health-timeout 5s
+      --health-retries 5
+steps:
+  - name: Checkout code
+  - uses: actions/checkout@v3
+  - name: Set up Python
+    uses: actions/setup-python@v4
+    with:
+    python-version: '3.10'
+  - name: Install Dependencies
+    run: |
+      cd server
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
 
-#   - name: Run  Backend Tests
-#     run: |
-      # cd server    
-      # export FLASK_ENV=testing
-      # python -m pytest
+  - name: Run  Backend Tests
+    run: |
+      cd server    
+      export FLASK_ENV=testing
+      python -m pytest
     
 

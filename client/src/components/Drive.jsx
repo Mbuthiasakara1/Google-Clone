@@ -8,6 +8,7 @@ import Sidebar from "./Sidebar";
 import { useAuth } from "./AuthContext";
 import ImageView from "./ImageView";
 import useStore from "./Store";
+import { useNavigate } from "react-router-dom";
 
 function Drive({ toggleTheme }) {
   const {
@@ -45,6 +46,13 @@ function Drive({ toggleTheme }) {
   } = useStore();
   
   const [filteredFiles, setFilteredFiles] = useState([]);
+  const navigate=useNavigate()
+  
+  if(!user){
+    navigate("/login");
+   
+  }
+
   
   // Fetch data function
   useEffect(() => {
@@ -57,7 +65,7 @@ function Drive({ toggleTheme }) {
       if (user && user.id) {
         try {
           const fileResponse = await axios.get(
-            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${
+            `/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -72,7 +80,7 @@ function Drive({ toggleTheme }) {
 
         try {
           const folderResponse = await axios.get(
-            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${
+            `/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );

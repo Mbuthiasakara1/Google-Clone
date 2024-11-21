@@ -25,7 +25,7 @@ function Login() {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost:5555/api/login`, {
+                const response = await fetch(`/api/login`, {
                     method: "POST",
                     credentials: 'include',
                     headers: {

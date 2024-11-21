@@ -60,7 +60,7 @@ This is the frontend application of a **Google Drive Clone**, built with **React
 
 ### Configuration
 
-The frontend expects the backend API to be running locally on `http://localhost:5555`. Ensure that your backend is set up and running before using this frontend application.
+The frontend expects the backend API to be running locally on ``. Ensure that your backend is set up and running before using this frontend application.
 
 ### Environment Variables
 
@@ -191,7 +191,7 @@ This backend API provides functionality to:
   
    flask run
    ```
-   Access the API at `http://localhost:5555`/`http://localhost:5555`.
+   Access the API at ``/``.
 
 ---
 

@@ -185,8 +185,14 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
   const navigate = useNavigate();
 
+  
+  if(!user){
+    navigate("/login");
+    
+  }
+
   const handleLogout = () => {
-    fetch("http://localhost:5555/api/logout", {
+    fetch("/api/logout", {
       method: "DELETE",
       credentials: "include",
     })
@@ -228,7 +234,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5555/api/upload-avatar/${user.id}`,
+        `/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",
