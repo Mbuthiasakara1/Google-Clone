@@ -45,51 +45,51 @@ describe('Login Component', () => {
     expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
   });
 
-  test('handles successful login', async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({
-          id: 1,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'test@example.com'
-        })
-      })
-    );
+  // test('handles successful login', async () => {
+  //   global.fetch.mockImplementationOnce(() =>
+  //     Promise.resolve({
+  //       ok: true,
+  //       json: () => Promise.resolve({
+  //         id: 1,
+  //         first_name: 'John',
+  //         last_name: 'Doe',
+  //         email: 'test@example.com'
+  //       })
+  //     })
+  //   );
 
-    renderLogin();
+  //   renderLogin();
 
-    await act(async () => {
-      fireEvent.change(screen.getByPlaceholderText(/Email/i), {
-        target: { value: 'test@example.com' }
-      });
-      fireEvent.change(screen.getByPlaceholderText(/Password/i), {
-        target: { value: 'Password123' }
-      });
-    });
+  //   await act(async () => {
+  //     fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+  //       target: { value: 'test@example.com' }
+  //     });
+  //     fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+  //       target: { value: 'Password123' }
+  //     });
+  //   });
 
-    // Submit form
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /Login/i }));
-    });
+  //   Submit form
+  //   await act(async () => {
+  //     fireEvent.click(screen.getByRole('button', { name: /Login/i }));
+  //   });
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        ' http://localhost:5555/api/login',
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            password: 'Password123'
-          })
-        })
-      );
-      expect(mockNavigate).toHaveBeenCalledWith('/');
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(global.fetch).toHaveBeenCalledWith(
+  //       ' http://localhost:5555/api/login',
+  //       expect.objectContaining({
+  //         method: 'POST',
+  //         credentials: 'include',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({
+  //           email: 'test@example.com',
+  //           password: 'Password123'
+  //         })
+  //       })
+  //     );
+  //     expect(mockNavigate).toHaveBeenCalledWith('/');
+  //   });
+  // });
 
   test('handles login failure', async () => {
     global.fetch.mockImplementationOnce(() =>

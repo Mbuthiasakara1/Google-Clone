@@ -28,4 +28,5 @@ dist-ssr
 *.pyc
 
 # Folder
-client/src/__tests__
+client/src/__tests__/AuthContext.test.jsx
+client/src/__tests__/FileCard.test.jsx
