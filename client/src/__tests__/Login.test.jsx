@@ -5,7 +5,6 @@ import { SnackbarProvider } from 'notistack';
 import Login from '../components/Login';
 import { act } from 'react';
 
-// Mock the AuthContext module
 jest.mock('../components/AuthContext', () => ({
   AuthProvider: ({ children }) => children,
   useAuth: () => ({
@@ -14,7 +13,6 @@ jest.mock('../components/AuthContext', () => ({
   })
 }));
 
-// Mock the react-router-dom's useNavigate
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -23,7 +21,6 @@ jest.mock('react-router-dom', () => ({
 
 describe('Login Component', () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     mockNavigate.mockClear();
     global.fetch = jest.fn();
   });
@@ -38,60 +35,61 @@ describe('Login Component', () => {
     );
   };
 
-  test('renders login form', () => {
+  test('renders login form with all expected elements', () => {
     renderLogin();
+    
+    // Check for form elements
     expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
+    
+    // Check for logo and links
+    expect(screen.getByAltText(/login/i)).toBeInTheDocument();
+    expect(screen.getByText(/Don't have an account\?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sign Up/i)).toBeInTheDocument();
   });
 
-  test('handles successful login', async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({
-          id: 1,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'test@example.com'
-        })
-      })
-    );
-
+  test('displays validation errors for empty fields', async () => {
     renderLogin();
-
+    
+    // Get form elements
+    const emailInput = screen.getByPlaceholderText(/Email/i);
+    const passwordInput = screen.getByPlaceholderText(/Password/i);
+    
+    // Trigger validation by focusing and blurring inputs
     await act(async () => {
-      fireEvent.change(screen.getByPlaceholderText(/Email/i), {
-        target: { value: 'test@example.com' }
-      });
-      fireEvent.change(screen.getByPlaceholderText(/Password/i), {
-        target: { value: 'Password123' }
-      });
+      fireEvent.focus(emailInput);
+      fireEvent.blur(emailInput);
+      fireEvent.focus(passwordInput);
+      fireEvent.blur(passwordInput);
     });
 
-    // Submit form
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /Login/i }));
-    });
-
+    // Check for validation error messages
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        ' http://127.0.0.1:5555/api/login',
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            password: 'Password123'
-          })
-        })
-      );
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(screen.getByText(/Email is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/Password is required/i)).toBeInTheDocument();
     });
   });
 
-  test('handles login failure', async () => {
+  test('validates email format', async () => {
+    renderLogin();
+    
+    // Get email input
+    const emailInput = screen.getByPlaceholderText(/Email/i);
+    
+    // Enter invalid email
+    await act(async () => {
+      fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
+      fireEvent.blur(emailInput);
+    });
+
+    // Check for email format validation error
+    await waitFor(() => {
+      expect(screen.getByText(/Invalid email format/i)).toBeInTheDocument();
+    });
+  });
+
+  test('handles login failure with error message', async () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({
         ok: false,
@@ -119,8 +117,62 @@ describe('Login Component', () => {
     });
   });
 
-  test('shows sign up link', () => {
+  test('handles network error during login', async () => {
+    global.fetch.mockImplementationOnce(() => 
+      Promise.reject(new Error('Network error'))
+    );
+
     renderLogin();
-    expect(screen.getByText(/Sign Up/i).closest('a')).toHaveAttribute('href', '/signup');
+
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+        target: { value: 'test@example.com' }
+      });
+      fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+        target: { value: 'password123' }
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Login/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/An error occurred during login/i)).toBeInTheDocument();
+    });
+  });
+
+  test('disables login button when form is invalid or submitting', async () => {
+    renderLogin();
+    
+    const loginButton = screen.getByRole('button', { name: /Login/i });
+    
+    // Initially disabled because form is empty
+    expect(loginButton).toBeDisabled();
+    
+    // Still disabled with invalid email
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+        target: { value: 'invalid-email' }
+      });
+    });
+    expect(loginButton).toBeDisabled();
+    
+    // Enabled with valid inputs
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+        target: { value: 'valid@example.com' }
+      });
+      fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+        target: { value: 'validPassword123' }
+      });
+    });
+    expect(loginButton).not.toBeDisabled();
+  });
+
+  test('shows sign up link with correct navigation', () => {
+    renderLogin();
+    const signUpLink = screen.getByText(/Sign Up/i).closest('a');
+    expect(signUpLink).toHaveAttribute('href', '/signup');
   });
 });

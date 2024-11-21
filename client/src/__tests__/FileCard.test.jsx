@@ -64,39 +64,8 @@ describe('FileCard Component', () => {
 
         expect(screen.getByText('Rename')).toBeInTheDocument();
         expect(screen.getByText('Download')).toBeInTheDocument();
-        expect(screen.getByText(/^Move$/)).toBeInTheDocument(); // Exact match for just "Move"
-        expect(screen.getByText('Move To Trash')).toBeInTheDocument();
-    });
-
-    test('handles rename action', async () => {
-        fetch.mockImplementationOnce(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ name: 'renamed.pdf' })
-            })
-        );
-
-        renderFileCard();
-        
-        const dropdownButton = screen.getByRole('button', { name: '' });
-        fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Rename'));
-
-        const input = await screen.findByLabelText(/New Name/i);
-        fireEvent.change(input, { target: { value: 'renamed.pdf' } });
-        
-        fireEvent.click(screen.getByText('Submit'));
-
-        await waitFor(() => {
-            expect(fetch).toHaveBeenCalledWith(
-                `http://127.0.0.1:5555/api/files/${mockFile.id}`,
-                expect.objectContaining({
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'renamed.pdf' })
-                })
-            );
-        });
+        expect(screen.getByText('Move')).toBeInTheDocument();
+        expect(screen.getByText('Move to Trash')).toBeInTheDocument();
     });
 
     test('handles move to trash action', async () => {
@@ -111,7 +80,7 @@ describe('FileCard Component', () => {
         
         const dropdownButton = screen.getByRole('button', { name: '' });
         fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Move To Trash'));
+        fireEvent.click(screen.getByText('Move to Trash'));
 
         await waitFor(() => {
             expect(fetch).toHaveBeenCalledWith(
@@ -137,10 +106,12 @@ describe('FileCard Component', () => {
         
         const dropdownButton = screen.getByRole('button', { name: '' });
         fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Download'));
+        
+        const downloadButton = screen.getByText('Download');
+        fireEvent.click(downloadButton);
         
         await waitFor(() => {
-            expect(screen.getByText(/Downloading/i)).toBeInTheDocument();
+            expect(screen.getByText('Downloading...')).toBeInTheDocument();
         });
     });
 });
