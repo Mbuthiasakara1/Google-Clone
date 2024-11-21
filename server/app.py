@@ -26,7 +26,12 @@ from base64 import b64encode
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_url_path='',
+    static_folder='../client/dist',
+    template_folder='../client/dist'
+)
 # Check if we are in testing environment
 if os.getenv('FLASK_ENV') == 'testing':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use a separate test database
