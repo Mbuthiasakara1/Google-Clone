@@ -1,4 +1,4 @@
-
+import pytest
 import unittest
 from app import app
 from config import db
@@ -13,7 +13,7 @@ from flask_bcrypt import Bcrypt
 class FlaskTests(unittest.TestCase):
     def setUp(self):
         # Configure test database
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_google_drive.db' 
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
         app.config['TESTING'] = True
         self.client = app.test_client()
         

@@ -60,7 +60,7 @@ This is the frontend application of a **Google Drive Clone**, built with **React
 
 ### Configuration
 
-The frontend expects the backend API to be running locally on `http://127.0.0.1:5555`. Ensure that your backend is set up and running before using this frontend application.
+The frontend expects the backend API to be running locally on `http://localhost:5555`. Ensure that your backend is set up and running before using this frontend application.
 
 ### Environment Variables
 
@@ -175,7 +175,7 @@ This backend API provides functionality to:
    Create a `.env` file in the project root with the following:
    ```env
    FLASK_ENV=development
-   DATABASE_URI=postgresql://<user>:<password>@127.0.0.1/<database>
+   DATABASE_URI=postgresql://<user>:<password>@localhost/<database>
    SECRET_KEY=your_secret_key
    ```
 
@@ -191,7 +191,7 @@ This backend API provides functionality to:
   
    flask run
    ```
-   Access the API at `http://127.0.0.1:5000`.
+   Access the API at `http://localhost:5555`/`http://localhost:5555`.
 
 ---
 

@@ -15,11 +15,11 @@ import {
 import useStore from "./Store";
 
 function Sidebar({ currentFolderId }) {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [dropDown, setDropDown] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const {isCreatingFolder, setIsCreatingFolder} = useStore();
+  const {isCreatingFolder, setIsCreatingFolder, user} = useStore();
   const dropdownRef = useRef(null);
   const{isUploading, setIsUploading}= useStore()
   // Handle dropdown visibility
@@ -56,7 +56,7 @@ function Sidebar({ currentFolderId }) {
 
 
 
-    fetch("http://127.0.0.1:5555/api/folders", {
+    fetch("http://localhost:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,14 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import axios from 'axios';
 import { useAuth } from "./AuthContext";
-import { useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
 function UploadWidget({ currentFolderId, onUpload }) {
   const cloudinaryRef = useRef();
   const widgetRef = useRef();
   const { user } = useAuth();
-  const { folderId } = useParams();
   const { enqueueSnackbar } = useSnackbar();
 
 
@@ -49,7 +47,7 @@ function UploadWidget({ currentFolderId, onUpload }) {
 
             try {
               // Post the uploaded file data to the Flask backend
-              const response = await axios.post('http://127.0.0.1:5555/api/files', fileData, {
+              const response = await axios.post('http://localhost:5555/api/files', fileData, {
                 withCredentials: true,
               });
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import useStore from './Store';
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -9,14 +10,14 @@ export const useAuth = () => {
 };
 
 // AuthProvider component
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); 
+export const AuthProvider = ({ children }) => { 
+    const {user,setUser, loading, setLoading}=useStore()
+    
 
     useEffect(() => {
         const fetchSession = async () => {
             try {
-              const response = await fetch('http://127.0.0.1:5555/api/session', {
+              const response = await fetch('http://localhost:5555/api/session', {
                 method: 'GET',
                 credentials: 'include',
               });
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(null);
               }
             } catch (error) {
-              console.error('Error checking session:', error);
+              // console.error('Error checking session:', error);
               setUser(null);
             } finally {
               setLoading(false);

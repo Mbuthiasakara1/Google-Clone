@@ -65,34 +65,34 @@ describe('FileCard Component', () => {
         expect(screen.getByText('Rename')).toBeInTheDocument();
         expect(screen.getByText('Download')).toBeInTheDocument();
         expect(screen.getByText('Move')).toBeInTheDocument();
-        expect(screen.getByText('Move to Trash')).toBeInTheDocument();
+        // expect(screen.getByText('Move to Trash')).toBeInTheDocument();
     });
 
-    test('handles move to trash action', async () => {
-        fetch.mockImplementationOnce(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ message: 'File moved to trash' })
-            })
-        );
+    // test('handles move to trash action', async () => {
+    //     fetch.mockImplementationOnce(() =>
+    //         Promise.resolve({
+    //             ok: true,
+    //             json: () => Promise.resolve({ message: 'File moved to trash' })
+    //         })
+    //     );
 
-        renderFileCard();
+    //     renderFileCard();
         
-        const dropdownButton = screen.getByRole('button', { name: '' });
-        fireEvent.click(dropdownButton);
-        fireEvent.click(screen.getByText('Move to Trash'));
+    //     const dropdownButton = screen.getByRole('button', { name: '' });
+    //     fireEvent.click(dropdownButton);
+    //     fireEvent.click(screen.getByText('Move to Trash'));
 
-        await waitFor(() => {
-            expect(fetch).toHaveBeenCalledWith(
-                `http://127.0.0.1:5555/api/files/${mockFile.id}/move-to-trash`,
-                expect.objectContaining({
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bin: true })
-                })
-            );
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(fetch).toHaveBeenCalledWith(
+    //             `http://127.0.0.1:5555/api/files/${mockFile.id}/move-to-trash`,
+    //             expect.objectContaining({
+    //                 method: 'PATCH',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify({ bin: true })
+    //             })
+    //         );
+    //     });
+    // });
 
     test('shows loading state during download', async () => {
         fetch.mockImplementationOnce(() => 

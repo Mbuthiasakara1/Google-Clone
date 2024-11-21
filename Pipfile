@@ -17,7 +17,7 @@ flask-cors = "*"
 faker = "*"
 requests = "*"
 cloudinary = "*"
-
+pytest = "*"
 
 [dev-packages]
 

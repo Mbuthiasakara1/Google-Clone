@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { FaEllipsisV, FaFileAlt } from "react-icons/fa";
-import { useAuth } from "./AuthContext";
+import { FaEllipsisV } from "react-icons/fa";
 import { useSnackbar } from "notistack";
 import { Dialog, DialogActions,TextField, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
@@ -11,39 +10,34 @@ import {
   VideoFile,
   AudioFile,
   InsertDriveFile,
-  Folder,
   TableChart,
   Article,
+  Code,
+  InsertDriveFile as FileIcon,
+  CloudDownload,
 } from "@mui/icons-material";
 import useStore from "./Store";
 
 function FileCard({
   file,
-  setFiles,
-  setFilteredFiles,
   filteredFolders,
-  filteredFiles,
-  folders,
   onFileClick,
-  rename,
-  setRename,
 }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [displayRenameForm, setDisplayRenameForm] = useState(false);
-  // const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-  // NEW: Add state for download status
   const [isDownloading, setIsDownloading] = useState(false);
-  const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const { setMoveItem, setRenameId, renameId } = useStore();
 
 
   if (!file) {
     return null;
   }
 
-  const getFileIcon = () => {
+  const getFileIcon = (file) => {
+    
     const extension = file.name?.split(".").pop()?.toLowerCase() || "";
     const fileType = (file.filetype || file.type || "").toLowerCase();
     const documentTypes = [
@@ -59,6 +53,11 @@ function FileCard({
     const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
     const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
     const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
+    const articleTypes = ["md", "markdown", "article", "blog", "news"];
+    const presentationTypes = ["ppt", "pptx", "presentation"];
+    const webTypes = ["html", "htm", "css"];
+    const jsonTypes = ["json"];
+
 
     const isType = (types) =>
       types.some(
@@ -80,8 +79,18 @@ function FileCard({
       return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
     if (isType(documentTypes))
       return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
+    if (isType(presentationTypes))
+      return <InsertDriveFile sx={{ fontSize: 60, color: "#FF6D00" }} />;
+    if (isType(webTypes))
+      return <Code sx={{ fontSize: 60, color: "#4285f4" }} />;
+    if (isType(jsonTypes))
+      return <FileIcon sx={{ fontSize: 60, color: "#7B7B7B" }} />;
+    if (isType(articleTypes))
+      return <Article sx={{ fontSize: 60, color: "#FF9100" }} />;
     return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
-  };
+
+};
+
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "N/A";
@@ -100,8 +109,8 @@ function FileCard({
     });
   };
 
-  const handleRename = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+  const handleRenameFile = (fileId) => {
+    fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -110,13 +119,14 @@ function FileCard({
       .then((data) => {
         setRename(data.name);
         setDisplayRenameForm(false);
-        enqueueSnackbar("File renamed successfully!", { variant: "success" })
+        enqueueSnackbar("File renamed successfully!", { variant: "success" });
+      })
       .catch((err) => {
         enqueueSnackbar(err.message || "An error occurred while renaming.", {
           variant: "error",
         });
-      })
       });
+    
 
   };
 
@@ -128,7 +138,7 @@ function FileCard({
   
       console.log('Attempting to download file:', file);
   
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -185,7 +195,7 @@ function FileCard({
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -201,9 +211,7 @@ function FileCard({
         enqueueSnackbar("file successfully moved to bin", {
           variant: "success",
         });
-        setFilteredFiles((prevFiles) =>
-          prevFiles.filter((f) => f.id !== file.id)
-        );
+        setMoveItem(fileId)
       })
       .catch((error) => {
         console.error("Error moving file to bin:", error);
@@ -220,7 +228,7 @@ function FileCard({
     setSelectedFolderId(null);  // Reset folder selection
   };
 
-  const confirmMove = async () => {
+  const confirmMove = async (item) => {
     if (!selectedFolderId) {
       enqueueSnackbar("Please select a folder to move into.", {
         variant: "warning",
@@ -231,7 +239,7 @@ function FileCard({
     try {
       // Moving the file
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/move`,
+        `http://localhost:5555/api/files/${file.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -245,9 +253,9 @@ function FileCard({
 
       enqueueSnackbar("File moved successfully!", { variant: "success" });
       setShowMoveCard(false);
+      setMoveItem(item)
 
     } catch (error) {
-      console.error("Error moving file:", error);
       enqueueSnackbar("Failed to move file.", { variant: "error" });
     }
   };
@@ -298,7 +306,7 @@ function FileCard({
             backgroundColor: "#f8f9fa",
           }}
         >
-          {getFileIcon()}
+          {getFileIcon(file)}
         </div>
 
         <div
@@ -356,11 +364,18 @@ function FileCard({
           <div className="file-dropdown-menu">
           <div className="menu-item">
             <MdDriveFileRenameOutline className="dropdown-icons" />
-            <button onClick={() => setRenameId(file.id)}>Rename</button>
+            <button onClick={() => {
+              console.log("File Id for :", file.id);
+              setRenameId(file.id);
+              setDisplayRenameForm(true);
+              }}
+              >
+                Rename
+              </button>
           </div>
           <div className="menu-item">
             <MdDownload className="dropdown-icons" />
-            <button onClick={() => handleDownload (file)} disabled={isDownloading}>
+            <button onClick={handleDownload} disabled={isDownloading}>
               {isDownloading ? 'Downloading...' : 'Download'}
             </button>
           </div>
@@ -377,7 +392,7 @@ function FileCard({
       </div>
 
       {displayRenameForm && (
-        <Dialog open={true} onClose={() => setRenameId(null)}>
+        <Dialog open={displayRenameForm} onClose={() => setDisplayRenameForm(false)}>
           <DialogTitle>Rename File</DialogTitle>
           <DialogContent>
             <TextField
@@ -387,10 +402,11 @@ function FileCard({
               onChange={(e) => setRename(e.target.value)}
               fullWidth
               placeholder="Enter new name"
+              required
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={()=>handleRename(file.id)} color="primary">
+            <Button onClick={()=>handleRenameFile(renameId)} color="primary">
               Submit
             </Button>
             <Button

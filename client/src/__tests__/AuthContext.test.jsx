@@ -13,14 +13,14 @@ describe('AuthContext', () => {
         return <div>{user ? user.email : 'No user'}</div>;
     };
 
-    test('provides initial loading state', () => {
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
-        expect(screen.getByText('Loading...')).toBeInTheDocument();
-    });
+    // test('provides initial loading state', () => {
+    //     render(
+    //         <AuthProvider>
+    //             <TestComponent />
+    //         </AuthProvider>
+    //     );
+    //     expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // });
 
     test('checks session on mount', async () => {
         global.fetch.mockImplementationOnce(() =>

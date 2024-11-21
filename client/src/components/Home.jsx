@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFolder, FaFileAlt, FaEllipsisV } from "react-icons/fa";
+import { FaFolder,  FaEllipsisV } from "react-icons/fa";
 import { MdDownload, MdDriveFileRenameOutline, MdDriveFileMoveOutline, MdDelete} from "react-icons/md";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import FileCard from "./FileCard";
 import { useAuth } from "./AuthContext";
 import { useSnackbar } from "notistack";
 import ImageView from "./ImageView";
@@ -27,19 +28,12 @@ import {
   VideoFile,
   AudioFile,
   InsertDriveFile,
-  // Folder,
   TableChart,
-  // Article,
 } from "@mui/icons-material";
 function Home() {
   const {
-    // files,
-    // setFiles,
-    // folders,
-    // setFolders,
     filteredFolders,
     isCreatingFolder,
-    setIsCreatingFolder,
     filteredFiles,
     setFilteredFiles,
     setFilteredFolders,
@@ -52,31 +46,30 @@ function Home() {
     setImageId,
     showImage,
     setShowImage,
+    moveItem,
+    setMoveItem,
+    user,
+    loading,
+    setLoading
   } = useStore();
-  const [moveItem, setMoveItem] = useState(null, true);
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
-  // const [filteredFiles, setFilteredFiles] = useState([]);
-  // const [filteredFolders, setFilteredFolders] = useState([]);
   const [dropdownId, setDropdownId] = useState(null);
+  const [folderDropdownId, setFolderDropdownId] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [rename, setRename] = useState("");
   const [showMoveCard, setShowMoveCard] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-  // const [currentFolderId, setCurrentFolderId] = useState(null);
   const [currentFolderName, setCurrentFolderName] = useState("");
-  // const [folderHistory, setFolderHistory] = useState([]);
-  // const [imageId, setImageId] = useState(0)
-  // const [showImage, setShowImage] = useState(null)
-
-  // NEW: Add download state
   const [isDownloading, setIsDownloading] = useState(false);
-  const { user, loading, setLoading } = useAuth();
+  const[moveFolder, setMoveFolder]=useState(null)
+  const[moveFile, setMoveFile]=useState(null)
   const { enqueueSnackbar } = useSnackbar();
+  
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      // setLoading(true);
 
       // Ensure that files and folders render independently
       let fetchedFiles = [];
@@ -86,8 +79,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
-              currentFolderId || ""
+            `http://localhost:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFiles = Array.isArray(fileResponse.data)
@@ -102,8 +94,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
-              currentFolderId || ""
+            `http://localhost:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFolders = Array.isArray(folderResponse.data)
@@ -118,13 +109,10 @@ function Home() {
 
       setLoading(false);
     };
+    
 
     fetchData();
-  }, [user, currentFolderId, rename, isCreatingFolder, isUploading]);
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [user, currentFolderId]);
+  }, [user, currentFolderId, rename, isCreatingFolder, isUploading, moveItem]);
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "N/A";
@@ -143,45 +131,45 @@ function Home() {
     });
   };
   const getFileIcon = (file) => {
-    
-      const extension = file.name?.split(".").pop()?.toLowerCase() || "";
-      const fileType = (file.filetype || file.type || "").toLowerCase();
-      const documentTypes = [
-        "doc",
-        "docx",
-        "txt",
-        "rtf",
-        "odt",
-        "text",
-        "document",
-      ];
-      const spreadsheetTypes = ["xlsx", "xls", "csv", "ods", "spreadsheet"];
-      const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
-      const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
-      const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
 
-      const isType = (types) =>
-        types.some(
-          (type) =>
-            fileType.includes(type) ||
-            extension === type ||
-            (file.mimeType && file.mimeType.includes(type))
-        );
+    const extension = file.name?.split(".").pop()?.toLowerCase() || "";
+    const fileType = (file.filetype || file.type || "").toLowerCase();
+    const documentTypes = [
+      "doc",
+      "docx",
+      "txt",
+      "rtf",
+      "odt",
+      "text",
+      "document",
+    ];
+    const spreadsheetTypes = ["xlsx", "xls", "csv", "ods", "spreadsheet"];
+    const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
+    const videoTypes = ["mp4", "mov", "avi", "webm", "mkv", "video"];
+    const audioTypes = ["mp3", "wav", "ogg", "m4a", "flac", "audio"];
 
-      if (isType(imageTypes))
-        return <Image sx={{ fontSize: 60, color: "#4285f4" }} />;
-      if (isType(["pdf"]))
-        return <PictureAsPdf sx={{ fontSize: 60, color: "#FF4B4B" }} />;
-      if (isType(videoTypes))
-        return <VideoFile sx={{ fontSize: 60, color: "#673ab7" }} />;
-      if (isType(audioTypes))
-        return <AudioFile sx={{ fontSize: 60, color: "#00c853" }} />;
-      if (isType(spreadsheetTypes))
-        return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
-      if (isType(documentTypes))
-        return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
-      return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
-  
+    const isType = (types) =>
+      types.some(
+        (type) =>
+          fileType.includes(type) ||
+          extension === type ||
+          (file.mimeType && file.mimeType.includes(type))
+      );
+
+    if (isType(imageTypes))
+      return <Image sx={{ fontSize: 60, color: "#4285f4" }} />;
+    if (isType(["pdf"]))
+      return <PictureAsPdf sx={{ fontSize: 60, color: "#FF4B4B" }} />;
+    if (isType(videoTypes))
+      return <VideoFile sx={{ fontSize: 60, color: "#673ab7" }} />;
+    if (isType(audioTypes))
+      return <AudioFile sx={{ fontSize: 60, color: "#00c853" }} />;
+    if (isType(spreadsheetTypes))
+      return <TableChart sx={{ fontSize: 60, color: "#1D6F42" }} />;
+    if (isType(documentTypes))
+      return <Description sx={{ fontSize: 60, color: "#2B579A" }} />;
+    return <InsertDriveFile sx={{ fontSize: 60, color: "#5f6368" }} />;
+
   };
 
   const handleFilter = (query) => {
@@ -234,7 +222,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${fileId}`,
+        `http://localhost:5555/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -252,17 +240,10 @@ function Home() {
           ? await response.json()
           : {};
 
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === fileId ? { ...file, name: data.name } : file
-        )
-      );
-
       setRename("");
       setRenameId(null);
       enqueueSnackbar("File renamed successfully!", { variant: "success" });
     } catch (error) {
-      console.error("Rename error:", error);
       enqueueSnackbar(error.message || "An error occurred while renaming.", {
         variant: "error",
       });
@@ -277,7 +258,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folderId}`,
+        `http://localhost:5555/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -319,7 +300,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/download`,
+        `http://localhost:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -349,8 +330,6 @@ function Home() {
     }
   };
 
-
-
   // NEW: Folder download handler
   const handleFolderDownload = async (folder) => {
     try {
@@ -358,7 +337,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://127.0.0.1:5555/api/folders/${folder.id}/download`,
+        `http://localhost:5555/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -389,7 +368,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://127.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -405,9 +384,7 @@ function Home() {
         enqueueSnackbar("Folder successfully moved to trash", {
           variant: "success",
         });
-        setFolders((prevFolders) =>
-          prevFolders.filter((f) => f.id !== folderId)
-        );
+        setMoveItem(folderId)
       })
       .catch((error) => {
         console.error("Error moving folder to trash:", error);
@@ -415,7 +392,7 @@ function Home() {
       });
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -431,7 +408,7 @@ function Home() {
         enqueueSnackbar("File successfully moved to trash", {
           variant: "success",
         });
-        setFiles((prevFiles) => prevFiles.filter((f) => f.id !== fileId));
+        setMoveItem(fileId)
       })
       .catch((error) => {
         // console.error("Error moving folder to trash:", error);
@@ -439,68 +416,103 @@ function Home() {
       });
   };
 
-  const handleMove = (fileId) => {
+  const handleMoveFile = (fileId) => {
     const itemToMove = files.find((file) => file.id === fileId)
-                      //  folders.find((folder) => folder.id === file.id);
-  
+    //  folders.find((folder) => folder.id === file.id);
+
     if (!itemToMove) {
       console.error("Item to move not found!");
       return;
     }
-  
+
     setShowMoveCard(true);
     setSelectedFolderId(null); // Reset folder selection
-    setMoveItem(itemToMove); // Set the full item object (file or folder)
+    setMoveFile(itemToMove); // Set the full item object (file or folder)
   };
-  
-  // console.log("selected folder id",selectedFolderId)
-  const confirmMove = async () => {
-    if (!selectedFolderId) {
-        enqueueSnackbar("Please select a folder to move into.", { variant: "warning" });
-        return;
+
+  const handleMoveFolder = (folderId) => {
+    const folderToMove = folders.find((folder) => folder.id === folderId);
+
+    if (!folderToMove) {
+      console.error("Item to move not found!");
+      return;
     }
 
-    console.log("move item", moveItem);
-    console.log("selectedfolder id", selectedFolderId);
+    setShowMoveCard(true);
+    setSelectedFolderId(null); // Reset folder selection
+    setMoveFolder(folderToMove); // Set the full item object (file or folder)
+  };
+
+  const confirmMoveFile = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
 
     try {
-      let response;
-      
-      if (moveItem?.type === "folder") {
-          response = await axios.patch(
-              `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
-              { parent_folder_id: selectedFolderId }
-          );
-      } else if (moveItem?.type === "file") {
-          response = await axios.patch(
-              `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
-              { folder_id: selectedFolderId }
-          );
+      // Moving the file
+      const response = await fetch(
+        `http://localhost:5555/api/files/${moveItem.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
       }
-  
-      console.log("Response:", response);  // Log the entire response object
-  
-      if (response && response.data && response.data.file) {
-          console.log("File Data:", response.data.file);  // Log the file data
-  
-          const updatedItem = response.data.file;  // Access file data from the response
-          enqueueSnackbar("Item moved successfully!", { variant: "success" });
-          setShowMoveCard(false);
-  
-          // Update local state with the moved item
-          updateLocalState(updatedItem);
-      } else {
-          console.error('Unexpected response structure:', response);
-          enqueueSnackbar("Failed to move item.", { variant: "error" });
+
+      enqueueSnackbar("File moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+      setMoveItem(null)
+
+    } catch (error) {
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
+    }
+  };
+
+  const confirmMoveFolder = async () => {
+    if (!selectedFolderId) {
+      enqueueSnackbar("Please select a folder to move into.", {
+        variant: "warning",
+      });
+      return;
+    }
+
+    try {
+      // Moving the file
+      const response = await fetch(
+        `http://localhost:5555/api/folders/${moveItem.id}/move`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ parent_folder_id: selectedFolderId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to move file");
       }
-  } catch (error) {
-      console.error("Error in move operation:", error);
-      enqueueSnackbar("Failed to move item.", { variant: "error" });
-  }
-}
+
+      enqueueSnackbar("Folder moved successfully!", { variant: "success" });
+      setShowMoveCard(false);
+      setMoveItem(null)
+
+    } catch (error) {
+        console.error("Error during move:", error);
+        enqueueSnackbar("Failed to move item. Please try again.", { variant: "error" });
+      console.error("Error moving file:", error);
+      enqueueSnackbar("Failed to move file.", { variant: "error" });
+    }
+};
+
 
   
-  
+
   const checkForImage = (file) => {
     const imageTypes = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "image"];
     const extension = file.name?.split(".").pop()?.toLowerCase();
@@ -518,19 +530,34 @@ function Home() {
     const isImage = checkForImage(file);
     if (isImage) {
       setImageId(file);
-      console.log(file);
       setShowImage(true);
     }
   }
+
+  function handleMouseLeave() {
+    // Set a short timeout to prevent immediate dropdown closure
+    setTimeout(() => {
+      if (!document.activeElement.classList.contains("dropdown-item")) {
+        setDropdownId(null);
+      }
+    }, 150);
+  }
+  
 
   return (
     <>
       <Header onFilter={handleFilter} />
       <Sidebar currentFolderId={currentFolderId} />
       <div className="Container">
+      {loading ? (
+          <div className="loader">
+            <div className="spinner"></div>
+            
+          </div>
+        ) : (
+          <>
         <h1 style={{ color: "black" }}>Welcome to Drive</h1>
 
-        {/* Display the current folder name and a back button if inside a folder */}
         <div className="current-folder-header">
           {currentFolderId && (
             <>
@@ -557,34 +584,40 @@ function Home() {
 
                     <button
                       className="folder-dropdown"
-                      onClick={() =>
-                        setDropdownId(
-                          dropdownId === folder.id ? null : folder.id
+                      onClick={(e) =>{
+                        e.stopPropagation();
+                        setFolderDropdownId(
+                          folderDropdownId === folder.id ? null : folder.id
                         )
-                      }
+                      }}
                     >
                       <FaEllipsisV />
                     </button>
-                    {dropdownId === folder.id && (
-                      <div className="folder-dropdown-menu" onMouseLeave={()=>setDropdownId(null)}>
-                      <div className="menu-item">
-                        <MdDriveFileRenameOutline />
-                        <button onClick={() => setRenameId(folder.id)}>Rename</button>
-                      </div>
-                      <div className="menu-item">
-                        <MdDownload />
-                        <button onClick={() => handleFolderDownload(folder)} disabled={isDownloading}>
-                          {isDownloading ? 'Downloading...' : 'Download'}
-                        </button>
-                      </div>
-                      <div className="menu-item">
-                        <MdDriveFileMoveOutline />
-                        <button onClick={() => handleMove(folder)}>Move</button>
-                      </div>
-                        {showMoveCard && (
+                    {folderDropdownId === folder.id && (
+                      <div className="folder-dropdown-menu" onMouseLeave={() => {
+                        handleMouseLeave()
+                        }}>
+                        <div className="menu-item">
+                          <MdDriveFileRenameOutline />
+                          <button onClick={() => setRenameId(folder.id)}>Rename</button>
+                        </div>
+                        <div className="menu-item">
+                          <MdDownload />
+                          <button onClick={() => handleFolderDownload(folder)} disabled={isDownloading}>
+                            {isDownloading ? 'Downloading...' : 'Download'}
+                          </button>
+                        </div>
+                        <div className="menu-item">
+                          <MdDriveFileMoveOutline />
+                          <button onClick={() => handleMoveFolder(folder.id)}>Move</button>
+                        </div>
+                        {showMoveCard  && (
                           <Dialog
                             open={true}
-                            onClose={() => setShowMoveCard(false)}
+                            onClose={() => {
+                              setShowMoveCard(false)
+                              setSelectedFolderId("")
+                            }}
                           >
                             <DialogTitle>Move to Folder</DialogTitle>
                             <DialogContent>
@@ -606,7 +639,7 @@ function Home() {
                               </FormControl>
                             </DialogContent>
                             <DialogActions>
-                              <Button onClick={confirmMove} color="primary">
+                              <Button onClick={confirmMoveFolder} color="primary">
                                 Confirm Move
                               </Button>
                               <Button
@@ -618,9 +651,9 @@ function Home() {
                             </DialogActions>
                           </Dialog>
                         )}
-                         <div className="menu-item">
-                        <MdDelete />
-                        <button onClick={() => handleMoveFolderToTrash(folder.id)}>Move to Trash</button>
+                        <div className="menu-item">
+                          <MdDelete />
+                          <button onClick={() => handleMoveFolderToTrash(folder.id)}>Move to Trash</button>
                         </div>
                       </div>
                     )}
@@ -660,9 +693,11 @@ function Home() {
               )}
             </div>
           </div>
+          
 
-          <div className="file-container">
+           <div className="file-container">
             <h3>Files</h3>
+           
             <div className="file-list">
               {filteredFiles.length === 0 ? (
                 <h3>No files found</h3>
@@ -671,45 +706,51 @@ function Home() {
                   <div
                     className="file-card "
                     key={file.id}
-                    onMouseLeave={() => setDropdownId(null)}
-                    onDoubleClick={()=>handleFileClick(file)}
-                    >
+                    onMouseLeave={() => {
+                      handleMouseLeave()
+                    }}
+                    onDoubleClick={() => handleFileClick(file)}
+                  >
                     <div className="file-icon">
-                     {getFileIcon(file)} 
+                      {getFileIcon(file)}
                     </div>
                     <div className="file-name">{file.name}</div>
                     <div className="file-footer">
-                    <div>{formatFileSize(file.filesize)}</div>
-                    <div>{formatDate(file.updated_at || file.created_at)}</div>
+                      <div>{formatFileSize(file.filesize)}</div>
+                      <div>{formatDate(file.updated_at || file.created_at)}</div>
                     </div>
                     <button
                       className="dropdown-btn"
-                      onClick={() =>
+                      onClick={(e) =>{
+                        e.stopPropagation();
                         setDropdownId(dropdownId === file.id ? null : file.id)
-                      }
+                      }}
                     >
                       <FaEllipsisV />
                     </button>
                     {dropdownId === file.id && (
                       <div className="file-dropdown-menu">
-                      <div className="menu-item">
-                        <MdDriveFileRenameOutline className="dropdown-icons" />
-                        <button onClick={() => setRenameId(file.id)}>Rename</button>
-                      </div>
-                      <div className="menu-item">
-                        <MdDownload className="dropdown-icons" />
-                        <button onClick={() => handleFileDownload(file)} disabled={isDownloading}>
-                          {isDownloading ? 'Downloading...' : 'Download'}
-                        </button>
-                      </div>
-                      <div className="menu-item">
-                        <MdDriveFileMoveOutline className="dropdown-icons" />
-                        <button onClick={() => handleMove(file.id)}>Move</button>
-                      </div>
-                        {showMoveCard && (
+                        <div className="menu-item">
+                          <MdDriveFileRenameOutline className="dropdown-icons" />
+                          <button onClick={() => setRenameId(file.id)}>Rename</button>
+                        </div>
+                        <div className="menu-item">
+                          <MdDownload className="dropdown-icons" />
+                          <button onClick={() => handleFileDownload(file)} disabled={isDownloading}>
+                            {isDownloading ? 'Downloading...' : 'Download'}
+                          </button>
+                        </div>
+                        <div className="menu-item">
+                          <MdDriveFileMoveOutline className="dropdown-icons" />
+                          <button onClick={() => handleMoveFile(file.id)}>Move</button>
+                        </div>
+                        {showMoveCard  && (
                           <Dialog
                             open={true}
-                            onClose={() => setShowMoveCard(false)}
+                            onClose={() => {
+                              setShowMoveCard(false)
+                              setSelectedFolderId("")
+                            }}
                           >
                             <DialogTitle>Move to Folder</DialogTitle>
                             <DialogContent>
@@ -731,7 +772,7 @@ function Home() {
                               </FormControl>
                             </DialogContent>
                             <DialogActions>
-                              <Button onClick={confirmMove} color="primary">
+                              <Button onClick={confirmMoveFile} color="primary">
                                 Confirm Move
                               </Button>
                               <Button
@@ -743,10 +784,10 @@ function Home() {
                             </DialogActions>
                           </Dialog>
                         )}
-                         <div className="menu-item">
-          <MdDelete className="dropdown-icons" />
-          <button onClick={() => handleMoveFileToTrash(file.id)}>Move to Trash</button>
-        </div>
+                        <div className="menu-item">
+                          <MdDelete className="dropdown-icons" />
+                          <button onClick={() => handleMoveFileToTrash(file.id)}>Move to Trash</button>
+                        </div>
                       </div>
                     )}
                     {renameId === file.id && (
@@ -782,11 +823,14 @@ function Home() {
                 ))
               )}
             </div>
-          </div>
+          </div> 
           {showImage && (
             <ImageView imageId={imageId} onClose={() => setShowImage(false)} />
           )}
+          
         </div>
+        </>
+        )}
       </div>
     </>
   );

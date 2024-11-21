@@ -88,9 +88,8 @@ jobs:
 
 #   - name: Run  Backend Tests
 #     run: |
-#       cd server    
-        #export FLASK_ENV=testing
-
-#       pytest
+      # cd server    
+      # export FLASK_ENV=testing
+      # python -m pytest
     
 
