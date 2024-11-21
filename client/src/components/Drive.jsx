@@ -65,7 +65,7 @@ function Drive({ toggleTheme }) {
       if (user && user.id) {
         try {
           const fileResponse = await axios.get(
-            `/api/fileuser/${user.id}?folder_id=${
+            `http://i27.0.0.1:5555/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -80,7 +80,7 @@ function Drive({ toggleTheme }) {
 
         try {
           const folderResponse = await axios.get(
-            `/api/folderuser/${user.id}?parent_folder_id=${
+            `http://i27.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );

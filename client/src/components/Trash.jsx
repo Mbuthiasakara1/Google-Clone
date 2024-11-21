@@ -47,7 +47,7 @@ function Trash() {
     setLoading(true);
 
     const fetchFiles = axios
-      .get(`/api/trash/file/${user.id}`)
+      .get(`http://i27.0.0.1:5555/api/trash/file/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFiles(res.data);
@@ -59,7 +59,7 @@ function Trash() {
       .catch((error) => console.error("Error fetching files:", error));
 
     const fetchFolders = axios
-      .get(`/api/trash/folder/${user.id}`)
+      .get(`http://i27.0.0.1:5555/api/trash/folder/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFolders(res.data);
@@ -163,7 +163,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`/api/files/${fileId}/move-to-trash`, { bin: false })
+      .patch(`http://i27.0.0.1:5555/api/files/${fileId}/move-to-trash`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -172,7 +172,7 @@ function Trash() {
 
   const handleFolderRestore = (folderId) => {
     axios
-      .patch(`/api/folders/${folderId}`, { bin: false })
+      .patch(`http://i27.0.0.1:5555/api/folders/${folderId}`, { bin: false })
       .then(() => {
         setFilteredFolders(
           filteredFolders.filter((folder) => folder.id !== folderId)
@@ -190,7 +190,7 @@ function Trash() {
     const { type, id } = deleteTarget;
     try {
       if (type === "file") {
-        const response = await fetch(`/api/files/${id}`, {
+        const response = await fetch(`http://i27.0.0.1:5555/api/files/${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
         });
@@ -199,7 +199,7 @@ function Trash() {
         enqueueSnackbar("File deleted successfully", { variant: "success" });
       } else if (type === "folder") {
         const response = await fetch(
-          `/api/folders/${id}`,
+          `http://i27.0.0.1:5555/api/folders/${id}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete folder");

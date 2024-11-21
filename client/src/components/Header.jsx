@@ -192,7 +192,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   }
 
   const handleLogout = () => {
-    fetch("/api/logout", {
+    fetch("http://i27.0.0.1:5555/api/logout", {
       method: "DELETE",
       credentials: "include",
     })
@@ -234,7 +234,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
     try {
       const response = await fetch(
-        `/api/upload-avatar/${user.id}`,
+        `http://i27.0.0.1:5555/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",

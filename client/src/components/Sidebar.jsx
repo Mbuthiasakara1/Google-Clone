@@ -56,7 +56,7 @@ function Sidebar({ currentFolderId }) {
 
 
 
-    fetch("/api/folders", {
+    fetch("http://i27.0.0.1:5555/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
