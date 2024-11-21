@@ -86,7 +86,7 @@ function Home() {
         // Fetch files associated with the current folder
         try {
           const fileResponse = await axios.get(
-            `http://i27.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""
+            `http://127.0.0.1:5555/api/fileuser/${user.id}?folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFiles = Array.isArray(fileResponse.data)
@@ -101,7 +101,7 @@ function Home() {
         // Fetch folders associated with the current folder
         try {
           const folderResponse = await axios.get(
-            `http://i27.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""
+            `http://127.0.0.1:5555/api/folderuser/${user.id}?parent_folder_id=${currentFolderId || ""
             }&bin=false`
           );
           fetchedFolders = Array.isArray(folderResponse.data)
@@ -229,7 +229,7 @@ function Home() {
   const handleRenameFile = async (fileId) => {
     try {
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/files/${fileId}`,
+        `http://127.0.0.1:5555/api/files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -265,7 +265,7 @@ function Home() {
     );
     try {
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/folders/${folderId}`,
+        `http://127.0.0.1:5555/api/folders/${folderId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -307,7 +307,7 @@ function Home() {
       enqueueSnackbar("Starting download...", { variant: "info" });
 
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/files/${file.id}/download`,
+        `http://127.0.0.1:5555/api/files/${file.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -344,7 +344,7 @@ function Home() {
       enqueueSnackbar("Preparing folder for download...", { variant: "info" });
 
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/folders/${folder.id}/download`,
+        `http://127.0.0.1:5555/api/folders/${folder.id}/download`,
         {
           method: "GET",
           credentials: "include",
@@ -375,7 +375,7 @@ function Home() {
   };
 
   const handleMoveFolderToTrash = (folderId) => {
-    fetch(`http://i27.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/folders/${folderId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -399,7 +399,7 @@ function Home() {
       });
   };
   const handleMoveFileToTrash = (fileId) => {
-    fetch(`http://i27.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -461,7 +461,7 @@ function Home() {
     try {
       // Moving the file
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/files/${moveItem.id}/move`,
+        `http://127.0.0.1:5555/api/files/${moveItem.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -493,7 +493,7 @@ function Home() {
     try {
       // Moving the file
       const response = await fetch(
-        `http://i27.0.0.1:5555/api/folders/${moveItem.id}/move`,
+        `http://127.0.0.1:5555/api/folders/${moveItem.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
