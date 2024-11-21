@@ -31,7 +31,7 @@ class FlaskTests(unittest.TestCase):
 
     def test_index_route(self):
         # Test the index route
-        response = self.client.get('http://127.0.0.1:5555/api')
+        response = self.client.get('http://localhost:5555/api')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Index of Google Drive Clone', response.data)
 
@@ -46,7 +46,7 @@ class FlaskTests(unittest.TestCase):
             'password': 'password123'
         }
 
-        response = self.client.post('http://127.0.0.1:5555/api/users',
+        response = self.client.post('http://localhost:5555/api/users',
                                   json=test_user,
                                   content_type='application/json')
 
@@ -75,7 +75,7 @@ class FlaskTests(unittest.TestCase):
             'email': 'test@example.com',
             'password': 'password123'
         }
-        response = self.client.post('http://127.0.0.1:5555/api/login', json=login_data, content_type='application/json')
+        response = self.client.post('http://localhost:5555/api/login', json=login_data, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['message'], 'Login Successful')
 
@@ -97,7 +97,7 @@ class FlaskTests(unittest.TestCase):
             db.session.commit()
 
         # Now test getting user info
-        response = self.client.get('http://127.0.0.1:5555/api/users', content_type='application/json')
+        response = self.client.get('http://localhost:5555/api/users', content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertGreater(len(response.json), 0)
 
@@ -108,7 +108,7 @@ class FlaskTests(unittest.TestCase):
             'user_id': 1
         }
 
-        response = self.client.post('http://127.0.0.1:5555/api/folders',
+        response = self.client.post('http://localhost:5555/api/folders',
                                   json=folder_data,
                                   content_type='application/json')
 
@@ -125,7 +125,7 @@ class FlaskTests(unittest.TestCase):
             'user_id': 1
         }
 
-        response = self.client.post('http://127.0.0.1:5555/api/files',
+        response = self.client.post('http://localhost:5555/api/files',
                                   json=file_data,
                                   content_type='application/json')
 
@@ -153,7 +153,7 @@ class FlaskTests(unittest.TestCase):
             'name': 'Updated File Name'
         }
 
-        response = self.client.patch(f'http://127.0.0.1:5555/api/files/{file_id}', 
+        response = self.client.patch(f'http://localhost:5555/api/files/{file_id}', 
                                     json=updated_file_data, 
                                     content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -180,7 +180,7 @@ class FlaskTests(unittest.TestCase):
             user_id = test_user.id  # Store the ID 
 
         # Now test deleting the user
-        response = self.client.delete(f'http://127.0.0.1:5555/api/users/{user_id}', content_type='application/json')
+        response = self.client.delete(f'http://localhost:5555/api/users/{user_id}', content_type='application/json')
         self.assertEqual(response.status_code, 204)
 
     def test_check_session(self):
@@ -205,11 +205,11 @@ class FlaskTests(unittest.TestCase):
             'password': 'password123'
         }
 
-        login_response = self.client.post('http://127.0.0.1:5555/api/login', json=login_data, content_type='application/json')
+        login_response = self.client.post('http://localhost:5555/api/login', json=login_data, content_type='application/json')
         self.assertEqual(login_response.status_code, 200)
 
         # Now test check session
-        response = self.client.get('http://127.0.0.1:5555/api/session', content_type='application/json')
+        response = self.client.get('http://localhost:5555/api/session', content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
     def test_logout(self):
@@ -234,11 +234,11 @@ class FlaskTests(unittest.TestCase):
             'password': 'password123'
         }
 
-        login_response = self.client.post('http://127.0.0.1:5555/api/login', json=login_data, content_type='application/json')
+        login_response = self.client.post('http://localhost:5555/api/login', json=login_data, content_type='application/json')
         self.assertEqual(login_response.status_code, 200)
 
         # Now test logging out
-        response = self.client.delete('http://127.0.0.1:5555/api/logout', content_type='application/json')
+        response = self.client.delete('http://localhost:5555/api/logout', content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
 if __name__ == '__main__':

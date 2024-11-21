@@ -110,7 +110,7 @@ function FileCard({
   };
 
   const handleRenameFile = (fileId) => {
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}`, {
+    fetch(`http://localhost:5555/api/files/${fileId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename }),
@@ -138,7 +138,7 @@ function FileCard({
   
       console.log('Attempting to download file:', file);
   
-      const response = await fetch(`http://127.0.0.1:5555/api/files/${file.id}/download`, {
+      const response = await fetch(`http://localhost:5555/api/files/${file.id}/download`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -195,7 +195,7 @@ function FileCard({
       return;
     }
 
-    fetch(`http://127.0.0.1:5555/api/files/${fileId}/move-to-trash`, {
+    fetch(`http://localhost:5555/api/files/${fileId}/move-to-trash`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),
@@ -239,7 +239,7 @@ function FileCard({
     try {
       // Moving the file
       const response = await fetch(
-        `http://127.0.0.1:5555/api/files/${file.id}/move`,
+        `http://localhost:5555/api/files/${file.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

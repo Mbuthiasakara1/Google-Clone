@@ -36,7 +36,8 @@ app = Flask(
 if os.getenv('FLASK_ENV') == 'testing':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use a separate test database
 else:
-   app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'
+#    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
 
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -786,9 +787,9 @@ api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_
 api.add_resource(FileDownload, '/api/files/<int:file_id>/download', endpoint='file_download')
 api.add_resource(FolderDownload, '/api/folders/<int:folder_id>/download', endpoint='folder_download')
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5555))
-    app.run(host="0.0.0.0", port=port, debug=True)
-
 # if __name__ == "__main__":
-#     app.run(port=5555, debug=True)
+#     port = int(os.environ.get("PORT", 5555))
+#     app.run(host="0.0.0.0", port=port, debug=True)
+
+if __name__ == "__main__":
+    app.run(port=5555, debug=True)

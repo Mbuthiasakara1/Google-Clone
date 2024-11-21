@@ -1,8 +1,8 @@
-"""added odels to db
+"""initial migration
 
-Revision ID: 37d9d857cfd3
+Revision ID: 0537014c3fab
 Revises: 
-Create Date: 2024-11-21 11:18:27.970586
+Create Date: 2024-11-21 14:23:23.984993
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '37d9d857cfd3'
+revision = '0537014c3fab'
 down_revision = None
 branch_labels = None
 depends_on = None

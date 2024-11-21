@@ -87,7 +87,7 @@ describe('Sidebar Component', () => {
   //   // Wait for the dialog to close
   //   await waitFor(() => {
   //     expect(fetch).toHaveBeenCalledWith(
-  //       'http://127.0.0.1:5555/api/folders',
+  //       'http://localhost:5555/api/folders',
   //       expect.objectContaining({
   //         method: 'POST',
   //         headers: { 'Content-Type': 'application/json' },
