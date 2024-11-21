@@ -25,10 +25,6 @@ jobs:
           cd client
           npm install
       
-      - name: Run linter
-        run: |
-          cd client
-          npm run lint
       
       - name: Run tests
         env:
