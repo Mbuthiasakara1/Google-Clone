@@ -46,7 +46,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
-CORS(app, supports_credentials= True, origins="https://google-drive-app-bpz9.onrender.com/")
+CORS(app, supports_credentials= True )
 # UPDATED: Enhanced CORS configuration
 #  , resources={
 #     r"/api/*": {
