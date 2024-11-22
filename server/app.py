@@ -45,8 +45,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
-CORS(app, supports_credentials= True )
+
+CORS(app, supports_credentials= True, resources={r"/api/*": {"origins": "https://google-drive-app-bpz9.onrender.com"}})
 # UPDATED: Enhanced CORS configuration
 #  , resources={
 #     r"/api/*": {
