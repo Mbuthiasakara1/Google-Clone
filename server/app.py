@@ -786,9 +786,9 @@ api.add_resource(TrashFileByUserId, "/api/trash/file/<int:id>", endpoint='trash_
 api.add_resource(FileDownload, '/api/files/<int:file_id>/download', endpoint='file_download')
 api.add_resource(FolderDownload, '/api/folders/<int:folder_id>/download', endpoint='folder_download')
 
-# if __name__ == "__main__":
-#     port = int(os.environ.get("PORT", 5555))
-#     app.run(host="0.0.0.0", port=port, debug=True)
-
 if __name__ == "__main__":
-    app.run(port=5555, debug=True)
+    port = int(os.environ.get("PORT", 5555))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
+# if __name__ == "__main__":
+#     app.run(port=5555, debug=True)
