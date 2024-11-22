@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   server: {
     proxy: {
-      'http://localhost:5555/api': {
+      'https://google-drive-oa9g.onrender.com/api': {
         target: '', 
         changeOrigin: true,
         secure: false,

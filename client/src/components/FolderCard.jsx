@@ -26,7 +26,7 @@ function FolderCard({ folder, onFolderClick}) {
   const handleRenameFolder = async (folderId) => {
     console.log("Renaming folder with ID:", folderId); 
     try {
-      const response = await fetch(`http://localhost:5555/api/folders/${folderId}`, {
+      const response = await fetch(`https://google-drive-oa9g.onrender.com/api/folders/${folderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: rename }),
@@ -53,7 +53,7 @@ function FolderCard({ folder, onFolderClick}) {
     enqueueSnackbar("Preparing folder for download...", { variant: "info" });
   
     try {
-      const response = await fetch(`http://localhost:5555/api/folders/${folder.id}/download`, {
+      const response = await fetch(`https://google-drive-oa9g.onrender.com/api/folders/${folder.id}/download`, {
         method: "GET",
         credentials: "include",
       });
@@ -97,7 +97,7 @@ function FolderCard({ folder, onFolderClick}) {
     try {
       // Moving the file
       const response = await fetch(
-        `http://localhost:5555/api/folders/${folder.id}/move`,
+        `https://google-drive-oa9g.onrender.com/api/folders/${folder.id}/move`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -126,7 +126,7 @@ function FolderCard({ folder, onFolderClick}) {
       return;
     }
 
-    fetch(`http://localhost:5555/api/folders/${folder.id}/move-to-trash`, {
+    fetch(`https://google-drive-oa9g.onrender.com/api/folders/${folder.id}/move-to-trash`, {
       method: 'PATCH',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bin: true }),

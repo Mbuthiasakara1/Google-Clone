@@ -56,7 +56,7 @@ function Sidebar({ currentFolderId }) {
 
 
 
-    fetch("http://localhost:5555/api/folders", {
+    fetch("https://google-drive-oa9g.onrender.com/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

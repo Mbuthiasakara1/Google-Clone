@@ -192,7 +192,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   // }
 
   const handleLogout = () => {
-    fetch("http://localhost:5555/api/logout", {
+    fetch("https://google-drive-oa9g.onrender.com/api/logout", {
       method: "DELETE",
       credentials: "include",
     })
@@ -234,7 +234,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5555/api/upload-avatar/${user.id}`,
+        `https://google-drive-oa9g.onrender.com/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",
