@@ -9,7 +9,7 @@ import Trash from "./Trash";
 
 const routes = [
     {
-        path: "/",
+        path: "/home",
         element: <Home />
     
     },
@@ -18,7 +18,7 @@ const routes = [
         element: <Signup />
     },
     {
-        path: "/login",
+        path: "/",
         element: <Login />
     },
     {
