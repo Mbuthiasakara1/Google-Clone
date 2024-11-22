@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-              const response = await fetch('https://google-drive-oa9g.onrender.com/api/session', {
+              const response = await fetch('https://google-drive-clone-v6g6.onrender.com/api/session', {
                 method: 'GET',
                 credentials: 'include',
               });

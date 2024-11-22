@@ -29,7 +29,7 @@ const UserProfile = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await fetch(`https://google-drive-oa9g.onrender.com/api/users/${user.id}`, {
+      const response = await fetch(`https://google-drive-clone-v6g6.onrender.com/api/users/${user.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

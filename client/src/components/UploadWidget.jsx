@@ -47,7 +47,7 @@ function UploadWidget({ currentFolderId, onUpload }) {
 
             try {
               // Post the uploaded file data to the Flask backend
-              const response = await axios.post('https://google-drive-oa9g.onrender.com/api/files', fileData, {
+              const response = await axios.post('https://google-drive-clone-v6g6.onrender.com/api/files', fileData, {
                 withCredentials: true,
               });
 

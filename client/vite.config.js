@@ -4,7 +4,7 @@
 // export default defineConfig({
 //   server: {
 //     proxy: {
-//       'https://google-drive-oa9g.onrender.com/api': {
+//       'https://google-drive-clone-v6g6.onrender.com/api': {
 //         target: '', 
 //         changeOrigin: true,
 //         secure: false,

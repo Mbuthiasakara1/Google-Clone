@@ -25,7 +25,7 @@ function Login() {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const response = await fetch(`https://google-drive-oa9g.onrender.com/api/login`, {
+                const response = await fetch(`https://google-drive-clone-v6g6.onrender.com/api/login`, {
                     method: "POST",
                     credentials: 'include',
                     headers: {

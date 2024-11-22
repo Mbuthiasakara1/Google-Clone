@@ -56,7 +56,7 @@ function Sidebar({ currentFolderId }) {
 
 
 
-    fetch("https://google-drive-oa9g.onrender.com/api/folders", {
+    fetch("https://google-drive-clone-v6g6.onrender.com/api/folders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -47,7 +47,7 @@ function Trash() {
     setLoading(true);
 
     const fetchFiles = axios
-      .get(`https://google-drive-oa9g.onrender.com/api/trash/file/${user.id}`)
+      .get(`https://google-drive-clone-v6g6.onrender.com/api/trash/file/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFiles(res.data);
@@ -59,7 +59,7 @@ function Trash() {
       .catch((error) => console.error("Error fetching files:", error));
 
     const fetchFolders = axios
-      .get(`https://google-drive-oa9g.onrender.com/api/trash/folder/${user.id}`)
+      .get(`https://google-drive-clone-v6g6.onrender.com/api/trash/folder/${user.id}`)
       .then((res) => {
         if (Array.isArray(res.data)) {
           setFolders(res.data);
@@ -163,7 +163,7 @@ function Trash() {
 
   const handleFileRestore = (fileId) => {
     axios
-      .patch(`https://google-drive-oa9g.onrender.com/api/files/${fileId}/move-to-trash`, { bin: false })
+      .patch(`https://google-drive-clone-v6g6.onrender.com/api/files/${fileId}/move-to-trash`, { bin: false })
       .then(() => {
         setFilteredFiles(filteredFiles.filter((file) => file.id !== fileId));
       })
@@ -172,7 +172,7 @@ function Trash() {
 
   const handleFolderRestore = (folderId) => {
     axios
-      .patch(`https://google-drive-oa9g.onrender.com/api/folders/${folderId}`, { bin: false })
+      .patch(`https://google-drive-clone-v6g6.onrender.com/api/folders/${folderId}`, { bin: false })
       .then(() => {
         setFilteredFolders(
           filteredFolders.filter((folder) => folder.id !== folderId)
@@ -190,7 +190,7 @@ function Trash() {
     const { type, id } = deleteTarget;
     try {
       if (type === "file") {
-        const response = await fetch(`https://google-drive-oa9g.onrender.com/api/files/${id}`, {
+        const response = await fetch(`https://google-drive-clone-v6g6.onrender.com/api/files/${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
         });
@@ -199,7 +199,7 @@ function Trash() {
         enqueueSnackbar("File deleted successfully", { variant: "success" });
       } else if (type === "folder") {
         const response = await fetch(
-          `https://google-drive-oa9g.onrender.com/api/folders/${id}`,
+          `https://google-drive-clone-v6g6.onrender.com/api/folders/${id}`,
           { method: "DELETE", headers: { "Content-Type": "application/json" } }
         );
         if (!response.ok) throw new Error("Failed to delete folder");

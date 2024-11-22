@@ -192,7 +192,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
   // }
 
   const handleLogout = () => {
-    fetch("https://google-drive-oa9g.onrender.com/api/logout", {
+    fetch("https://google-drive-clone-v6g6.onrender.com/api/logout", {
       method: "DELETE",
       credentials: "include",
     })
@@ -234,7 +234,7 @@ function Header({ toggleTheme, onFilter, searchQuery }) {
 
     try {
       const response = await fetch(
-        `https://google-drive-oa9g.onrender.com/api/upload-avatar/${user.id}`,
+        `https://google-drive-clone-v6g6.onrender.com/api/upload-avatar/${user.id}`,
         {
           method: "POST",
           credentials: "include",

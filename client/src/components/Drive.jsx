@@ -65,7 +65,7 @@ function Drive({ toggleTheme }) {
       if (user && user.id) {
         try {
           const fileResponse = await axios.get(
-            `https://google-drive-oa9g.onrender.com/api/fileuser/${user.id}?folder_id=${
+            `https://google-drive-clone-v6g6.onrender.com/api/fileuser/${user.id}?folder_id=${
               currentFolderId || ""
             }&bin=false`
           );
@@ -80,7 +80,7 @@ function Drive({ toggleTheme }) {
 
         try {
           const folderResponse = await axios.get(
-            `https://google-drive-oa9g.onrender.com/api/folderuser/${user.id}?parent_folder_id=${
+            `https://google-drive-clone-v6g6.onrender.com/api/folderuser/${user.id}?parent_folder_id=${
               currentFolderId || ""
             }&bin=false`
           );

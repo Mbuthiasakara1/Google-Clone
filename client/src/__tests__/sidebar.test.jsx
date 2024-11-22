@@ -87,7 +87,7 @@ describe('Sidebar Component', () => {
   //   // Wait for the dialog to close
   //   await waitFor(() => {
   //     expect(fetch).toHaveBeenCalledWith(
-  //       'https://google-drive-oa9g.onrender.com/api/folders',
+  //       'https://google-drive-clone-v6g6.onrender.com/api/folders',
   //       expect.objectContaining({
   //         method: 'POST',
   //         headers: { 'Content-Type': 'application/json' },
