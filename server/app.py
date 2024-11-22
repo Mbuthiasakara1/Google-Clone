@@ -46,7 +46,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
-CORS(app, supports_credentials= True,)
+CORS(app, supports_credentials= True, origins="https://google-drive-app-bpz9.onrender.com/")
 # UPDATED: Enhanced CORS configuration
 #  , resources={
 #     r"/api/*": {
@@ -661,7 +661,7 @@ class FileDownload(Resource):
             )
 
             response.headers.update({
-                'Access-Control-Allow-Origin': 'http://localhost:5173',
+                'Access-Control-Allow-Origin': ['http://localhost:5173',"https://google-drive-clone-v6g6.onrender.com"],
                 'Access-Control-Allow-Credentials': 'true',
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
