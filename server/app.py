@@ -35,9 +35,8 @@ app = Flask(
 # Check if we are in testing environment
 if os.getenv('FLASK_ENV') == 'testing':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use a separate test database
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'
-#    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_database_7z4p_user:irdDxXIVuOJrPFrVAbRNiW5Aev4O2D32@dpg-csfsmjdsvqrc739r5lvg-a.oregon-postgres.render.com/google_drive_db'
+else: 
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mydb_data_ngmz_user:bE1CI2iB0cy8njVPHUXYZESEQcs6Qvnl@dpg-ct0755m8ii6s73ficb2g-a.oregon-postgres.render.com/google_drive_db'
 
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
