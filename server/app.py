@@ -48,7 +48,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
 
-CORS(app, supports_credentials= True, resources={r"/api/*": {"origins": "https://google-drive-app-bpz9.onrender.com"}})
+CORS(app, supports_credentials= True, resources={r"/api/*": {"origins": "https://google-drive-app-bpz9.onrender.com", "expose_headers": ["Content-Disposition"] }})
 # UPDATED: Enhanced CORS configuration
 #  , resources={
 #     r"/api/*": {
