@@ -46,15 +46,16 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
+CORS(app, supports_credentials= True,)
 # UPDATED: Enhanced CORS configuration
-CORS(app, resources={
-    r"/api/*": {
-        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        "allow_headers": ["Content-Type"],
-        "supports_credentials": True,
-        "expose_headers": ["Content-Disposition"]  # Important for downloads
-    }
-})
+#  , resources={
+#     r"/api/*": {
+#         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+#         "allow_headers": ["Content-Type"],
+#         "supports_credentials": True,
+#         "expose_headers": ["Content-Disposition"]  # Important for downloads
+#     }
+# })
 
 
 
