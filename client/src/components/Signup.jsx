@@ -49,10 +49,10 @@ function Signup() {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const response = await fetch("https://google-drive-clone-v6g6.onrender.com/api/users", {
-          method: 'POST',
+        const response = await fetch("http://127.0.0.1:5555/api/users", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             firstName: values.firstName,
@@ -60,7 +60,7 @@ function Signup() {
             birthday: values.birthday,
             gender: values.gender,
             email: values.email,
-            password: values.password
+            password: values.password,
           }),
         });
   
@@ -82,7 +82,7 @@ function Signup() {
         enqueueSnackbar('Signed up successfully!', {
           variant: 'success',
         });
-        navigate('/login');
+        navigate('/');
         setMessageType('success');
         resetForm();
       } catch (error) {
@@ -268,7 +268,7 @@ function Signup() {
         </form>
         {message && <p className={`responseMessage ${messageType}`}>{message}</p>}
         <p>
-          Already have an account? <Link to="/login">Login</Link>
+          Already have an account? <Link to="/">Login</Link>
         </p>
       </div>
     </div>

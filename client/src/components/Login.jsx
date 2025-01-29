@@ -25,20 +25,23 @@ function Login() {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const response = await fetch(`https://google-drive-clone-v6g6.onrender.com/api/login`, {
+                const response = await fetch(
+                  `http://127.0.0.1:5555/api/login`,
+                  {
                     method: "POST",
-                    credentials: 'include',
+                    credentials: "include",
                     headers: {
-                        "Content-Type": "application/json"
+                      "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(values)
-                });
+                    body: JSON.stringify(values),
+                  }
+                );
 
                 if (response.ok) {
                     const data = await response.json(); 
                     console.log(data);
                     setUser(data);
-                    navigate("/");
+                    navigate("/home");
                     setMessage("Login Successful");
                 } else {
                     const errorData = await response.json(); 

@@ -26,17 +26,13 @@ from base64 import b64encode
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(
-    __name__,
-    static_url_path='',
-    static_folder='../client/dist',
-    template_folder='../client/dist'
-)
+app = Flask( __name__ )
 # Check if we are in testing environment
 if os.getenv('FLASK_ENV') == 'testing':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use a separate test database
 else: 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mydb_data_ngmz_user:bE1CI2iB0cy8njVPHUXYZESEQcs6Qvnl@dpg-ct0755m8ii6s73ficb2g-a.oregon-postgres.render.com/mydb_data_ngmz'
+    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mydb_data_ngmz_user:bE1CI2iB0cy8njVPHUXYZESEQcs6Qvnl@dpg-ct0755m8ii6s73ficb2g-a.oregon-postgres.render.com/mydb_data_ngmz'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///google_drive.db'
 
 app.config['SECRET_KEY']= "b'!\xb2cO!>P\x82\xddT\xae3\xf26B\x06\xc6\xd2\x99t\x12\x10\x95\x86'"
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -48,16 +44,16 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
 
-CORS(app, supports_credentials= True, resources={r"/api/*": {"origins": "https://google-drive-app-bpz9.onrender.com", "expose_headers": ["Content-Disposition"] }})
-# UPDATED: Enhanced CORS configuration
-#  , resources={
-#     r"/api/*": {
-#         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
-#         "allow_headers": ["Content-Type"],
-#         "supports_credentials": True,
-#         "expose_headers": ["Content-Disposition"]  # Important for downloads
-#     }
-# })
+# CORS(app, supports_credentials= True, resources={r"/api/*": {"origins": "https://google-drive-app-bpz9.onrender.com", "expose_headers": ["Content-Disposition"] }})
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",  # Allow all origins, or specify allowed origins
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        "allow_headers": ["Content-Type", "Authorization"],  # Include other necessary headers
+        "supports_credentials": True,
+        "expose_headers": ["Content-Disposition"]  # Important for downloads
+    }
+})
 
 
 
